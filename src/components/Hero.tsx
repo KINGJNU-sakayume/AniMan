@@ -143,6 +143,10 @@ export const Hero = ({ series, data, completedIds, accentColor, onOpenSocialCard
   );
 
   // ── PC 전용: 기존 완전 유지 ────────────────────────────────────────────────
+  // Change 3: pre-compute next incomplete indices for dynamic button labels
+  const nextEpIndex = data.episodes?.findIndex(ep => !completedIds.includes(ep.id)) ?? -1;
+  const nextVolIndex = data.volumes?.findIndex(vol => !completedIds.includes(vol.id)) ?? -1;
+
   const desktopHero = (
     <div className="hidden md:block relative overflow-hidden bg-zinc-950">
       {youtubeIframe}
@@ -162,29 +166,37 @@ export const Hero = ({ series, data, completedIds, accentColor, onOpenSocialCard
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
+            {/* Change 1: dark contrast shadow + accent glow on h1 */}
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.1 }}
               className="text-4xl md:text-5xl font-bold whitespace-pre-wrap leading-tight"
-              style={{ color: accentColor, textShadow: `0 0 20px ${accentColor}40` }}
+              style={{
+                color: accentColor,
+                textShadow: `0 2px 12px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.7), 0 0 30px ${accentColor}40`,
+              }}
             >
               {series.title}
             </motion.h1>
+            {/* Change 1: dark shadow on description paragraph */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-gray-300 text-lg leading-relaxed max-w-xl"
+              style={{ textShadow: '0 1px 8px rgba(0,0,0,0.95), 0 0 16px rgba(0,0,0,0.9)' }}
             >
               {series.description ??
                 `${series.title}의 애니메이션 에피소드와 원작 만화책 단행본의 타임라인을 한눈에 매핑하여 진도를 트래킹하세요.`}
             </motion.p>
+            {/* Change 1: dark shadow on stat lines */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.25 }}
               className="space-y-3 text-sm font-medium text-gray-200 drop-shadow-lg"
+              style={{ textShadow: '0 1px 8px rgba(0,0,0,0.95), 0 0 16px rgba(0,0,0,0.9)' }}
             >
               <p>
                 지금까지 <strong style={{ color: accentColor }}>{series.title}</strong>에{' '}
@@ -231,11 +243,32 @@ export const Hero = ({ series, data, completedIds, accentColor, onOpenSocialCard
           className="mt-16 pt-8 space-y-6 border-t border-zinc-800/50"
         >
           {[
-            { icon: <Play className="w-4 h-4 text-gray-400" />, percent: epPercent, completed: completedEpisodes, total: totalEpisodes, type: 'episode' as const, label: '애니메이션 진도' },
-            { icon: <BookOpen className="w-4 h-4 text-gray-400" />, percent: volPercent, completed: completedVolumes, total: totalVolumes, type: 'volume' as const, label: '만화 진도' },
-          ].map(({ icon, percent, completed, total, type, label }) => (
+            {
+              // Change 2: larger icon, accent color, no circle wrapper
+              icon: <Play className="w-5 h-5" style={{ color: accentColor }} />,
+              percent: epPercent,
+              completed: completedEpisodes,
+              total: totalEpisodes,
+              type: 'episode' as const,
+              label: '애니메이션 진도',
+              // Change 3: dynamic next label
+              resumeLabel: epPercent === 100 ? 'Completed' : nextEpIndex >= 0 ? `Ep ${nextEpIndex + 1} ↓` : 'Completed',
+            },
+            {
+              // Change 2: larger icon, accent color, no circle wrapper
+              icon: <BookOpen className="w-5 h-5" style={{ color: accentColor }} />,
+              percent: volPercent,
+              completed: completedVolumes,
+              total: totalVolumes,
+              type: 'volume' as const,
+              label: '만화 진도',
+              // Change 3: dynamic next label
+              resumeLabel: volPercent === 100 ? 'Completed' : nextVolIndex >= 0 ? `Vol ${nextVolIndex + 1} ↓` : 'Completed',
+            },
+          ].map(({ icon, percent, completed, total, type, label, resumeLabel }) => (
             <div key={type} className="flex items-center gap-4 w-full">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex-shrink-0">
+              {/* Change 2: removed bg-zinc-800 border border-zinc-700 circle wrapper */}
+              <div className="flex items-center justify-center flex-shrink-0">
                 {icon}
               </div>
               <div className="flex-1 h-2 bg-zinc-800/80 rounded-full overflow-hidden">
@@ -263,7 +296,8 @@ export const Hero = ({ series, data, completedIds, accentColor, onOpenSocialCard
                     backgroundColor: percent === 100 ? accentColor : `${accentColor}10`,
                   }}
                 >
-                  {percent === 100 ? 'Completed' : 'Resume'} <ChevronRight className="w-4 h-4" />
+                  {/* Change 3: dynamic label */}
+                  {resumeLabel} <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
