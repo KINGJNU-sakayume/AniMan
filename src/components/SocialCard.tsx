@@ -37,8 +37,39 @@ export const SocialCard = ({ series, data, completedIds, accentColor, onClose }:
       aria-label="소셜 공유 카드"
     >
       <div className="relative group">
-        {/* 인스타그램 스토리 9:16 비율 */}
-        <div className="w-[320px] h-[568px] sm:w-[360px] sm:h-[640px] bg-zinc-900 rounded-[2rem] overflow-hidden border border-zinc-800 shadow-2xl relative">
+        {/* 인스타그램 스토리 9:16 비율 — Change 5: accent glow frame */}
+        <div
+          className="w-[320px] h-[568px] sm:w-[360px] sm:h-[640px] rounded-[2rem] overflow-hidden shadow-2xl relative"
+          style={{
+            backgroundColor: '#0a0a14',
+            border: `1.5px solid ${accentColor}`,
+            boxShadow: `0 0 0 1px ${accentColor}30, inset 0 0 40px ${accentColor}08`,
+          }}
+        >
+          {/* Change 5: top accent line */}
+          <div
+            style={{
+              height: '3px',
+              background: `linear-gradient(to right, transparent, ${accentColor}, transparent)`,
+            }}
+          />
+
+          {/* Change 5: glow circle behind image */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '20%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '120px',
+              height: '120px',
+              background: `radial-gradient(circle, ${accentColor}30 0%, transparent 70%)`,
+              borderRadius: '50%',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+
           {bannerImage && (
             <img
               src={bannerImage}
@@ -46,9 +77,17 @@ export const SocialCard = ({ series, data, completedIds, accentColor, onClose }:
               className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
+          {/* Change 5: accent-tinted overlay on banner */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${accentColor}18 0%, ${accentColor}06 60%, transparent 100%)`,
+              zIndex: 1,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" style={{ zIndex: 2 }} />
 
-          <div className="absolute inset-x-0 bottom-0 p-8 space-y-6">
+          <div className="absolute inset-x-0 bottom-0 p-8 space-y-6" style={{ zIndex: 3 }}>
             <div className="space-y-2">
               <p className="text-zinc-400 text-[10px] font-black tracking-[0.3em] uppercase">
                 AniMan Journey
@@ -58,16 +97,40 @@ export const SocialCard = ({ series, data, completedIds, accentColor, onClose }:
               </h2>
             </div>
 
+            {/* Change 5: both stat boxes use accent color consistently */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-                <p className="text-[10px] text-zinc-400 font-bold mb-1">ANIME WATCHED</p>
+              <div
+                className="backdrop-blur-md rounded-2xl p-4"
+                style={{
+                  backgroundColor: `${accentColor}12`,
+                  border: `0.5px solid ${accentColor}30`,
+                }}
+              >
+                <p
+                  className="font-bold mb-1"
+                  style={{ color: 'rgba(255,255,255,0.45)', fontSize: '8px', letterSpacing: '0.06em' }}
+                >
+                  ANIME WATCHED
+                </p>
                 <p className="text-2xl font-black" style={{ color: accentColor }}>
                   {epPercent}%
                 </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-                <p className="text-[10px] text-zinc-400 font-bold mb-1">MANGA SYNC</p>
-                <p className="text-2xl font-black text-white">{volPercent}%</p>
+              <div
+                className="backdrop-blur-md rounded-2xl p-4"
+                style={{
+                  backgroundColor: `${accentColor}12`,
+                  border: `0.5px solid ${accentColor}30`,
+                }}
+              >
+                <p
+                  className="font-bold mb-1"
+                  style={{ color: 'rgba(255,255,255,0.45)', fontSize: '8px', letterSpacing: '0.06em' }}
+                >
+                  MANGA SYNC
+                </p>
+                {/* Change 5: was text-white, now uses accentColor for consistency */}
+                <p className="text-2xl font-black" style={{ color: accentColor }}>{volPercent}%</p>
               </div>
             </div>
 
