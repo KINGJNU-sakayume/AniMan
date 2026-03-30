@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* React에서 값을 넘겨주지 않았을 때 사용할 기본 테마색 */
+  --scrollbar-color: #03acb1; 
+}
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-gray-100;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* 기존 .scrollbar-hide 대신 예쁜 커스텀 스크롤바 적용 */
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 10px; /* 스크롤바 두께 */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #27272a; /* 스크롤바 뒷 배경 (zinc-800) */
+    border-radius: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color); /* 💡 Timeline.tsx에서 넘겨주는 하이라이트 색상 적용 */
+    border-radius: 8px;
+    opacity: 0.8;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-color); 
+    filter: brightness(1.2); /* 💡 마우스 올렸을 때 하드코딩된 색 대신 밝기를 조절하여 호환성 극대화 */
+  }
+}
