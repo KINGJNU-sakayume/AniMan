@@ -3,38 +3,76 @@
 @tailwind utilities;
 
 :root {
-  /* React에서 값을 넘겨주지 않았을 때 사용할 기본 테마색 */
-  --scrollbar-color: #03acb1; 
+  /* 현재 작품의 테마색 — App 에서 덮어쓴다 */
+  --accent: #03acb1;
+  --scrollbar-color: #03acb1;
+  color-scheme: dark;
 }
 
 @layer base {
-  body {
-    @apply bg-zinc-950 text-gray-100;
-  }
   html {
-    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  body {
+    @apply bg-zinc-950 text-zinc-100 antialiased;
+    /* 한국어는 어절 단위로 줄바꿈해야 읽기 편하다 */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  /* 키보드 사용자를 위한 일관된 포커스 표시 (마우스 클릭에는 나타나지 않음) */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 }
 
 @layer components {
-  /* 기존 .scrollbar-hide 대신 예쁜 커스텀 스크롤바 적용 */
-  .custom-scrollbar::-webkit-scrollbar {
-    height: 10px; /* 스크롤바 두께 */
+  .custom-scrollbar {
+    scrollbar-color: var(--scrollbar-color) #27272a;
+    scrollbar-width: thin;
+  }
+  .custom-scrollbar::-webkit-scrollbar { height: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #27272a; border-radius: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scrollbar-color); border-radius: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+
+  .text-shadow-strong {
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.9);
   }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: #27272a; /* 스크롤바 뒷 배경 (zinc-800) */
-    border-radius: 8px;
+  /* 롱프레스 시 iOS 콜아웃/텍스트 선택 방지 */
+  .no-callout {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-color); /* 💡 Timeline.tsx에서 넘겨주는 하이라이트 색상 적용 */
-    border-radius: 8px;
-    opacity: 0.8;
+  /* BGM 플레이어: 화면 밖에 두되 YouTube 권장 최소 크기(200px)는 유지 */
+  .bgm-host {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+    pointer-events: none;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-color); 
-    filter: brightness(1.2); /* 💡 마우스 올렸을 때 하드코딩된 색 대신 밝기를 조절하여 호환성 극대화 */
+  /* 9:16 공유 카드 — 화면 높이/너비 중 작은 쪽에 맞춰 줄어든다 */
+  .story-card {
+    width: min(360px, calc(100vw - 2rem), calc((100vh - 9rem) * 9 / 16));
+    width: min(360px, calc(100vw - 2rem), calc((100dvh - 9rem) * 9 / 16));
+  }
+  .story-card-body {
+    aspect-ratio: 9 / 16;
+    container-type: inline-size;
   }
 }

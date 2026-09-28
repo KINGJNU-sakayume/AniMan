@@ -1,236 +1,127 @@
 // src/App.tsx
-import { useState, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Upload } from 'lucide-react';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { Timeline } from './components/Timeline';
-import { SocialCard } from './components/SocialCard';
-import { SeriesLanding } from './components/SeriesLanding';
+// 인증 게이트 → 공용 헤더 → 해시 라우트(목록 / 작품 / 관리자).
+import { lazy, Suspense, useCallback, useState, type CSSProperties } from 'react';
+import { MotionConfig } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
+import { AppHeader } from './components/AppHeader';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoginModal } from './components/LoginModal';
-import { useTimelineData } from './hooks/useTimelineData';
+import { FullScreenSpinner } from './components/Spinner';
 import { useAuth } from './hooks/useAuth';
+import { routeHref, useHashRoute, useRouteScroll } from './hooks/useHashRoute';
 import { useProgress } from './hooks/useProgress';
+import { DEFAULT_ACCENT } from './lib/color';
+import { isSupabaseConfigured } from './lib/supabase';
+import { LandingPage } from './pages/LandingPage';
+import { SeriesPage } from './pages/SeriesPage';
 
-const AdminDashboard = lazy(() =>
-  import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
+
+const previewLabel = import.meta.env.VITE_PREVIEW_LABEL as string | undefined;
+
+const toaster = (
+  <Toaster
+    position="bottom-center"
+    toastOptions={{
+      style: { background: '#18181b', color: '#e4e4e7', border: '1px solid #3f3f46', fontSize: '14px', maxWidth: '92vw' },
+      success: { iconTheme: { primary: DEFAULT_ACCENT, secondary: '#09090b' } },
+    }}
+  />
 );
 
-type AppView = 'landing' | 'series' | 'admin';
-
 export default function App() {
-  const [selectedAnime, setSelectedAnime] = useState<string>('');
-  const [currentView, setCurrentView] = useState<AppView>('landing');
-  const [showSocialCard, setShowSocialCard] = useState(false);
+  return (
+    <MotionConfig reducedMotion="user">
+      {isSupabaseConfigured ? <AuthedApp /> : <ConfigMissing />}
+      {toaster}
+      {previewLabel && (
+        <div className="fixed bottom-2 left-2 z-[300] pointer-events-none rounded-md bg-amber-400/90 px-2 py-0.5 text-[11px] font-bold text-zinc-950 shadow">
+          PREVIEW · {previewLabel}
+        </div>
+      )}
+    </MotionConfig>
+  );
+}
 
-  // ── 인증 ──────────────────────────────────────────────────────────────────
-  const {
-    session, profile, loading: authLoading,
-    pendingApproval, isApproved,
-    login, register, logout, refreshProfile,
-  } = useAuth();
+const ConfigMissing = () => (
+  <div className="min-h-dvh flex items-center justify-center p-6 text-center">
+    <div className="max-w-sm space-y-3">
+      <h1 className="text-xl font-bold text-zinc-100">설정이 필요합니다</h1>
+      <p className="text-sm text-zinc-400">
+        VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY 환경변수가 없습니다. <code>.env</code> 또는 배포 시크릿을 확인해주세요.
+      </p>
+    </div>
+  </div>
+);
 
-  // ── 진도 (Supabase) ───────────────────────────────────────────────────────
-  const { completedMap, toggle, bulkComplete, syncing } = useProgress(session);
+function AuthedApp() {
+  const auth = useAuth();
+  const { completedMap, toggle, completeMany, replace, syncing } = useProgress(auth.isApproved ? auth.user?.id ?? null : null);
+  const { route, hash, navigate } = useHashRoute();
+  const [seriesAccent, setSeriesAccent] = useState<string | null>(null);
+  useRouteScroll(hash);
 
-  // ── 타임라인 데이터 ───────────────────────────────────────────────────────
-  const { data: fetchedData, loading: isLoading, error: isError } =
-    useTimelineData(selectedAnime);
+  const goHome = useCallback(() => navigate(routeHref.landing), [navigate]);
+  const openSeries = useCallback((id: string) => navigate(routeHref.series(id)), [navigate]);
+  const openAdmin = useCallback(() => navigate(routeHref.admin), [navigate]);
 
-  const accentColor =
-    fetchedData?.series?.accent_color ??
-    fetchedData?.series?.accentColor ??
-    '#03acb1';
+  if (auth.loading) return <FullScreenSpinner />;
 
-  const currentCompletedIds = completedMap[selectedAnime] ?? [];
-
-  const handleSelectSeries = (seriesId: string) => {
-    setSelectedAnime(seriesId);
-    setCurrentView('series');
-  };
-
-  const handleToggleComplete = (id: string) => {
-    if (!selectedAnime) return;
-    toggle(selectedAnime, id);
-  };
-
-  const handleRightClickComplete = (type: 'episode' | 'volume', id: string) => {
-    if (!selectedAnime || !fetchedData) return;
-    const list = type === 'episode' ? fetchedData.episodes : fetchedData.volumes;
-    if (!list) return;
-    const targetIndex = list.findIndex((item) => item.id === id);
-    if (targetIndex === -1) return;
-    bulkComplete(selectedAnime, list.slice(0, targetIndex + 1).map((item) => item.id));
-  };
-
-  // ── 인증 로딩 ─────────────────────────────────────────────────────────────
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-zinc-800 border-t-indigo-500 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // ── 미인증 or 승인 대기 → 로그인/가입 화면 ────────────────────────────────
-  if (!isApproved) {
+  if (!auth.isApproved) {
     return (
       <LoginModal
-        onLogin={login}
-        onRegister={register}
-        onLogout={logout}
-        onRefresh={refreshProfile}
-        pendingApproval={pendingApproval}
+        onLogin={auth.login}
+        onRegister={auth.register}
+        onLogout={auth.logout}
+        onRefresh={auth.refreshProfile}
+        pendingApproval={auth.pendingApproval}
+        profileError={auth.profileError}
+        username={auth.profile?.username}
       />
     );
   }
 
-  // ── 어드민 뷰 ─────────────────────────────────────────────────────────────
-  if (currentView === 'admin') {
+  if (route.name === 'admin') {
     return (
       <ErrorBoundary>
-        <Suspense
-          fallback={
-            <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-              <div className="w-8 h-8 border-4 border-zinc-800 border-t-indigo-500 rounded-full animate-spin" />
-            </div>
-          }
-        >
-          <AdminDashboard onBack={() => setCurrentView('landing')} />
+        <Suspense fallback={<FullScreenSpinner />}>
+          <AdminDashboard onBack={goHome} onOpenSeries={openSeries} />
         </Suspense>
       </ErrorBoundary>
     );
   }
 
-  // ── 랜딩 뷰 ───────────────────────────────────────────────────────────────
-  if (currentView === 'landing') {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-gray-100 selection:bg-indigo-500/30 font-sans">
-        {/* 동기화 상태 + 로그아웃 */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-          {syncing && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-              rounded-full text-xs text-gray-400 backdrop-blur">
-              <Upload className="w-3.5 h-3.5 animate-pulse" />
-              저장 중…
-            </div>
-          )}
-          <button
-            onClick={logout}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-              rounded-full text-xs text-gray-400 hover:text-gray-200 hover:bg-zinc-700
-              transition-colors backdrop-blur"
-            title="로그아웃"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{profile?.username ?? '로그아웃'}</span>
-          </button>
-        </div>
+  const accent = route.name === 'series' ? seriesAccent ?? DEFAULT_ACCENT : DEFAULT_ACCENT;
 
-        <SeriesLanding
-          completedMap={completedMap}
-          onSelectSeries={handleSelectSeries}
-          onAdminClick={() => setCurrentView('admin')}
-        />
-      </div>
-    );
-  }
-
-  // ── 시리즈 뷰 ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-zinc-950 text-gray-100 selection:bg-indigo-500/30 font-sans">
-      <Header
-        accentColor={accentColor}
-        onLogoClick={() => setCurrentView('landing')}
-        onAdminClick={() => setCurrentView('admin')}
+    <div className="min-h-dvh flex flex-col" style={{ '--accent': accent } as CSSProperties}>
+      <AppHeader
+        accentColor={accent}
+        username={auth.profile?.username}
+        syncing={syncing}
+        onBack={route.name === 'series' ? goHome : undefined}
+        onLogoClick={goHome}
+        onAddSeries={auth.isAdmin ? openAdmin : undefined}
+        onLogout={auth.logout}
       />
-
-      {/* 동기화 상태 + 로그아웃 */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        {syncing && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-            rounded-full text-xs text-gray-400 backdrop-blur">
-            <Upload className="w-3.5 h-3.5 animate-pulse" />
-            저장 중…
-          </div>
+      <div className="flex-1">
+        {route.name === 'series' ? (
+          <SeriesPage
+            key={route.seriesId}
+            seriesId={route.seriesId}
+            completedIds={completedMap[route.seriesId] ?? []}
+            onToggle={toggle}
+            onCompleteMany={completeMany}
+            onReplace={replace}
+            onBack={goHome}
+            onAccentChange={setSeriesAccent}
+          />
+        ) : (
+          <LandingPage completedMap={completedMap} onSelectSeries={openSeries} onAddSeries={auth.isAdmin ? openAdmin : undefined} />
         )}
-        <button
-          onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-            rounded-full text-xs text-gray-400 hover:text-gray-200 hover:bg-zinc-700
-            transition-colors backdrop-blur"
-          title="로그아웃"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{profile?.username ?? '로그아웃'}</span>
-        </button>
       </div>
-
-      {/* 로딩 */}
-      {isLoading && (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div
-            className="w-10 h-10 border-4 border-zinc-800 rounded-full animate-spin"
-            style={{ borderTopColor: accentColor }}
-            role="status"
-          />
-        </div>
-      )}
-
-      {/* 에러 */}
-      {isError && (
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-red-400">오류 발생</h2>
-            <p className="text-gray-400">{isError}</p>
-          </div>
-        </div>
-      )}
-
-      <AnimatePresence mode="wait">
-        {fetchedData && !isLoading && !isError && (
-          <motion.div
-            key={selectedAnime}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5 }}
-          >
-            <ErrorBoundary>
-              <Hero
-                series={fetchedData.series}
-                data={fetchedData}
-                completedIds={currentCompletedIds}
-                accentColor={accentColor}
-                onOpenSocialCard={() => setShowSocialCard(true)}
-              />
-              <Timeline
-                data={fetchedData}
-                completedIds={currentCompletedIds}
-                onToggleComplete={handleToggleComplete}
-                onRightClickComplete={handleRightClickComplete}
-                accentColor={accentColor}
-              />
-            </ErrorBoundary>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showSocialCard && fetchedData && (
-          <SocialCard
-            series={fetchedData.series}
-            data={fetchedData}
-            completedIds={currentCompletedIds}
-            accentColor={accentColor}
-            onClose={() => setShowSocialCard(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      <footer className="bg-zinc-900 border-t border-zinc-800 py-8 text-center text-gray-500">
-        <p>© {new Date().getFullYear()} AniMan Timeline Tracker. All rights reserved.</p>
+      <footer className="border-t border-zinc-800/80 py-8 text-center text-sm text-zinc-500">
+        © {new Date().getFullYear()} AniMan Timeline Tracker
       </footer>
     </div>
   );
