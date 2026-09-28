@@ -1,120 +1,88 @@
 // src/hooks/useAuth.ts
-import { useEffect, useState, useCallback } from 'react';
-import { Session } from '@supabase/supabase-js';
-import { supabase, signIn, signUp, signOut, getProfile } from '../lib/supabase';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { fetchProfile, signIn, signOut, signUp } from '../lib/auth';
+import type { Profile } from '../types';
 
-/** User profile data fetched from the `profiles` table. */
-interface Profile {
-  username: string;
-  is_approved: boolean;
-  role: string;
-}
-
-/** Internal auth state managed by the hook. */
 interface AuthState {
-  session: Session | null;
+  user: User | null;
   profile: Profile | null;
+  /** 최초 세션 확인 중 */
   loading: boolean;
+  /** 로그인은 됐지만 프로필을 불러오지 못함 (네트워크 등) */
+  profileError: boolean;
 }
 
 /**
- * Manages Supabase authentication state for the application.
+ * Supabase 인증 상태 + 승인(approval) 게이트.
  *
- * Handles session persistence, profile loading, and approval gating.
- * Subscribes to `onAuthStateChange` for real-time session updates.
- *
- * @returns An object containing:
- *   - `session` — The current Supabase session, or null if unauthenticated.
- *   - `profile` — The user's profile row from the `profiles` table.
- *   - `loading` — True while the initial session check is in progress.
- *   - `pendingApproval` — True when the user is logged in but not yet approved.
- *   - `isApproved` — True when the user is logged in and approved.
- *   - `login` — Signs in with username + password.
- *   - `register` — Creates a new account (leaves user in pending-approval state).
- *   - `logout` — Signs out and clears the session.
- *   - `refreshProfile` — Re-fetches the profile from DB (for the approval-check button).
+ * - onAuthStateChange 의 INITIAL_SESSION 이벤트로 초기 세션을 받으므로 getSession 을 따로 부르지 않는다.
+ * - 토큰 갱신(TOKEN_REFRESHED)처럼 같은 사용자의 이벤트에서는 프로필을 다시 조회하지 않는다.
  */
 export const useAuth = () => {
-  const [state, setState] = useState<AuthState>({
-    session: null,
-    profile: null,
-    loading: true,
-  });
+  const [state, setState] = useState<AuthState>({ user: null, profile: null, loading: true, profileError: false });
+  const currentUserId = useRef<string | null>(null);
 
-  /**
-   * Fetches the profile for the given session's user and updates state.
-   * @param session - A valid Supabase session object.
-   */
-  const loadProfile = useCallback(async (session: Session) => {
-    const profile = await getProfile(session.user.id);
-    setState({ session, profile, loading: false });
+  const loadProfile = useCallback(async (user: User) => {
+    try {
+      const profile = await fetchProfile(user.id);
+      if (currentUserId.current !== user.id) return;
+      setState({ user, profile, loading: false, profileError: false });
+    } catch (err) {
+      console.error('[useAuth] Failed to load profile:', err);
+      if (currentUserId.current !== user.id) return;
+      setState({ user, profile: null, loading: false, profileError: true });
+    }
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        loadProfile(data.session);
-      } else {
-        setState((prev) => ({ ...prev, loading: false }));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      if (!user) {
+        currentUserId.current = null;
+        setState({ user: null, profile: null, loading: false, profileError: false });
+        return;
       }
+      if (currentUserId.current === user.id) return;
+      currentUserId.current = user.id;
+      // 프로필을 받기 전까지는 로딩으로 두어 로그인 폼이 잠깐 다시 보이는 깜빡임을 막는다.
+      setState({ user, profile: null, loading: true, profileError: false });
+      // Supabase 콜백 안에서 다른 Supabase 호출을 await 하면 교착될 수 있어 비동기로 분리한다.
+      void loadProfile(user);
     });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-      (async () => {
-        if (session) {
-          await loadProfile(session);
-        } else {
-          setState({ session: null, profile: null, loading: false });
-        }
-      })();
-    });
-
     return () => listener.subscription.unsubscribe();
   }, [loadProfile]);
 
-  /**
-   * Re-fetches the current user's profile from the database.
-   * Used by the pending-approval screen to check if the admin has approved.
-   */
+  /** 승인 대기 화면의 "승인 확인" 버튼용 */
   const refreshProfile = useCallback(async () => {
-    if (!state.session) return;
-    await loadProfile(state.session);
-  }, [state.session, loadProfile]);
+    if (state.user) await loadProfile(state.user);
+  }, [state.user, loadProfile]);
 
-  /**
-   * Signs in the user with their username and password.
-   * @param username - The user's plain username (no email suffix).
-   * @param password - The user's password.
-   * @throws {AuthError} If the credentials are invalid.
-   */
-  const login = async (username: string, password: string) => {
+  const login = useCallback(async (username: string, password: string) => {
     const { error } = await signIn(username, password);
     if (error) throw error;
-  };
+  }, []);
 
-  /**
-   * Registers a new account. The account starts in a pending-approval state.
-   * @param username - Desired username.
-   * @param password - Must be at least 6 characters.
-   * @throws {AuthError} If the username is already taken or the request fails.
-   */
-  const register = async (username: string, password: string) => {
+  const register = useCallback(async (username: string, password: string) => {
     const { error } = await signUp(username, password);
     if (error) throw error;
-  };
+  }, []);
 
-  /** Signs the current user out and clears the session. */
-  const logout = () => signOut();
+  const logout = useCallback(async () => {
+    await signOut();
+  }, []);
 
-  const pendingApproval = state.session != null && state.profile != null && !state.profile.is_approved;
-  const isApproved = state.session != null && state.profile?.is_approved === true;
-
+  const { user, profile } = state;
   return {
-    session: state.session,
-    profile: state.profile,
+    user,
+    profile,
     loading: state.loading,
-    pendingApproval,
-    isApproved,
+    profileError: state.profileError,
+    // 프로필 행이 아예 없는 경우도 관리자 조치가 필요하므로 승인 대기로 취급한다.
+    pendingApproval: user != null && !state.profileError && profile?.is_approved !== true,
+    isApproved: user != null && profile?.is_approved === true,
+    isAdmin: user != null && profile?.role === 'admin',
     login,
     register,
     logout,
