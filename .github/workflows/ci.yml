@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   test-and-build:
-    runs-on: ubuntu-latest
+    # Playwright 1.58 은 ubuntu-latest(26.04)용 Chromium을 지원하지 않음
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
