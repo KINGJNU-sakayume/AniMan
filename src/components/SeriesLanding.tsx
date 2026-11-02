@@ -1,74 +1,29 @@
 // src/components/SeriesLanding.tsx
-import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Sparkles, Plus } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-
-interface SeriesCardData {
-  id: string;
-  title: string;
-  cover_url: string | null;
-  banner_url: string | null;
-  accent_color: string | null;
-  epIds: string[];
-  volIds: string[];
-}
+import { useCatalog } from '../hooks/useCatalog';
 
 interface SeriesLandingProps {
   completedMap: Record<string, string[]>;
   onSelectSeries: (id: string) => void;
   onAdminClick: () => void;
+  /** 상단 바 오른쪽에 추가로 보여줄 버튼(백업 메뉴 등) */
+  actions?: ReactNode;
 }
 
-export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick }: SeriesLandingProps) => {
-  const [seriesCards, setSeriesCards] = useState<SeriesCardData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLandingData = async () => {
-      try {
-        const [seriesRes, epsRes, volsRes] = await Promise.all([
-          supabase
-            .from('series')
-            .select('id, title, cover_url, banner_url, accent_color')
-            .order('created_at', { ascending: false }),
-          supabase.from('episodes').select('id, series_id'),
-          supabase.from('volumes').select('id, series_id'),
-        ]);
-
-        if (seriesRes.error) throw seriesRes.error;
-
-        const epIdsBySeriesId: Record<string, string[]> = {};
-        const volIdsBySeriesId: Record<string, string[]> = {};
-
-        (epsRes.data ?? []).forEach((e) => {
-          if (!epIdsBySeriesId[e.series_id]) epIdsBySeriesId[e.series_id] = [];
-          epIdsBySeriesId[e.series_id].push(e.id);
-        });
-        (volsRes.data ?? []).forEach((v) => {
-          if (!volIdsBySeriesId[v.series_id]) volIdsBySeriesId[v.series_id] = [];
-          volIdsBySeriesId[v.series_id].push(v.id);
-        });
-
-        setSeriesCards(
-          (seriesRes.data ?? []).map((s) => ({
-            id: s.id,
-            title: s.title,
-            cover_url: s.cover_url,
-            banner_url: s.banner_url,
-            accent_color: s.accent_color,
-            epIds: epIdsBySeriesId[s.id] ?? [],
-            volIds: volIdsBySeriesId[s.id] ?? [],
-          }))
-        );
-      } catch (err) {
-        console.error('[SeriesLanding] Failed to load data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLandingData();
-  }, []);
+export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick, actions }: SeriesLandingProps) => {
+  const catalog = useCatalog();
+  const seriesCards = catalog.map((s) => ({
+    id: s.id,
+    title: s.title,
+    cover_url: s.cover_url,
+    banner_url: s.banner_url,
+    accent_color: s.accent_color,
+    isDraft: s.isDraft,
+    overridesBundled: s.overridesBundled,
+    epIds: s.episodes.map((e) => e.id),
+    volIds: s.volumes.map((v) => v.id),
+  }));
 
   return (
     <div className="min-h-screen bg-zinc-950 text-gray-100">
@@ -83,6 +38,8 @@ export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick }: Se
           </div>
           <span className="text-lg font-bold text-gray-100 hidden sm:block">AniMan</span>
         </div>
+        <div className="flex items-center gap-2">
+        {actions}
         <button
           onClick={onAdminClick}
           className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-200 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors"
@@ -90,16 +47,19 @@ export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick }: Se
           <Plus className="w-4 h-4" />
           Add Series
         </button>
+        </div>
       </div>
 
       <div className="px-6 pt-6 pb-10">
         <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">내 작품 목록</p>
 
-        {loading ? (
-          <div className="flex items-center justify-center min-h-[40vh]">
-            <div className="w-8 h-8 border-4 border-zinc-800 border-t-[#03acb1] rounded-full animate-spin" />
-          </div>
-        ) : (
+        {seriesCards.length === 0 && (
+          <p className="text-sm text-zinc-500 mb-4">
+            아직 등록된 작품이 없습니다. <code className="text-zinc-400">npm run export:catalog</code>로
+            기존 데이터를 가져오거나, "Add Series"에서 새 작품을 추가하세요.
+          </p>
+        )}
+        {(
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {seriesCards.map((series) => {
               const completedIds = completedMap[series.id] ?? [];
@@ -137,6 +97,11 @@ export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick }: Se
                       />
                     )}
                     {/* Completed badge */}
+                    {series.isDraft && (
+                      <span className="absolute top-2 left-2 bg-amber-500/90 text-zinc-950 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                        {series.overridesBundled ? '로컬 수정' : '로컬 초안'}
+                      </span>
+                    )}
                     {isCompleted && (
                       <span className="absolute top-2 right-2 bg-zinc-700 text-zinc-300 text-[10px] px-2 py-0.5 rounded-full font-medium">
                         완료

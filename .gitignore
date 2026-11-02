@@ -1,0 +1,25 @@
+# dependencies / build
+node_modules/
+dist/
+*.local
+
+# env & secrets — 공개 저장소: Supabase 키/토큰 커밋 금지
+.env
+.env.*
+!.env.example
+
+# 개인 진행 기록 백업 — 공개 저장소에 커밋 금지
+animan-backup-*.json
+*backup*.json
+
+# test output
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/

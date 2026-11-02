@@ -90,12 +90,16 @@ export interface AdminJsonInput {
 }
 
 export interface AdminSeasonInput {
+  /** 기존 항목 편집 시 ID 유지용. 없으면 새 UUID를 만든다. */
+  id?: string;
   name: string;
   startChapter: number;
   endChapter: number | null;
 }
 
 export interface AdminEpisodeInput {
+  /** 기존 항목 편집 시 ID 유지용. 없으면 새 UUID를 만든다. */
+  id?: string;
   number: number | string;
   title?: string;
   startChapter: number;
@@ -106,6 +110,8 @@ export interface AdminEpisodeInput {
 }
 
 export interface AdminVolumeInput {
+  /** 기존 항목 편집 시 ID 유지용. 없으면 새 UUID를 만든다. */
+  id?: string;
   number: number;
   startChapter: number;
   endChapter: number;
@@ -135,3 +141,49 @@ export interface ProcessedSeason {
   actualStart: number;
   actualEnd: number;
 }
+
+// ── 번들 카탈로그(src/data/series/*.json) 레코드 ─────────────────────────────
+// Supabase 테이블 컬럼명을 그대로 사용한다(snake_case). id는 기존 UUID를 유지해야
+// 진행 기록(completed_ids)이 그대로 맞는다.
+
+export interface SeasonRecord {
+  id: string;
+  name: string;
+  start_chapter: number;
+  end_chapter: number | null;
+}
+
+export interface EpisodeRecord {
+  id: string;
+  episode_number: string | number;
+  title: string | null;
+  start_chapter: number;
+  end_chapter: number;
+  cover_url: string | null;
+  duration: number | null;
+}
+
+export interface VolumeRecord {
+  id: string;
+  volume_number: number;
+  start_chapter: number;
+  end_chapter: number;
+  cover_url: string | null;
+}
+
+export interface SeriesRecord {
+  id: string;
+  title: string;
+  description: string | null;
+  cover_url: string | null;
+  banner_url: string | null;
+  accent_color: string;
+  youtube_bgm_id: string | null;
+  created_at: string;
+  seasons: SeasonRecord[];
+  episodes: EpisodeRecord[];
+  volumes: VolumeRecord[];
+}
+
+/** 진행 기록: 시리즈 ID → 완료한 에피소드/권 ID 목록 */
+export type ProgressMap = Record<string, string[]>;

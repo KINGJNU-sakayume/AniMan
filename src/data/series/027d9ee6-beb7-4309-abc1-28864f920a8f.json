@@ -1,0 +1,563 @@
+{
+  "id": "027d9ee6-beb7-4309-abc1-28864f920a8f",
+  "title": "주술회전 (呪術廻戦)",
+  "description": "경이로운 신체 능력을 가진 고등학생 이타도리 유지가 저주의 왕 양면 스쿠나의 손가락을 먹게 되면서 벌어지는 이야기. 저주를 퇴치하는 주술사들의 사투를 그린 다크 판타지",
+  "cover_url": "https://images.thedirect.com/media/article_full/kaisn.jpg",
+  "banner_url": "",
+  "accent_color": "#166FBB",
+  "youtube_bgm_id": "lthsxQQhrDc",
+  "created_at": "2026-03-07T07:28:08.147358+00:00",
+  "seasons": [
+    {
+      "id": "d8d6e846-c24e-4303-92d4-a546728543dc",
+      "name": "SEASON 1",
+      "start_chapter": 1,
+      "end_chapter": 63
+    },
+    {
+      "id": "bc014038-102c-4856-b532-8866d1f8eada",
+      "name": "SEASON 2",
+      "start_chapter": 64,
+      "end_chapter": 136
+    }
+  ],
+  "episodes": [
+    {
+      "id": "237363ae-8429-4339-8e44-1f7bc8923ac4",
+      "episode_number": "1",
+      "title": "양면 스쿠나",
+      "start_chapter": 1,
+      "end_chapter": 1,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "99eff247-d0d6-4de4-b9ad-25b37f3fea9a",
+      "episode_number": "2",
+      "title": "자신을 위하여",
+      "start_chapter": 2,
+      "end_chapter": 2,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ef054c1f-09dc-43a7-926b-688213a7288d",
+      "episode_number": "3",
+      "title": "철골 딸기",
+      "start_chapter": 3,
+      "end_chapter": 3,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c62d55a8-a825-429d-9da6-5b3fd69375b1",
+      "episode_number": "4",
+      "title": "주태대천",
+      "start_chapter": 4,
+      "end_chapter": 5,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d84586ab-73f9-4b1c-8440-78716dada8e9",
+      "episode_number": "5",
+      "title": "주태대천 -2-",
+      "start_chapter": 6,
+      "end_chapter": 8,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "dacb1916-55b9-44a1-998b-fbd13ab3dfe7",
+      "episode_number": "6",
+      "title": "비 온 뒤에 굳어진다",
+      "start_chapter": 9,
+      "end_chapter": 11,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "94eb6bd3-22ca-4cb5-babb-25b84da4053c",
+      "episode_number": "7",
+      "title": "급습",
+      "start_chapter": 12,
+      "end_chapter": 15,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "08adf506-7836-46c8-b1a7-94e7b2ca5a63",
+      "episode_number": "8",
+      "title": "지루함",
+      "start_chapter": 16,
+      "end_chapter": 18,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "60921cd4-c4d2-4f18-946d-1b5fa562de2d",
+      "episode_number": "9",
+      "title": "유어와 역벌",
+      "start_chapter": 19,
+      "end_chapter": 21,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "85e2a825-7ca3-4568-b6c2-a1e5f3fa29b5",
+      "episode_number": "10",
+      "title": "무위전변",
+      "start_chapter": 22,
+      "end_chapter": 23,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6eab3fb6-5c7b-4272-bcac-18ebc418a1e3",
+      "episode_number": "11",
+      "title": "고지식",
+      "start_chapter": 24,
+      "end_chapter": 26,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "844d566d-9203-41f5-924b-0091e2a19bb6",
+      "episode_number": "12",
+      "title": "네게로",
+      "start_chapter": 27,
+      "end_chapter": 29,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "81243dfa-d85a-4a74-9b09-51315e0630df",
+      "episode_number": "13",
+      "title": "내일의 너에게",
+      "start_chapter": 30,
+      "end_chapter": 31,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "84df9e12-2902-4d1f-966c-dd9c3261c01d",
+      "episode_number": "14",
+      "title": "교토 자매 학교 교류회 -단체전 0-",
+      "start_chapter": 32,
+      "end_chapter": 33,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "fc952620-8df3-46e7-98cf-ef1d929d43a7",
+      "episode_number": "15",
+      "title": "교토 자매 학교 교류회 -단체전 1-",
+      "start_chapter": 34,
+      "end_chapter": 36,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "062360be-8019-4dbe-8029-cde3c241d22f",
+      "episode_number": "16",
+      "title": "교토 자매 학교 교류회 -단체전 2-",
+      "start_chapter": 37,
+      "end_chapter": 40,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2c808c28-928e-414f-98d8-d50a7476b81e",
+      "episode_number": "17",
+      "title": "교토 자매 학교 교류회 -단체전 3-",
+      "start_chapter": 40,
+      "end_chapter": 42,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "158108e7-50de-41ba-aca4-5d24b024ea64",
+      "episode_number": "18",
+      "title": "현자",
+      "start_chapter": 43,
+      "end_chapter": 45,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0dfef073-306d-4271-95eb-e267b549c08a",
+      "episode_number": "19",
+      "title": "흑섬",
+      "start_chapter": 46,
+      "end_chapter": 49,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6d1b3fec-c21c-457a-bffb-7b903764508b",
+      "episode_number": "20",
+      "title": "규격 외",
+      "start_chapter": 50,
+      "end_chapter": 52,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "bd6503d0-747b-4f99-945f-c599abed80e4",
+      "episode_number": "21",
+      "title": "주술 코시엔",
+      "start_chapter": 53,
+      "end_chapter": 54,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8a899cfc-b5d3-40ef-8c84-ca03fb3c72ba",
+      "episode_number": "22",
+      "title": "기수뇌동",
+      "start_chapter": 55,
+      "end_chapter": 56,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9ffcf08f-12ed-49a8-bed8-7caae12b5b80",
+      "episode_number": "23",
+      "title": "기수뇌동 -2-",
+      "start_chapter": 57,
+      "end_chapter": 59,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "aad0ff7c-1ed7-4f61-a463-53c073cb2c71",
+      "episode_number": "24",
+      "title": "공범",
+      "start_chapter": 60,
+      "end_chapter": 63,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f9c2790a-7ad4-4015-a832-db9662b9559e",
+      "episode_number": "30",
+      "title": "그런 거잖아",
+      "start_chapter": 64,
+      "end_chapter": 80,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "231e6b2e-7d12-460c-9ee1-723170a85e32",
+      "episode_number": "25",
+      "title": "회옥",
+      "start_chapter": 65,
+      "end_chapter": 66,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9b25edd4-3113-48d8-9797-de136c263276",
+      "episode_number": "26",
+      "title": "회옥 -2-",
+      "start_chapter": 67,
+      "end_chapter": 69,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "afc35ce1-b382-4e8b-b645-134a4f9cd412",
+      "episode_number": "27",
+      "title": "회옥 -3-",
+      "start_chapter": 70,
+      "end_chapter": 72,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2ab4dc4e-bfb6-4516-af2f-e0bf56357b2e",
+      "episode_number": "28",
+      "title": "회옥 -4-",
+      "start_chapter": 73,
+      "end_chapter": 75,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "87a58fe8-3936-4a34-9468-7a70a5336740",
+      "episode_number": "29",
+      "title": "옥절",
+      "start_chapter": 76,
+      "end_chapter": 78,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "389804fd-1548-41f2-a2c4-250dfc33170c",
+      "episode_number": "31",
+      "title": "이브 축제",
+      "start_chapter": 81,
+      "end_chapter": 82,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a0816943-b928-4096-9c67-475c6fe7e0d2",
+      "episode_number": "32",
+      "title": "시부야 사변",
+      "start_chapter": 83,
+      "end_chapter": 87,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "83565642-e6b8-4374-8cac-5a3b9a3b5b15",
+      "episode_number": "33",
+      "title": "개문",
+      "start_chapter": 88,
+      "end_chapter": 90,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "064a7edc-d256-4a0e-bba8-fff31b5aa004",
+      "episode_number": "34",
+      "title": "가담",
+      "start_chapter": 91,
+      "end_chapter": 93,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "351e88ab-2b71-45f2-802b-7dc578d8bfc0",
+      "episode_number": "35",
+      "title": "강령",
+      "start_chapter": 94,
+      "end_chapter": 97,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e672d927-e66f-40db-a2c5-0d36d634bd3d",
+      "episode_number": "36",
+      "title": "둔도",
+      "start_chapter": 98,
+      "end_chapter": 101,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5b1f34a3-2288-4dd9-9571-c0b2acfa88a0",
+      "episode_number": "37",
+      "title": "적린",
+      "start_chapter": 102,
+      "end_chapter": 106,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "1eb4a3fd-545f-4c0c-916d-8e0fb05467e9",
+      "episode_number": "38",
+      "title": "유성",
+      "start_chapter": 107,
+      "end_chapter": 110,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f688d251-0c6a-4d56-a7a3-26e492b06c14",
+      "episode_number": "39",
+      "title": "동요",
+      "start_chapter": 111,
+      "end_chapter": 114,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a0d4df76-bf0a-4ea8-9d33-ea064ae021c6",
+      "episode_number": "40",
+      "title": "살해의 연향",
+      "start_chapter": 115,
+      "end_chapter": 116,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a9a3f706-2b9d-4a81-9965-d2ccbd647b8d",
+      "episode_number": "41",
+      "title": "벽력 -2-",
+      "start_chapter": 117,
+      "end_chapter": 119,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e2c911f2-56f3-4390-866b-1851cecea66e",
+      "episode_number": "42",
+      "title": "이리하여 이르게 됨",
+      "start_chapter": 120,
+      "end_chapter": 121,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4e82ebd2-504c-46d0-a618-ceb114b3118a",
+      "episode_number": "43",
+      "title": "이리하여 이르게 됨 -2-",
+      "start_chapter": 122,
+      "end_chapter": 125,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "eae4b9db-20ab-45c4-933f-d110bea74bed",
+      "episode_number": "44",
+      "title": "시부야 사변 -이비-",
+      "start_chapter": 126,
+      "end_chapter": 127,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "29b156bf-e021-4e2b-b1b7-6b1883a41ae2",
+      "episode_number": "45",
+      "title": "변신",
+      "start_chapter": 128,
+      "end_chapter": 131,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4479defb-5721-4b69-b540-12858343093e",
+      "episode_number": "46",
+      "title": "변신 -2-",
+      "start_chapter": 132,
+      "end_chapter": 134,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5978dbd0-dda4-45f3-b4ff-2dd31d581db0",
+      "episode_number": "47",
+      "title": "시부야 사변 -폐문-",
+      "start_chapter": 135,
+      "end_chapter": 136,
+      "cover_url": null,
+      "duration": 24
+    }
+  ],
+  "volumes": [
+    {
+      "id": "45cbbf2d-2205-44e8-b776-c6d7828bba54",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 7,
+      "cover_url": "https://image.aladin.co.kr/product/30170/63/cover500/k532839681_1.jpg"
+    },
+    {
+      "id": "5684f5de-0c91-45f7-8741-36ef8fde0c6a",
+      "volume_number": 2,
+      "start_chapter": 8,
+      "end_chapter": 16,
+      "cover_url": "https://image.aladin.co.kr/product/30170/64/cover500/k682839681_1.jpg"
+    },
+    {
+      "id": "555e7584-e757-4123-b75e-5c0aa2b29764",
+      "volume_number": 3,
+      "start_chapter": 17,
+      "end_chapter": 25,
+      "cover_url": "https://image.aladin.co.kr/product/30118/25/cover500/k732839080_1.jpg"
+    },
+    {
+      "id": "a3d3bd25-db86-4c6b-b7f2-f17462f987cd",
+      "volume_number": 4,
+      "start_chapter": 26,
+      "end_chapter": 34,
+      "cover_url": "https://image.aladin.co.kr/product/30170/68/cover500/k642839681_1.jpg"
+    },
+    {
+      "id": "9a29d767-70dd-49c7-a366-79d1e6ca5e2b",
+      "volume_number": 5,
+      "start_chapter": 35,
+      "end_chapter": 43,
+      "cover_url": "https://image.aladin.co.kr/product/30170/76/cover500/k862839681_1.jpg"
+    },
+    {
+      "id": "bd5acf8d-9347-4e10-81b9-aa5028839328",
+      "volume_number": 6,
+      "start_chapter": 44,
+      "end_chapter": 52,
+      "cover_url": "https://image.aladin.co.kr/product/30170/79/cover500/k822839681_1.jpg"
+    },
+    {
+      "id": "249a16a5-9351-4471-a5e3-b5f960f7441f",
+      "volume_number": 7,
+      "start_chapter": 53,
+      "end_chapter": 61,
+      "cover_url": "https://image.aladin.co.kr/product/30170/81/cover500/k992839682_1.jpg"
+    },
+    {
+      "id": "41ed049c-0c4a-4d31-9725-c9abaeb5463f",
+      "volume_number": 8,
+      "start_chapter": 62,
+      "end_chapter": 70,
+      "cover_url": "https://image.aladin.co.kr/product/30170/82/cover500/k942839682_1.jpg"
+    },
+    {
+      "id": "48c7f937-30ee-47c1-b20a-614401383e8c",
+      "volume_number": 9,
+      "start_chapter": 71,
+      "end_chapter": 79,
+      "cover_url": "https://image.aladin.co.kr/product/30170/83/cover500/k072839682_1.jpg"
+    },
+    {
+      "id": "7d0a2740-4f5a-4098-8464-54f156bc0453",
+      "volume_number": 10,
+      "start_chapter": 80,
+      "end_chapter": 88,
+      "cover_url": "https://image.aladin.co.kr/product/30170/85/cover500/k002839682_1.jpg"
+    },
+    {
+      "id": "6e8092fb-85d1-44bd-85be-47e0bf84878d",
+      "volume_number": 11,
+      "start_chapter": 89,
+      "end_chapter": 97,
+      "cover_url": "https://image.aladin.co.kr/product/30170/86/cover500/k252839682_1.jpg"
+    },
+    {
+      "id": "305aabbd-91e0-4f84-8236-7724894c8fef",
+      "volume_number": 12,
+      "start_chapter": 98,
+      "end_chapter": 106,
+      "cover_url": "https://image.aladin.co.kr/product/30170/87/cover500/k262839682_1.jpg"
+    },
+    {
+      "id": "7daaaded-ccc0-4534-abfc-b085a3f77f88",
+      "volume_number": 13,
+      "start_chapter": 107,
+      "end_chapter": 115,
+      "cover_url": "https://image.aladin.co.kr/product/30170/87/cover500/k272839682_1.jpg"
+    },
+    {
+      "id": "7c6af580-5d2a-4eef-83f1-d7db20b93918",
+      "volume_number": 14,
+      "start_chapter": 116,
+      "end_chapter": 124,
+      "cover_url": "https://image.aladin.co.kr/product/30171/43/cover500/k482839682_1.jpg"
+    },
+    {
+      "id": "8dde9a1e-443b-4df4-b43a-8559d3242fe1",
+      "volume_number": 15,
+      "start_chapter": 125,
+      "end_chapter": 133,
+      "cover_url": "https://image.aladin.co.kr/product/30171/44/cover500/k412839682_1.jpg"
+    },
+    {
+      "id": "48c2256f-3024-44c8-89ba-78f8c806e0f4",
+      "volume_number": 16,
+      "start_chapter": 134,
+      "end_chapter": 142,
+      "cover_url": "https://image.aladin.co.kr/product/30171/45/cover500/k442839682_1.jpg"
+    }
+  ]
+}

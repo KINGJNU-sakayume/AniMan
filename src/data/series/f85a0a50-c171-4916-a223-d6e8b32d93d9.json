@@ -1,0 +1,378 @@
+{
+  "id": "f85a0a50-c171-4916-a223-d6e8b32d93d9",
+  "title": "장송의 프리렌 (葬送のフリーレン)",
+  "description": "마왕을 물리친 용사 일행 중, 천 년 이상 사는 엘프 마법사 프리렌이 수명이 짧은 인간 동료들의 죽음을 겪으며, 뒤늦게 인간을 이해하고 알아가기 위해 떠나는 여정을 그린 후일담 판타지",
+  "cover_url": "https://occ-0-8407-2219.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABSSdSBMo_cJuIznPoxW1gKQlmrcuEYUmsLqHLZ5mCjS0Df5TEGvvMxh_DqUL0F7X1aDUEBDiYYPct6-OWD54Fsy-zBhzXK7Pd0F0.jpg?r=e24",
+  "banner_url": "",
+  "accent_color": "#03acb1",
+  "youtube_bgm_id": "ZT7wfk8ZJKw",
+  "created_at": "2026-03-07T07:22:20.875493+00:00",
+  "seasons": [
+    {
+      "id": "3951cf9c-13f3-4290-a344-1531b763d584",
+      "name": "SEASON 1",
+      "start_chapter": 1,
+      "end_chapter": 60
+    },
+    {
+      "id": "c3d2b85e-ca58-43eb-a027-1ccd578656a4",
+      "name": "SEASON 2 (TBA)",
+      "start_chapter": 61,
+      "end_chapter": 80
+    }
+  ],
+  "episodes": [
+    {
+      "id": "869c3835-2f16-41ab-9942-3c1400404b29",
+      "episode_number": "1",
+      "title": "모험의 끝",
+      "start_chapter": 1,
+      "end_chapter": 2,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "78ea5ca3-ef94-41aa-bd9c-948a44b7a610",
+      "episode_number": "2",
+      "title": "마법은 거짓말을 하지 않는다",
+      "start_chapter": 2,
+      "end_chapter": 3,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f4144661-432c-4faf-8de7-681dac25974d",
+      "episode_number": "3",
+      "title": "살인 마법",
+      "start_chapter": 4,
+      "end_chapter": 5,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "7927c25e-626e-4153-80c5-839a34afd6a9",
+      "episode_number": "4",
+      "title": "영혼이 잠드는 곳",
+      "start_chapter": 6,
+      "end_chapter": 8,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "dca0798c-4116-4142-9f4a-f24eb5134211",
+      "episode_number": "5",
+      "title": "사자의 환영",
+      "start_chapter": 8,
+      "end_chapter": 10,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "abe0f5bf-e46e-40f3-89a4-620a2a66860f",
+      "episode_number": "6",
+      "title": "마을의 영웅",
+      "start_chapter": 11,
+      "end_chapter": 12,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cec018e8-81de-40d5-9ca2-7c971b46e909",
+      "episode_number": "7",
+      "title": "동화 같은 것",
+      "start_chapter": 13,
+      "end_chapter": 15,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f2c8d6a1-2b23-4d67-8f9b-9b0e2d3c4f5a",
+      "episode_number": "8",
+      "title": "장송의 프리렌",
+      "start_chapter": 15,
+      "end_chapter": 17,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e3d7c5b0-3c34-4e78-7a0c-0c1f3e4d5a6b",
+      "episode_number": "9",
+      "title": "단두대의 아우라",
+      "start_chapter": 18,
+      "end_chapter": 20,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b4e6a4c9-4d45-4f89-6b1d-1d2a4f5e6b7c",
+      "episode_number": "10",
+      "title": "강한 마법사",
+      "start_chapter": 21,
+      "end_chapter": 22,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c5f5b3d8-5e56-4a90-5c2e-2e3b5a6f7c8d",
+      "episode_number": "11",
+      "title": "북측 제국의 겨울",
+      "start_chapter": 23,
+      "end_chapter": 24,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a604c2e7-6f67-4b01-4d3f-3f4c6b7a8d9e",
+      "episode_number": "12",
+      "title": "진짜 용사",
+      "start_chapter": 25,
+      "end_chapter": 26,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9713d1f6-7a78-4c12-3e4a-4a5d7c8b9e0f",
+      "episode_number": "13",
+      "title": "동족 혐오",
+      "start_chapter": 27,
+      "end_chapter": 28,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8822e0a5-8b89-4d23-2f5b-5b6e8d9c0f1a",
+      "episode_number": "14",
+      "title": "젊은이의 특권",
+      "start_chapter": 29,
+      "end_chapter": 30,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "7931f9b4-9c90-4e34-1a6c-6c7f9e0d1a2b",
+      "episode_number": "15",
+      "title": "냄새",
+      "start_chapter": 31,
+      "end_chapter": 32,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6040a8c3-0d01-4f45-0b7d-7d8a0f1e2b3c",
+      "episode_number": "16",
+      "title": "장수하는 친구",
+      "start_chapter": 33,
+      "end_chapter": 34,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "515f97d2-1e12-4a56-9c8e-8e9b1a2f3c4d",
+      "episode_number": "17",
+      "title": "조심해",
+      "start_chapter": 35,
+      "end_chapter": 36,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "426e86e1-2f23-4b67-8d9f-9f0c2b3a4d5e",
+      "episode_number": "18",
+      "title": "1차 시험",
+      "start_chapter": 37,
+      "end_chapter": 38,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "337d75f0-3a34-4c78-7e0a-0a1d3c4b5e6f",
+      "episode_number": "19",
+      "title": "치밀한 계획",
+      "start_chapter": 38,
+      "end_chapter": 41,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "248c64a9-4b45-4d89-6f1b-1b2e4d5c6f7a",
+      "episode_number": "20",
+      "title": "필요한 살생",
+      "start_chapter": 41,
+      "end_chapter": 43,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "159b53b8-5c56-4e90-5a2c-2c3f5e6d7a8b",
+      "episode_number": "21",
+      "title": "마법의 세계",
+      "start_chapter": 43,
+      "end_chapter": 45,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "06aa42c7-6d67-4f01-4b3d-3d4a6f7e8b9c",
+      "episode_number": "22",
+      "title": "차선책",
+      "start_chapter": 46,
+      "end_chapter": 47,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f7b931d6-7e78-4a12-3c4e-4e5b7a8f9c0d",
+      "episode_number": "23",
+      "title": "미궁 공략",
+      "start_chapter": 48,
+      "end_chapter": 49,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e8c820e5-8f89-4b23-2d5f-5f6c8b9a0d1e",
+      "episode_number": "24",
+      "title": "완벽한 복제체",
+      "start_chapter": 50,
+      "end_chapter": 51,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d9d71fa4-9a90-4c34-1e6a-6a7d9c0b1e2f",
+      "episode_number": "25",
+      "title": "치명적인 틈",
+      "start_chapter": 52,
+      "end_chapter": 53,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c0e60eb3-0b01-4d45-0f7b-7b8e0d1c2f3a",
+      "episode_number": "26",
+      "title": "마법의 높이",
+      "start_chapter": 54,
+      "end_chapter": 55,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b1f5fdc2-1c12-4e56-9a8c-8c9f1e2d3a4b",
+      "episode_number": "27",
+      "title": "인간의 시대",
+      "start_chapter": 56,
+      "end_chapter": 58,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a204ecb1-2d23-4f67-8b9d-9d0a2f3e4b5c",
+      "episode_number": "28",
+      "title": "다시 만났을 때 부끄러우니까",
+      "start_chapter": 58,
+      "end_chapter": 60,
+      "cover_url": null,
+      "duration": 24
+    }
+  ],
+  "volumes": [
+    {
+      "id": "ae485c42-3563-4055-92a9-3c6ee09b12e6",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 7,
+      "cover_url": "https://image.aladin.co.kr/product/28380/61/cover500/k492835605_1.jpg"
+    },
+    {
+      "id": "96484c45-0af4-44b5-8e83-24e8517dde64",
+      "volume_number": 2,
+      "start_chapter": 8,
+      "end_chapter": 17,
+      "cover_url": "https://image.aladin.co.kr/product/28380/64/cover500/k442835605_1.jpg"
+    },
+    {
+      "id": "ef9848c1-263c-4360-8235-0dfea377cc7c",
+      "volume_number": 3,
+      "start_chapter": 18,
+      "end_chapter": 27,
+      "cover_url": "https://image.aladin.co.kr/product/28540/86/cover500/k132835233_1.jpg"
+    },
+    {
+      "id": "b56816e2-2814-46e8-a45a-35682e239240",
+      "volume_number": 4,
+      "start_chapter": 28,
+      "end_chapter": 37,
+      "cover_url": "https://image.aladin.co.kr/product/28683/31/cover500/k502836269_1.jpg"
+    },
+    {
+      "id": "c8d085be-e297-4289-9020-b7a7f457ccbe",
+      "volume_number": 5,
+      "start_chapter": 38,
+      "end_chapter": 47,
+      "cover_url": "https://image.aladin.co.kr/product/28868/57/cover500/k952836206_1.jpg"
+    },
+    {
+      "id": "a2a87278-324a-4007-8da9-69fac0037312",
+      "volume_number": 6,
+      "start_chapter": 48,
+      "end_chapter": 57,
+      "cover_url": "https://image.aladin.co.kr/product/29096/82/cover500/k742837966_1.jpg"
+    },
+    {
+      "id": "a863a2d2-9946-4cbc-9908-06bd27e122cf",
+      "volume_number": 7,
+      "start_chapter": 58,
+      "end_chapter": 67,
+      "cover_url": "https://image.aladin.co.kr/product/29624/64/cover500/k712838375_1.jpg"
+    },
+    {
+      "id": "b2a1c3d4-5e6f-47a8-9b0c-1d2e3f4a5b6c",
+      "volume_number": 8,
+      "start_chapter": 68,
+      "end_chapter": 77,
+      "cover_url": "https://image.aladin.co.kr/product/30169/50/cover500/k522839587_1.jpg"
+    },
+    {
+      "id": "c3b2d4e5-6f7a-48b9-0c1d-2e3f4a5b6c7d",
+      "volume_number": 9,
+      "start_chapter": 78,
+      "end_chapter": 87,
+      "cover_url": "https://image.aladin.co.kr/product/30651/95/cover500/k432830730_1.jpg"
+    },
+    {
+      "id": "d4c3e5f6-7a8b-49c0-1d2e-3f4a5b6c7d8e",
+      "volume_number": 10,
+      "start_chapter": 88,
+      "end_chapter": 97,
+      "cover_url": "https://image.aladin.co.kr/product/32489/89/cover500/k262935503_1.jpg"
+    },
+    {
+      "id": "e5d4f6a7-8b9c-40d1-2e3f-4a5b6c7d8e9f",
+      "volume_number": 11,
+      "start_chapter": 98,
+      "end_chapter": 107,
+      "cover_url": "https://image.aladin.co.kr/product/33371/76/cover500/k352938216_1.jpg"
+    },
+    {
+      "id": "f6e5a7b8-9c0d-41e2-3f4a-5b6c7d8e9f0a",
+      "volume_number": 12,
+      "start_chapter": 108,
+      "end_chapter": 117,
+      "cover_url": "https://image.aladin.co.kr/product/34259/71/cover500/k482932962_1.jpg"
+    },
+    {
+      "id": "a7f6b8c9-0d1e-42f3-4a5b-6c7d8e9f0a1b",
+      "volume_number": 13,
+      "start_chapter": 118,
+      "end_chapter": 127,
+      "cover_url": "https://image.aladin.co.kr/product/35381/2/cover500/k542035710_1.jpg"
+    },
+    {
+      "id": "b8a7c9d0-1e2f-43a4-5b6c-7d8e9f0a1b2c",
+      "volume_number": 14,
+      "start_chapter": 128,
+      "end_chapter": 137,
+      "cover_url": "https://image.aladin.co.kr/product/36812/58/cover500/k142030007_1.jpg"
+    }
+  ]
+}

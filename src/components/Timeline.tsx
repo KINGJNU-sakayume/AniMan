@@ -140,10 +140,20 @@ const MobileCard = ({
         borderColor:     isCompleted ? accentColor : 'rgba(82,82,91,0.35)',
         backgroundColor: isCompleted ? `${accentColor}12` : 'rgba(39,39,42,0.7)',
       }}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isCompleted}
+      aria-label={`${label} (${subtitle})${isCompleted ? ' — 완료됨' : ''}`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onTap(id);
+        }
+      }}
     >
       {coverUrl && (
         <div

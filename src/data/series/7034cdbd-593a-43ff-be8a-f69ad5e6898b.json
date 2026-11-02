@@ -1,0 +1,443 @@
+{
+  "id": "7034cdbd-593a-43ff-be8a-f69ad5e6898b",
+  "title": "최애의 아이 (推しの子)",
+  "description": "지방 도시에서 일하는 산부인과 의사 고로는 어느 날 그의 \"최애\" 아이돌 호시노 아이를 만나게 되는데... 연예계의 빛과 그림자를 다룬 이야기.",
+  "cover_url": "https://wallpapers.com/images/featured/oshi-no-ko-l128i89n83u721ql.jpg",
+  "banner_url": "",
+  "accent_color": "#FF1493",
+  "youtube_bgm_id": "mEZqJ65ra08",
+  "created_at": "2026-03-08T07:21:31.290728+00:00",
+  "seasons": [
+    {
+      "id": "f7d2b589-cc5a-442e-87ff-64a46b7b756f",
+      "name": "SEASON 1",
+      "start_chapter": 1,
+      "end_chapter": 40
+    },
+    {
+      "id": "722371ce-5520-466a-97d6-b9cd8262f846",
+      "name": "SEASON 2",
+      "start_chapter": 41,
+      "end_chapter": 80
+    },
+    {
+      "id": "19d36a0d-4a3b-442e-9ac8-4f6349a297f9",
+      "name": "SEASON 3",
+      "start_chapter": 81,
+      "end_chapter": 116
+    }
+  ],
+  "episodes": [
+    {
+      "id": "b0128941-9bb0-4688-b303-15b161d72a4c",
+      "episode_number": "1",
+      "title": "Mother and Children",
+      "start_chapter": 1,
+      "end_chapter": 10,
+      "cover_url": null,
+      "duration": 90
+    },
+    {
+      "id": "76ba5d85-eb75-4fef-bb58-da54049407c6",
+      "episode_number": "2",
+      "title": "세 번째 선택지",
+      "start_chapter": 11,
+      "end_chapter": 13,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2eac6d3a-c7d3-448d-b78b-647b193c9b25",
+      "episode_number": "3",
+      "title": "만화 원작 드라마",
+      "start_chapter": 14,
+      "end_chapter": 16,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9bc39ac2-0419-4913-b872-aa1f02af4b7e",
+      "episode_number": "4",
+      "title": "배우",
+      "start_chapter": 17,
+      "end_chapter": 19,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8b66e132-c0d5-479c-a8ae-aa23c900e3ab",
+      "episode_number": "5",
+      "title": "연애 리얼리티 쇼",
+      "start_chapter": 20,
+      "end_chapter": 22,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "1cf76594-344e-4e74-a2bc-77f82457c558",
+      "episode_number": "6",
+      "title": "에고 서핑",
+      "start_chapter": 23,
+      "end_chapter": 25,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2f748a0c-7b76-42ed-87d8-bedf3cbca1c3",
+      "episode_number": "7",
+      "title": "버즈",
+      "start_chapter": 26,
+      "end_chapter": 28,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2529b1ec-8a48-4dc8-8c2c-c4b33e9b2e35",
+      "episode_number": "8",
+      "title": "처음",
+      "start_chapter": 29,
+      "end_chapter": 31,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4ccdde95-d3bf-43f1-873a-032f0e51a351",
+      "episode_number": "9",
+      "title": "B코마치",
+      "start_chapter": 32,
+      "end_chapter": 34,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "31c0729a-c4bc-41ae-8721-cc596cb64388",
+      "episode_number": "10",
+      "title": "프레셔",
+      "start_chapter": 35,
+      "end_chapter": 37,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ffc8adad-974d-442f-bde8-18c2f170b653",
+      "episode_number": "11",
+      "title": "아이돌",
+      "start_chapter": 38,
+      "end_chapter": 40,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "aecdba5b-3612-424c-acbc-d7a325c68bff",
+      "episode_number": "12",
+      "title": "도쿄 블레이드 (2기 1화)",
+      "start_chapter": 41,
+      "end_chapter": 44,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "112bca0e-f022-4a53-883a-29fe2ec27652",
+      "episode_number": "13",
+      "title": "전언 게임",
+      "start_chapter": 45,
+      "end_chapter": 47,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "62a35c11-9012-4704-8639-11b0616b86d3",
+      "episode_number": "14",
+      "title": "리라이팅",
+      "start_chapter": 48,
+      "end_chapter": 50,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0dcaa114-e713-4646-b0f5-ed906c6dae7b",
+      "episode_number": "15",
+      "title": "감정 연기",
+      "start_chapter": 51,
+      "end_chapter": 54,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "30981bce-cf52-4c82-b70c-acf4c312e692",
+      "episode_number": "16",
+      "title": "개막",
+      "start_chapter": 55,
+      "end_chapter": 57,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b8be9bc6-7ac3-4877-91cb-e8ba313e110d",
+      "episode_number": "17",
+      "title": "성장",
+      "start_chapter": 58,
+      "end_chapter": 60,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ecb40e13-6937-4866-af9d-76dfdceeefac",
+      "episode_number": "18",
+      "title": "태양",
+      "start_chapter": 61,
+      "end_chapter": 64,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b8b8569f-bb10-4ccd-a004-506c11d4dcba",
+      "episode_number": "19",
+      "title": "트리거",
+      "start_chapter": 65,
+      "end_chapter": 67,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "episode_number": "20",
+      "title": "꿈",
+      "start_chapter": 68,
+      "end_chapter": 71,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "episode_number": "21",
+      "title": "해방",
+      "start_chapter": 71,
+      "end_chapter": 74,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "episode_number": "22",
+      "title": "자유",
+      "start_chapter": 75,
+      "end_chapter": 77,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "episode_number": "23",
+      "title": "재회",
+      "start_chapter": 78,
+      "end_chapter": 79,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "episode_number": "24",
+      "title": "소원",
+      "start_chapter": 80,
+      "end_chapter": 80,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "episode_number": "25",
+      "title": "과몰입",
+      "start_chapter": 81,
+      "end_chapter": 84,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "episode_number": "26",
+      "title": "계산",
+      "start_chapter": 85,
+      "end_chapter": 88,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "episode_number": "27",
+      "title": "정론",
+      "start_chapter": 89,
+      "end_chapter": 92,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "episode_number": "28",
+      "title": "맹목",
+      "start_chapter": 93,
+      "end_chapter": 96,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "episode_number": "29",
+      "title": "캐스팅",
+      "start_chapter": 97,
+      "end_chapter": 100,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "episode_number": "30",
+      "title": "아이돌과 연애",
+      "start_chapter": 101,
+      "end_chapter": 104,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "episode_number": "31",
+      "title": "파탄",
+      "start_chapter": 105,
+      "end_chapter": 108,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+      "episode_number": "32",
+      "title": "계획",
+      "start_chapter": 109,
+      "end_chapter": 112,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+      "episode_number": "33",
+      "title": "배금주의와 열정",
+      "start_chapter": 113,
+      "end_chapter": 116,
+      "cover_url": null,
+      "duration": 24
+    }
+  ],
+  "volumes": [
+    {
+      "id": "6e1e76da-51a6-43ec-a02e-8451ad7449b1",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 10,
+      "cover_url": "https://image.aladin.co.kr/product/31383/22/cover500/k722832108_1.jpg"
+    },
+    {
+      "id": "1b56bf43-c25a-411e-a33a-16e40cd494c8",
+      "volume_number": 2,
+      "start_chapter": 11,
+      "end_chapter": 20,
+      "cover_url": "https://image.aladin.co.kr/product/31383/23/cover500/k852832108_1.jpg"
+    },
+    {
+      "id": "a164a95e-895c-437a-8803-e684a04ddcc5",
+      "volume_number": 3,
+      "start_chapter": 21,
+      "end_chapter": 30,
+      "cover_url": "https://image.aladin.co.kr/product/31383/19/cover500/k542832108_1.jpg"
+    },
+    {
+      "id": "710198a0-6fc4-463d-819f-d52bd4968a5f",
+      "volume_number": 4,
+      "start_chapter": 31,
+      "end_chapter": 40,
+      "cover_url": "https://image.aladin.co.kr/product/31383/22/cover500/k772832108_1.jpg"
+    },
+    {
+      "id": "d7060845-5fb5-42d8-9f76-559cb0396b50",
+      "volume_number": 5,
+      "start_chapter": 41,
+      "end_chapter": 50,
+      "cover_url": "https://image.aladin.co.kr/product/28883/44/cover500/k322836406_1.jpg"
+    },
+    {
+      "id": "fd89c77d-1f51-4817-a7ec-6c34439b90ca",
+      "volume_number": 6,
+      "start_chapter": 51,
+      "end_chapter": 60,
+      "cover_url": "https://image.aladin.co.kr/product/29268/26/cover500/k332837804_1.jpg"
+    },
+    {
+      "id": "b9a1a817-861a-45ca-9544-4d938f5de73b",
+      "volume_number": 7,
+      "start_chapter": 61,
+      "end_chapter": 70,
+      "cover_url": "https://image.aladin.co.kr/product/29767/73/cover500/k952838403_1.jpg"
+    },
+    {
+      "id": "a8a8e2b1-7636-4d55-a42b-7038cce5308d",
+      "volume_number": 8,
+      "start_chapter": 71,
+      "end_chapter": 80,
+      "cover_url": "https://image.aladin.co.kr/product/30341/56/cover500/k022839441_1.jpg"
+    },
+    {
+      "id": "b1a2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "volume_number": 9,
+      "start_chapter": 81,
+      "end_chapter": 90,
+      "cover_url": "https://image.aladin.co.kr/product/31196/82/cover500/k962831052_1.jpg"
+    },
+    {
+      "id": "c2b3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "volume_number": 10,
+      "start_chapter": 91,
+      "end_chapter": 100,
+      "cover_url": "https://image.aladin.co.kr/product/31698/73/cover500/k592833586_1.jpg"
+    },
+    {
+      "id": "d3c4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "volume_number": 11,
+      "start_chapter": 101,
+      "end_chapter": 110,
+      "cover_url": "https://image.aladin.co.kr/product/32129/23/cover500/k902834308_1.jpg"
+    },
+    {
+      "id": "e4d5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "volume_number": 12,
+      "start_chapter": 111,
+      "end_chapter": 120,
+      "cover_url": "https://image.aladin.co.kr/product/32693/11/cover500/k462936565_1.jpg"
+    },
+    {
+      "id": "f5e6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "volume_number": 13,
+      "start_chapter": 121,
+      "end_chapter": 130,
+      "cover_url": "https://image.aladin.co.kr/product/34285/70/cover500/k862932074_1.jpg"
+    },
+    {
+      "id": "a6f7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "volume_number": 14,
+      "start_chapter": 131,
+      "end_chapter": 141,
+      "cover_url": "https://image.aladin.co.kr/product/34773/93/cover500/k082933025_1.jpg"
+    },
+    {
+      "id": "b7a8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
+      "volume_number": 15,
+      "start_chapter": 142,
+      "end_chapter": 152,
+      "cover_url": "https://image.aladin.co.kr/product/35265/90/cover500/k322934257_1.jpg"
+    },
+    {
+      "id": "c8b9d0e1-f2a3-4b4c-5d6e-7f8a9b0c1d2e",
+      "volume_number": 16,
+      "start_chapter": 153,
+      "end_chapter": 166,
+      "cover_url": "https://image.aladin.co.kr/product/36465/39/cover500/k912039814_1.jpg"
+    }
+  ]
+}

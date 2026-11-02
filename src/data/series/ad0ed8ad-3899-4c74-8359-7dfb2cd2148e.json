@@ -1,0 +1,353 @@
+{
+  "id": "ad0ed8ad-3899-4c74-8359-7dfb2cd2148e",
+  "title": "철야의 노래 (よふかしのうた)",
+  "description": "불면증을 겪는 중학생 야모리 코우가 밤거리에서 아름다운 흡혈귀 나나쿠사 나즈나를 만나며 벌어지는 특별한 밤의 이야기.",
+  "cover_url": "https://occ-0-8407-2219.1.nflxso.net/dnm/api/v6/6AYY37jfdO6hpXcMjf9Yu5cnmO0/AAAABa8ua_jL1KgK61Pyb34wxjR_-ruD5kUTL0dup8mr51-0b2z4OiqDyRXCjBJOEXVhOECKTAJ_CmE2t6wS_MlTzgLoeGZjb9h7TtMi.jpg?r=9e8",
+  "banner_url": "",
+  "accent_color": "#4b0082",
+  "youtube_bgm_id": "-PB1QMBYh2I",
+  "created_at": "2026-03-06T07:35:25.907308+00:00",
+  "seasons": [
+    {
+      "id": "8bf86456-01b3-411b-8a47-7315a14524eb",
+      "name": "SEASON 1",
+      "start_chapter": 1,
+      "end_chapter": 46
+    },
+    {
+      "id": "a3337244-1a02-48ff-a515-2d70521947eb",
+      "name": "SEASON 2",
+      "start_chapter": 47,
+      "end_chapter": 94
+    }
+  ],
+  "episodes": [
+    {
+      "id": "f1f56780-bbe1-44c2-98f2-6d6e3bc94308",
+      "episode_number": "1",
+      "title": "나이트 플라이트",
+      "start_chapter": 1,
+      "end_chapter": 2,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "51bd7ba9-5677-4ce2-abd4-fbce2a170d95",
+      "episode_number": "2",
+      "title": "라인 아이디 알려줄래?",
+      "start_chapter": 3,
+      "end_chapter": 5,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "fce6eccc-35e5-436d-b039-219c67c1b1d4",
+      "episode_number": "3",
+      "title": "많이 나왔네",
+      "start_chapter": 6,
+      "end_chapter": 9,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3187282c-7121-46a2-bba5-6fb9d68eb9c2",
+      "episode_number": "4",
+      "title": "좁지 않아?",
+      "start_chapter": 10,
+      "end_chapter": 13,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a9ca5019-9f0d-44b3-825b-8cb01fd9b9d3",
+      "episode_number": "5",
+      "title": "곤란한데",
+      "start_chapter": 14,
+      "end_chapter": 17,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "60f7c45a-857f-4b75-8593-389760d06f3b",
+      "episode_number": "6",
+      "title": "더 즐거운 걸 찾자고",
+      "start_chapter": 18,
+      "end_chapter": 21,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2a2e6968-088d-4392-8165-a68abe6a337f",
+      "episode_number": "7",
+      "title": "권속(피)을 만들래?",
+      "start_chapter": 22,
+      "end_chapter": 25,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "51e7b905-7f5d-4ff5-ae38-6be9d47803c2",
+      "episode_number": "8",
+      "title": "모두 똑같아",
+      "start_chapter": 26,
+      "end_chapter": 30,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3a1e1dc7-5df5-497e-b782-4947b42b46fa",
+      "episode_number": "9",
+      "title": "치사해",
+      "start_chapter": 31,
+      "end_chapter": 34,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4a06779c-e0ec-4998-acf1-14a14f02a6c5",
+      "episode_number": "10",
+      "title": "도둑 촬영인걸",
+      "start_chapter": 35,
+      "end_chapter": 37,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8ce4bd1f-a3ba-4f7a-9899-733b52ce0a51",
+      "episode_number": "11",
+      "title": "흡혈귀라는 거 알고 있어?",
+      "start_chapter": 38,
+      "end_chapter": 41,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "68e2eeb5-7e8a-46d7-bcd5-6dd56f0355cf",
+      "episode_number": "12",
+      "title": "우리 부모님도 이랬을까?",
+      "start_chapter": 42,
+      "end_chapter": 44,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6ce36b2d-71e9-49cd-bfbb-22bcf9844c4e",
+      "episode_number": "13",
+      "title": "철야의 노래",
+      "start_chapter": 45,
+      "end_chapter": 46,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c3259c04-dd4b-42a1-af41-2bad9c94d891",
+      "episode_number": "14",
+      "title": "흡혈귀가 되는 법",
+      "start_chapter": 47,
+      "end_chapter": 50,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "64949f51-a4dd-4d7e-a428-50adaf6a87f3",
+      "episode_number": "15",
+      "title": "메이드 카페에 가자",
+      "start_chapter": 51,
+      "end_chapter": 53,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "43517700-8053-4a47-9c76-623fd53453ef",
+      "episode_number": "16",
+      "title": "아자미",
+      "start_chapter": 54,
+      "end_chapter": 56,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a44ab1b0-1bcb-48b3-824e-cc2e07373bb4",
+      "episode_number": "17",
+      "title": "거짓말은 아니지?",
+      "start_chapter": 57,
+      "end_chapter": 60,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0948d58d-6648-4ee7-b3d6-f3d71bf3c6ff",
+      "episode_number": "18",
+      "title": "오해하지 마",
+      "start_chapter": 61,
+      "end_chapter": 64,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "433dc051-fbd3-4992-bd99-d3ff536cfb34",
+      "episode_number": "19",
+      "title": "나즈나의 과거",
+      "start_chapter": 65,
+      "end_chapter": 68,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "dcd4a5cd-e16c-4436-8642-e251ae7a5382",
+      "episode_number": "20",
+      "title": "탐정",
+      "start_chapter": 69,
+      "end_chapter": 72,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "7609c11f-c201-47d7-b1b9-2862f5a08767",
+      "episode_number": "21",
+      "title": "친구잖아",
+      "start_chapter": 73,
+      "end_chapter": 76,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b2ae6ba4-af09-4bc4-9605-a24efbecccd2",
+      "episode_number": "22",
+      "title": "밤을 달리는 법",
+      "start_chapter": 77,
+      "end_chapter": 80,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "98130ed0-b1a5-47e9-80b0-1b1396439ac6",
+      "episode_number": "23",
+      "title": "너는 누구야",
+      "start_chapter": 81,
+      "end_chapter": 84,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d8cdc7fb-560d-4582-b835-7619b7780610",
+      "episode_number": "24",
+      "title": "작별",
+      "start_chapter": 85,
+      "end_chapter": 88,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "807a8a34-da79-4a4e-a8e5-6a6e2c19a1bf",
+      "episode_number": "25",
+      "title": "그것이 사랑인가",
+      "start_chapter": 89,
+      "end_chapter": 91,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0bb388a1-ec6f-4551-93ca-f547ee8b46d5",
+      "episode_number": "26",
+      "title": "안녕, 다시 밤에",
+      "start_chapter": 92,
+      "end_chapter": 94,
+      "cover_url": null,
+      "duration": 24
+    }
+  ],
+  "volumes": [
+    {
+      "id": "64fb2e57-3a08-40cc-a844-d5bf0e41329c",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 9,
+      "cover_url": "https://image.aladin.co.kr/product/26736/89/cover500/k222730385_1.jpg"
+    },
+    {
+      "id": "f0d272ee-ad8b-4d55-9b86-8f6f20bfa709",
+      "volume_number": 2,
+      "start_chapter": 10,
+      "end_chapter": 19,
+      "cover_url": "https://image.aladin.co.kr/product/26898/99/cover500/k432730500_1.jpg"
+    },
+    {
+      "id": "c0cf58e1-089b-4b0e-987c-21879a4b4191",
+      "volume_number": 3,
+      "start_chapter": 20,
+      "end_chapter": 29,
+      "cover_url": "https://image.aladin.co.kr/product/27183/51/cover500/k412731355_1.jpg"
+    },
+    {
+      "id": "2cabe0f3-1b39-40b3-9ceb-517982842285",
+      "volume_number": 4,
+      "start_chapter": 30,
+      "end_chapter": 39,
+      "cover_url": "https://image.aladin.co.kr/product/27515/20/cover500/k112733197_1.jpg"
+    },
+    {
+      "id": "beeb71c8-06a0-4d1b-831c-283c574c8db6",
+      "volume_number": 5,
+      "start_chapter": 40,
+      "end_chapter": 49,
+      "cover_url": "https://image.aladin.co.kr/product/27816/91/cover500/k582734576_1.jpg"
+    },
+    {
+      "id": "3b4494de-03b8-460c-9b26-4e05c86af225",
+      "volume_number": 6,
+      "start_chapter": 50,
+      "end_chapter": 59,
+      "cover_url": "https://image.aladin.co.kr/product/28095/72/cover500/k322734343_1.jpg"
+    },
+    {
+      "id": "4c476bdb-3faf-4d56-a464-6e9144f69d7e",
+      "volume_number": 7,
+      "start_chapter": 60,
+      "end_chapter": 69,
+      "cover_url": "https://image.aladin.co.kr/product/28407/57/cover500/k562835914_1.jpg"
+    },
+    {
+      "id": "423f330a-a86d-4ae2-a222-759a44fbbf1d",
+      "volume_number": 8,
+      "start_chapter": 70,
+      "end_chapter": 79,
+      "cover_url": "https://image.aladin.co.kr/product/28667/43/cover500/k472836766_1.jpg"
+    },
+    {
+      "id": "971136da-8aeb-43f7-be02-46edac5154d8",
+      "volume_number": 9,
+      "start_chapter": 80,
+      "end_chapter": 89,
+      "cover_url": "https://image.aladin.co.kr/product/28951/90/cover500/k212836317_1.jpg"
+    },
+    {
+      "id": "f15de900-23e0-42cd-8013-5669fe2bf4b2",
+      "volume_number": 10,
+      "start_chapter": 90,
+      "end_chapter": 99,
+      "cover_url": "https://image.aladin.co.kr/product/29528/68/cover500/k002837444_1.jpg"
+    },
+    {
+      "id": "8c48569d-e9d5-4923-8b39-12c82a5a2d33",
+      "volume_number": 11,
+      "start_chapter": 100,
+      "end_chapter": 109,
+      "cover_url": "https://image.aladin.co.kr/product/30328/30/cover500/k442839238_1.jpg"
+    },
+    {
+      "id": "effe975b-d44d-4caa-8467-1bfa592a938f",
+      "volume_number": 12,
+      "start_chapter": 110,
+      "end_chapter": 119,
+      "cover_url": "https://image.aladin.co.kr/product/31049/53/cover500/k792831321_1.jpg"
+    },
+    {
+      "id": "ab316485-d59d-4585-9e4d-03233ff504ef",
+      "volume_number": 13,
+      "start_chapter": 120,
+      "end_chapter": 129,
+      "cover_url": "https://image.aladin.co.kr/product/31567/93/cover500/k972832650_1.jpg"
+    }
+  ]
+}
