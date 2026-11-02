@@ -8,6 +8,7 @@ import { SocialCard } from './components/SocialCard';
 import { SeriesLanding } from './components/SeriesLanding';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BackupMenu } from './components/BackupMenu';
+import { LifeHubMenu } from './components/LifeHubMenu';
 import { useTimelineData } from './hooks/useTimelineData';
 import { useProgress } from './hooks/useProgress';
 import { markUpTo } from './lib/progress';
@@ -81,7 +82,7 @@ export default function App() {
           completedMap={completedMap}
           onSelectSeries={handleSelectSeries}
           onAdminClick={() => setCurrentView('admin')}
-          actions={<BackupMenu />}
+          actions={<><LifeHubMenu /><BackupMenu /></>}
         />
       </div>
     );
