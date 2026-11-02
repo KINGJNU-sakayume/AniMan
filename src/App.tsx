@@ -1,17 +1,16 @@
 // src/App.tsx
 import { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Upload } from 'lucide-react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Timeline } from './components/Timeline';
 import { SocialCard } from './components/SocialCard';
 import { SeriesLanding } from './components/SeriesLanding';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { LoginModal } from './components/LoginModal';
+import { BackupMenu } from './components/BackupMenu';
 import { useTimelineData } from './hooks/useTimelineData';
-import { useAuth } from './hooks/useAuth';
 import { useProgress } from './hooks/useProgress';
+import { markUpTo } from './lib/progress';
 
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
@@ -24,15 +23,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [showSocialCard, setShowSocialCard] = useState(false);
 
-  // ── 인증 ──────────────────────────────────────────────────────────────────
-  const {
-    session, profile, loading: authLoading,
-    pendingApproval, isApproved,
-    login, register, logout, refreshProfile,
-  } = useAuth();
-
-  // ── 진도 (Supabase) ───────────────────────────────────────────────────────
-  const { completedMap, toggle, bulkComplete, syncing } = useProgress(session);
+  // ── 진도 (이 기기 localStorage) ───────────────────────────────────────────
+  const { completedMap, toggle } = useProgress();
 
   // ── 타임라인 데이터 ───────────────────────────────────────────────────────
   const { data: fetchedData, loading: isLoading, error: isError } =
@@ -59,32 +51,10 @@ export default function App() {
     if (!selectedAnime || !fetchedData) return;
     const list = type === 'episode' ? fetchedData.episodes : fetchedData.volumes;
     if (!list) return;
-    const targetIndex = list.findIndex((item) => item.id === id);
-    if (targetIndex === -1) return;
-    bulkComplete(selectedAnime, list.slice(0, targetIndex + 1).map((item) => item.id));
+    const target = list.find((item) => item.id === id);
+    if (!target) return;
+    markUpTo(selectedAnime, type, target.number);
   };
-
-  // ── 인증 로딩 ─────────────────────────────────────────────────────────────
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-zinc-800 border-t-indigo-500 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // ── 미인증 or 승인 대기 → 로그인/가입 화면 ────────────────────────────────
-  if (!isApproved) {
-    return (
-      <LoginModal
-        onLogin={login}
-        onRegister={register}
-        onLogout={logout}
-        onRefresh={refreshProfile}
-        pendingApproval={pendingApproval}
-      />
-    );
-  }
 
   // ── 어드민 뷰 ─────────────────────────────────────────────────────────────
   if (currentView === 'admin') {
@@ -107,31 +77,11 @@ export default function App() {
   if (currentView === 'landing') {
     return (
       <div className="min-h-screen bg-zinc-950 text-gray-100 selection:bg-indigo-500/30 font-sans">
-        {/* 동기화 상태 + 로그아웃 */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-          {syncing && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-              rounded-full text-xs text-gray-400 backdrop-blur">
-              <Upload className="w-3.5 h-3.5 animate-pulse" />
-              저장 중…
-            </div>
-          )}
-          <button
-            onClick={logout}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-              rounded-full text-xs text-gray-400 hover:text-gray-200 hover:bg-zinc-700
-              transition-colors backdrop-blur"
-            title="로그아웃"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{profile?.username ?? '로그아웃'}</span>
-          </button>
-        </div>
-
         <SeriesLanding
           completedMap={completedMap}
           onSelectSeries={handleSelectSeries}
           onAdminClick={() => setCurrentView('admin')}
+          actions={<BackupMenu />}
         />
       </div>
     );
@@ -145,27 +95,6 @@ export default function App() {
         onLogoClick={() => setCurrentView('landing')}
         onAdminClick={() => setCurrentView('admin')}
       />
-
-      {/* 동기화 상태 + 로그아웃 */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        {syncing && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-            rounded-full text-xs text-gray-400 backdrop-blur">
-            <Upload className="w-3.5 h-3.5 animate-pulse" />
-            저장 중…
-          </div>
-        )}
-        <button
-          onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/90 border border-zinc-700
-            rounded-full text-xs text-gray-400 hover:text-gray-200 hover:bg-zinc-700
-            transition-colors backdrop-blur"
-          title="로그아웃"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{profile?.username ?? '로그아웃'}</span>
-        </button>
-      </div>
 
       {/* 로딩 */}
       {isLoading && (

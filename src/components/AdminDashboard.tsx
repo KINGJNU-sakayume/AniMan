@@ -1,50 +1,40 @@
 // src/components/AdminDashboard.tsx
+// 콘텐츠 편집: 이 기기에서 시리즈를 만들거나 고친 뒤 "시리즈 JSON 내보내기"로 받아
+// src/data/series/<id>.json에 넣고 커밋한다. 저장하기 전에 "이 기기에 초안 저장"으로 앱에서 미리 볼 수 있다.
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Save, Image as ImageIcon, Database,
-  Loader2, CheckCircle2, AlertCircle, Lock,
+  CheckCircle2, AlertCircle, FileDown, Trash2,
 } from 'lucide-react';
-import { saveAdminData } from '../lib/supabase';
-import type { AdminFormData, AdminJsonInput } from '../types';
+import type { AdminFormData, AdminJsonInput, SeriesRecord } from '../types';
+import { deleteDraft, getSeries, saveDraft } from '../lib/catalog';
+import { buildSeriesRecord, recordToAdminInput, seriesFileName } from '../lib/seriesBuilder';
+import { downloadJson } from '../lib/download';
+import { useCatalog } from '../hooks/useCatalog';
 
 interface AdminDashboardProps {
   onBack: () => void;
 }
 
-// C-03: 어드민 인증 — VITE_ADMIN_PASSWORD 환경변수와 대조
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? '';
+const EMPTY_FORM: AdminFormData = {
+  title: '',
+  description: '',
+  accentColor: '#03acb1',
+  coverUrl: '',
+  bannerUrl: '',
+  youtubeBgmId: '',
+};
+const EMPTY_JSON = '{\n  "seasons": [],\n  "episodes": [],\n  "volumes": []\n}';
 
 export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
-  // C-03: 인증 상태
-  const [authed, setAuthed] = useState(false);
-  const [pwInput, setPwInput] = useState('');
-  const [pwError, setPwError] = useState(false);
-
-  const [formData, setFormData] = useState<AdminFormData>({
-    title: '',
-    description: '',
-    accentColor: '#03acb1',
-    coverUrl: '',
-    bannerUrl: '',
-    youtubeBgmId: '',
-  });
-
-  const [jsonInput, setJsonInput] = useState(
-    '{\n  "seasons": [],\n  "episodes": [],\n  "volumes": []\n}'
-  );
-  const [isSaving, setIsSaving] = useState(false);
+  const catalog = useCatalog();
+  const drafts = catalog.filter((s) => s.isDraft);
+  /** 편집 중인 시리즈 (새 작품이면 null) */
+  const [editing, setEditing] = useState<{ id: string; createdAt: string } | null>(null);
+  const [formData, setFormData] = useState<AdminFormData>(EMPTY_FORM);
+  const [jsonInput, setJsonInput] = useState(EMPTY_JSON);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  // C-03: 패스워드 검증
-  const handleLogin = () => {
-    if (!ADMIN_PASSWORD || pwInput === ADMIN_PASSWORD) {
-      setAuthed(true);
-      setPwError(false);
-    } else {
-      setPwError(true);
-    }
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -58,98 +48,57 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleSave = async () => {
-    if (!formData.title.trim()) {
-      showToast('작품 제목(Series Title)은 필수입니다.', 'error');
+  const loadForEdit = (seriesId: string) => {
+    if (!seriesId) {
+      setEditing(null);
+      setFormData(EMPTY_FORM);
+      setJsonInput(EMPTY_JSON);
       return;
     }
+    const record = getSeries(seriesId);
+    if (!record) return;
+    const { form, json } = recordToAdminInput(record);
+    setEditing({ id: record.id, createdAt: record.created_at });
+    setFormData(form);
+    setJsonInput(JSON.stringify(json, null, 2));
+  };
 
+  /** 현재 입력으로 레코드를 만든다. 실패하면 토스트를 띄우고 null. */
+  const buildRecord = (): SeriesRecord | null => {
     try {
-      setIsSaving(true);
-      const parsedJson: AdminJsonInput = JSON.parse(jsonInput);
-      await saveAdminData(
-        formData,
-        parsedJson.episodes ?? [],
-        parsedJson.volumes ?? [],
-        parsedJson.seasons ?? []
-      );
-      showToast('성공적으로 DB에 저장되었습니다! 🎉', 'success');
-      setFormData({
-        title: '',
-        description: '',
-        accentColor: '#03acb1',
-        coverUrl: '',
-        bannerUrl: '',
-        youtubeBgmId: '',
+      const parsed: AdminJsonInput = JSON.parse(jsonInput);
+      const record = buildSeriesRecord(formData, parsed, {
+        id: editing?.id,
+        createdAt: editing?.createdAt,
       });
-      setJsonInput('{\n  "seasons": [],\n  "episodes": [],\n  "volumes": []\n}');
+      // 같은 작업 중 다시 저장해도 같은 ID가 유지되도록 고정
+      setEditing({ id: record.id, createdAt: record.created_at });
+      setJsonInput(JSON.stringify(recordToAdminInput(record).json, null, 2));
+      return record;
     } catch (error: unknown) {
-      console.error('Save failed:', error);
       if (error instanceof SyntaxError) {
         showToast('JSON 형식이 잘못되었습니다. 콤마(,)나 따옴표(")를 확인해주세요.', 'error');
-      } else if (error instanceof Error) {
-        showToast(`저장 실패: ${error.message}`, 'error');
       } else {
-        showToast('저장 실패: 데이터 규격을 확인해주세요.', 'error');
+        showToast(error instanceof Error ? error.message : '데이터 규격을 확인해주세요.', 'error');
       }
-    } finally {
-      setIsSaving(false);
+      return null;
     }
   };
 
-  // C-03: 인증 전 — 패스워드 입력 화면
-  if (!authed) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="min-h-screen bg-zinc-950 flex items-center justify-center p-4"
-      >
-        <div className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-8 space-y-6">
-          <div className="flex flex-col items-center gap-3">
-            <div className="p-3 bg-zinc-800 rounded-full">
-              <Lock className="w-6 h-6 text-indigo-400" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-100">Admin 인증</h2>
-            <p className="text-sm text-gray-400 text-center">
-              관리자 패스워드를 입력하세요
-            </p>
-          </div>
-          <div className="space-y-3">
-            <input
-              type="password"
-              value={pwInput}
-              onChange={(e) => setPwInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              placeholder="Password"
-              className={`w-full bg-zinc-950 border rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none ${
-                pwError ? 'border-red-500' : 'border-zinc-700 focus:border-indigo-500'
-              }`}
-              aria-label="Admin password"
-            />
-            {pwError && (
-              <p className="text-xs text-red-400">패스워드가 올바르지 않습니다.</p>
-            )}
-            <button
-              onClick={handleLogin}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium text-sm transition-colors"
-            >
-              로그인
-            </button>
-            <button
-              onClick={onBack}
-              className="w-full text-gray-500 hover:text-gray-300 py-1 text-sm transition-colors"
-            >
-              돌아가기
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
+  const handleSaveDraft = () => {
+    const record = buildRecord();
+    if (!record) return;
+    saveDraft(record);
+    showToast('이 기기에 초안으로 저장했습니다.', 'success');
+  };
 
-  // 인증 후 — 어드민 대시보드
+  const handleExport = () => {
+    const record = buildRecord();
+    if (!record) return;
+    downloadJson(seriesFileName(record), record);
+    showToast(`${seriesFileName(record)} → src/data/series/에 넣고 커밋하세요.`, 'success');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -192,20 +141,83 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             </button>
             <div>
               <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-gray-400">작품 정보 및 에피소드 데이터 매핑 관리</p>
+              <p className="text-sm text-gray-400">로컬에서 편집 → JSON 내보내기 → src/data/series/에 커밋</p>
             </div>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className={`flex items-center gap-2 text-white px-4 py-2 rounded-lg font-medium transition-colors ${
-              isSaving ? 'bg-indigo-600/50 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-            }`}
-          >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleSaveDraft}
+              className="flex items-center gap-2 text-white px-4 py-2 rounded-lg font-medium transition-colors bg-indigo-600 hover:bg-indigo-700"
+            >
+              <Save className="w-4 h-4" />
+              이 기기에 초안 저장
+            </button>
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 text-gray-100 px-4 py-2 rounded-lg font-medium transition-colors bg-zinc-800 hover:bg-zinc-700 border border-zinc-700"
+            >
+              <FileDown className="w-4 h-4" />
+              시리즈 JSON 내보내기
+            </button>
+          </div>
         </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <label htmlFor="edit-target" className="text-sm text-gray-400">편집 대상</label>
+          <select
+            id="edit-target"
+            value={editing?.id ?? ''}
+            onChange={(e) => loadForEdit(e.target.value)}
+            className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">새 작품</option>
+            {catalog.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.title}{s.isDraft ? ' (로컬)' : ''}
+              </option>
+            ))}
+          </select>
+          {editing && <span className="text-xs text-zinc-500 font-mono">id: {editing.id}</span>}
+        </div>
+
+        {drafts.length > 0 && (
+          <div className="bg-zinc-900 border border-amber-500/30 rounded-xl p-4 space-y-2">
+            <h2 className="text-sm font-semibold text-amber-300">이 기기의 초안 (아직 커밋 안 됨)</h2>
+            <ul className="space-y-1">
+              {drafts.map((d) => (
+                <li key={d.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate">
+                    {d.title}
+                    {d.overridesBundled && <span className="text-xs text-zinc-500 ml-2">번들 버전 수정</span>}
+                  </span>
+                  <span className="flex gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => downloadJson(seriesFileName(d), stripEntry(d))}
+                      className="p-1.5 rounded hover:bg-zinc-800"
+                      title="JSON 내보내기"
+                      aria-label={`${d.title} JSON 내보내기`}
+                    >
+                      <FileDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`"${d.title}" 초안을 삭제할까요? (진행 기록은 지워지지 않습니다)`)) {
+                          deleteDraft(d.id);
+                          if (editing?.id === d.id) loadForEdit('');
+                        }
+                      }}
+                      className="p-1.5 rounded hover:bg-zinc-800 text-rose-400"
+                      title="초안 삭제"
+                      aria-label={`${d.title} 초안 삭제`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 시리즈 정보 */}
@@ -362,4 +374,11 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       </div>
     </motion.div>
   );
+};
+
+/** 카탈로그 항목에서 화면용 플래그를 떼고 순수 레코드만 남긴다. */
+const stripEntry = (entry: SeriesRecord & { isDraft?: boolean; overridesBundled?: boolean }): SeriesRecord => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isDraft, overridesBundled, ...record } = entry;
+  return record;
 };
