@@ -58,6 +58,10 @@ export interface ProgressProposal {
   upTo: number | null;
   numbers: number[] | null;
   note: string | null;
+  /** 'approved' = the owner approved it in a Claude card (not marked yet). */
+  status: 'pending' | 'approved';
+  /** Life Hub asks AniMan for a last check. */
+  needsAppReview: boolean;
 }
 
 const obj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -65,12 +69,14 @@ const only = (v: Record<string, unknown>, keys: string[]) => Object.keys(v).ever
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 const optText = (v: unknown, max: number) => v === undefined || text(v, max);
 const int = (v: unknown, lo: number, hi: number): v is number => typeof v === 'number' && Number.isInteger(v) && v >= lo && v <= hi;
-const KEY = /^(claude|chatgpt|manual):[A-Za-z0-9_.:-]{8,128}$/;
+const KEY = /^(claude|chatgpt|codex|manual):[A-Za-z0-9_.:-]{8,128}$/;
 
-/** Validates one item from the hub; null for anything that does not match the contract. */
+/** Validates one item from the hub; null for anything that does not match the contract. The owner's card edit wins. */
 export function parseProposal(item: unknown): ProgressProposal | null {
-  if (!obj(item) || typeof item.key !== 'string' || !KEY.test(item.key) || !obj(item.candidate)) return null;
-  const c = item.candidate;
+  if (!obj(item) || typeof item.key !== 'string' || !KEY.test(item.key)) return null;
+  if (item.status !== undefined && item.status !== 'pending' && item.status !== 'approved') return null;
+  const c = item.final_candidate ?? item.candidate;
+  if (!obj(c)) return null;
   if (c.schema_version !== 1 || c.candidate_type !== 'media_progress' || typeof c.source !== 'string' ||
     `${c.source}:${String(c.idempotency_key)}` !== item.key || typeof c.created_at !== 'string' || !obj(c.payload)) return null;
   const p = c.payload;
@@ -91,6 +97,8 @@ export function parseProposal(item: unknown): ProgressProposal | null {
     upTo: typeof p.up_to === 'number' ? p.up_to : null,
     numbers,
     note: typeof p.note === 'string' ? p.note.trim() : null,
+    status: item.status === 'approved' ? 'approved' : 'pending',
+    needsAppReview: item.needs_app_review === true,
   };
 }
 
@@ -195,7 +203,7 @@ async function accessToken(deps: Deps, force = false): Promise<string> {
   return (await tokenRequest(deps, { grant_type: 'refresh_token', refresh_token: tokens.refresh_token })).access_token;
 }
 
-async function api(deps: Deps, method: 'GET' | 'POST', path: string, body?: unknown): Promise<Response> {
+async function api(deps: Deps, method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown): Promise<Response> {
   const send = async (token: string) => {
     try {
       return await deps.fetch(API + path, {
@@ -230,6 +238,35 @@ export function disconnect(deps: Deps): void {
 /* ---------- local decisions and outbox ---------- */
 
 const RECEIPTS_KEY = 'animan.lifehub.receipts.v1';
+const AUTO_APPLY_KEY = 'animan.lifehub.auto-apply.v1';
+const SERIES_REFS_KEY = 'animan.lifehub.series-refs.v1';
+
+/** 「Claude에서 승인된 항목 자동 반영」: on unless turned off on this device. */
+export const autoApplyEnabled = (deps: Pick<Deps, 'storage'>) => deps.storage.getItem(AUTO_APPLY_KEY) !== 'off';
+export function setAutoApply(deps: Pick<Deps, 'storage'>, on: boolean): void {
+  if (on) deps.storage.removeItem(AUTO_APPLY_KEY);
+  else deps.storage.setItem(AUTO_APPLY_KEY, 'off');
+}
+
+export interface SeriesRef { id: string; label: string; group: string }
+/** The catalogue as Life Hub sees it for the card: series id, title and accent colour. No progress. */
+export function seriesRefs(catalog: Array<{ id: string; title: string; accent_color?: string | null }>): SeriesRef[] {
+  return catalog
+    .filter((s) => /^[A-Za-z0-9_.:-]{1,64}$/.test(s.id) && s.title.trim())
+    .slice(0, 500)
+    .map((s) => ({ id: s.id, label: s.title.trim().slice(0, 80), group: (s.accent_color && /^#[0-9a-fA-F]{3,8}$/.test(s.accent_color) ? s.accent_color : '#03acb1') }));
+}
+/** Shares the catalogue titles when they changed (newer revision wins on Life Hub; 409 = a newer one is there). */
+export async function uploadSeriesRefs(items: SeriesRef[], deps: Deps): Promise<boolean> {
+  const body = JSON.stringify(items);
+  const last = readJson<{ revision: number; body: string }>(deps.storage, SERIES_REFS_KEY);
+  if (!items.length || last?.body === body) return false;
+  const revision = Math.max(deps.now(), (last?.revision ?? 0) + 1);
+  const response = await api(deps, 'PUT', '/refs/series', { revision, items });
+  if (!response.ok && response.status !== 409) return false;
+  deps.storage.setItem(SERIES_REFS_KEY, JSON.stringify({ revision, body }));
+  return true;
+}
 const ENTITY_ID = /^[A-Za-z0-9_-]{1,128}$/;
 
 export function outcomes(deps: Pick<Deps, 'storage'>): Record<string, Outcome> {
@@ -253,7 +290,8 @@ export function receipts(deps: Pick<Deps, 'storage'>): Array<{ key: string; logI
 
 export interface SyncResult { proposals: ProgressProposal[]; receiptsSent: number; rejectionsSent: number; conflicts: number; waiting: number }
 
-export async function sync(deps: Deps): Promise<SyncResult> {
+/** Sends decisions, shares the catalogue titles when they changed, then fetches open proposals. Marks nothing. */
+export async function sync(deps: Deps, series?: SeriesRef[]): Promise<SyncResult> {
   const done = outcomes(deps);
   const result: SyncResult = { proposals: [], receiptsSent: 0, rejectionsSent: 0, conflicts: 0, waiting: 0 };
   const record = (key: string, response: Response, ok: Outcome) => {
@@ -279,7 +317,8 @@ export async function sync(deps: Deps): Promise<SyncResult> {
     if (done[key]) continue;
     if (record(key, await api(deps, 'POST', '/rejections', { key }), 'rejected')) result.rejectionsSent++;
   }
-  const response = await api(deps, 'GET', '/candidates?status=pending&limit=100');
+  if (series) await uploadSeriesRefs(series, deps).catch(() => false);
+  const response = await api(deps, 'GET', '/candidates?status=open&limit=100');
   if (!response.ok) throw new LifeHubError('server', `Life Hub 제안을 가져오지 못했어요 (${response.status})`);
   const body = (await response.json().catch(() => null)) as { candidates?: unknown } | null;
   if (!body || !Array.isArray(body.candidates)) throw new LifeHubError('server', 'Life Hub 응답 형식이 올바르지 않아요.');
