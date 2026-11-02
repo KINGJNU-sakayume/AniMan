@@ -188,6 +188,8 @@ Episodes/Volumes JSON 입력 예:
    SUPABASE_URL=https://<project>.supabase.co SUPABASE_ANON_KEY=<anon-key> npm run export:catalog
    ```
 
+   명령을 못 돌리는 환경이면 GitHub **Actions → Export catalog from Supabase → Run workflow**로 같은 작업을 실행할 수 있습니다(저장소 secrets `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` 사용, 결과를 실행한 브랜치에 커밋).
+
    `src/data/series/<series-id>.json`이 시리즈별로 생성됩니다(모든 UUID 유지). 이미 있는 파일 중 Supabase에 없는 것은 경고만 하며, `-- --clean`을 붙이면 삭제합니다.
 
 2. **확인 후 커밋**
