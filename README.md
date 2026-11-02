@@ -158,6 +158,15 @@ importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(합집합) | 'r
 
 ---
 
+## Life Hub로 진행 제안 받기 (선택)
+
+Claude에게 "주술회전 2기 5화까지 봤어", "최애의 아이 만화 7권까지 읽었어"처럼 말하면 Claude가 [Life Hub](https://github.com/KINGJNU-sakayume/life-hub)에 **진행 제안**(`media_progress`)을 남기고, AniMan이 받아 온다.
+
+- 첫 화면의 **Life Hub** 버튼에서 한 번 연결한다(배포 주소에서만). OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox` 권한만. Life Hub는 `public/lifehub/`로 돌아온다.
+- 제안이 있으면 버튼에 숫자 배지. 작품 제목(또는 괄호 안 원제)이 하나로 맞을 때만 자동 선택, 애매하면 고른다. 카탈로그에 없는 작품은 추가한 뒤 다시 확인.
+- "N화/권까지"는 타임라인 순서로 그 앞까지 모두, 번호 목록은 그것만. "2기 5화"는 시즌의 챕터 범위로 바꿔 계산한다(`src/lifehub/resolve.ts`). 기록 전에 새로 완료될 개수를 보여 준다.
+- 「기록」은 `markCompleted`(합집합, 지우지 않음), 「거절」은 변경 없음. 승인(시리즈 ID)·거절 결과는 동기화 때 Life Hub로 보내고 응답이 올 때까지 다시 보낸다(localStorage `animan.lifehub.*`).
+
 ## 콘텐츠 추가 / 수정
 
 1. 앱에서 **Add Series**(또는 시리즈 화면의 ⚙) → Admin Dashboard.
