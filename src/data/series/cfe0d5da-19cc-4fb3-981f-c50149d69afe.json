@@ -1,0 +1,178 @@
+{
+  "id": "cfe0d5da-19cc-4fb3-981f-c50149d69afe",
+  "title": "봇치 더 록! (ぼっち・ざ・ろっく！)",
+  "description": "극심한 낯가림으로 \"외톨이(봇치)\"였던 고등학생 고토 히토리가 결속 밴드에 합류하게 되면서, 개성 강한 동료들과 함께 음악 활동을 통해 성장해 나가는 과정을 그린 음악/일상물",
+  "cover_url": "https://wallpapers.com/images/featured/bocchi-the-rock-finiws4zqzxwyo35.jpg",
+  "banner_url": "",
+  "accent_color": "#ff78ae",
+  "youtube_bgm_id": "4uxe2Tpvnhc",
+  "created_at": "2026-03-07T07:23:53.986434+00:00",
+  "seasons": [
+    {
+      "id": "8c362a4d-1f9b-4125-83d4-e38da7a24268",
+      "name": "SEASON 1",
+      "start_chapter": 1,
+      "end_chapter": 21
+    },
+    {
+      "id": "154dc5e0-0c4d-4da8-85c4-2c19acbf2da5",
+      "name": "SEASON 2 (TBA)",
+      "start_chapter": 22,
+      "end_chapter": 40
+    }
+  ],
+  "episodes": [
+    {
+      "id": "8c459699-a9c9-4acf-8e27-c96f5e4e4500",
+      "episode_number": "1",
+      "title": "굴러가는 바위, 네게 아침이 내린다",
+      "start_chapter": 1,
+      "end_chapter": 1,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0c685594-01f3-4491-9f41-5bf372c1ff65",
+      "episode_number": "2",
+      "title": "글쎄 내일 만나",
+      "start_chapter": 2,
+      "end_chapter": 2,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "88e49a21-afc2-4a8e-9386-84654855a077",
+      "episode_number": "3",
+      "title": "바보라도 갈 수 있어",
+      "start_chapter": 3,
+      "end_chapter": 3,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ec56035f-1b5e-4dd5-9392-ecb533b4f557",
+      "episode_number": "4",
+      "title": "점핑 걸(들)",
+      "start_chapter": 4,
+      "end_chapter": 5,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3e8af981-5cc9-4e4c-af46-f0400a066423",
+      "episode_number": "5",
+      "title": "날지 못하는 물고기",
+      "start_chapter": 6,
+      "end_chapter": 6,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "571ee7d9-5889-482c-9a1b-0d512db5f8b6",
+      "episode_number": "6",
+      "title": "팔일째의 밤",
+      "start_chapter": 7,
+      "end_chapter": 8,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "28916e20-398d-421f-ac3f-6c9f6350072a",
+      "episode_number": "7",
+      "title": "너의 집까지",
+      "start_chapter": 9,
+      "end_chapter": 11,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0e8221d5-6043-437e-ad4d-9f4925b945d6",
+      "episode_number": "8",
+      "title": "결속 밴드",
+      "start_chapter": 12,
+      "end_chapter": 12,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3422f10e-34f2-4393-9915-149cadf74f13",
+      "episode_number": "9",
+      "title": "에노시마 에스카",
+      "start_chapter": 13,
+      "end_chapter": 14,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2dc405d9-3176-479a-81c3-2fb287a1c9f4",
+      "episode_number": "10",
+      "title": "방과 후 포스",
+      "start_chapter": 15,
+      "end_chapter": 16,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f7824558-f1e9-4d87-873f-82c03d2db471",
+      "episode_number": "11",
+      "title": "빛나는 별자리",
+      "start_chapter": 17,
+      "end_chapter": 18,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4a57d328-76ee-4e55-8c30-2474abeba84f",
+      "episode_number": "12",
+      "title": "네게 아침이 내린다",
+      "start_chapter": 19,
+      "end_chapter": 21,
+      "cover_url": null,
+      "duration": 24
+    }
+  ],
+  "volumes": [
+    {
+      "id": "e51d8122-5eb0-4ddc-83b3-123458a1eef0",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 12,
+      "cover_url": "https://image.aladin.co.kr/product/35053/20/cover500/k532934098_1.jpg"
+    },
+    {
+      "id": "3ac926ba-064d-477f-a817-9e279ba615be",
+      "volume_number": 2,
+      "start_chapter": 13,
+      "end_chapter": 24,
+      "cover_url": "https://image.aladin.co.kr/product/35313/73/cover500/k982035372_1.jpg"
+    },
+    {
+      "id": "a88d3e2f-db4e-42d1-89c6-627150017da6",
+      "volume_number": 3,
+      "start_chapter": 25,
+      "end_chapter": 36,
+      "cover_url": "https://image.aladin.co.kr/product/35313/73/cover500/k902035372_1.jpg"
+    },
+    {
+      "id": "df065cf5-ad4e-4bd3-bea7-84016fb0ca40",
+      "volume_number": 4,
+      "start_chapter": 37,
+      "end_chapter": 48,
+      "cover_url": "https://image.aladin.co.kr/product/35688/99/cover500/k122036022_1.jpg"
+    },
+    {
+      "id": "328ef3cd-3eb0-4c58-9714-5fcd98473ea8",
+      "volume_number": 5,
+      "start_chapter": 49,
+      "end_chapter": 60,
+      "cover_url": "https://image.aladin.co.kr/product/35313/74/cover500/k922035372_1.jpg"
+    },
+    {
+      "id": "0870d19c-9922-4c6b-b638-0a6678190cc3",
+      "volume_number": 6,
+      "start_chapter": 61,
+      "end_chapter": 72,
+      "cover_url": "https://image.aladin.co.kr/product/35313/75/cover500/k072035372_1.jpg"
+    }
+  ]
+}

@@ -1,0 +1,1086 @@
+{
+  "id": "a2c6c55c-8422-4da4-a67d-8afe3661ff45",
+  "title": "슬램덩크 ",
+  "description": "초보자 강백호가 농구부에서 천재적인 재능을 꽃피우며 팀원들과 함께 전국 제패를 향해 나아가는 뜨거운 성장과 열정을 그린 농구 만화의 금자탑",
+  "cover_url": "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F05%2Fslam-dunk-manga-exhibition-held-in-seoul-2024-2.jpg?q=75&w=800&cbr=1&fit=max",
+  "banner_url": "",
+  "accent_color": "#e3000f",
+  "youtube_bgm_id": "C0EZ09az1k4",
+  "created_at": "2026-03-07T06:56:59.212969+00:00",
+  "seasons": [
+    {
+      "id": "6de8abe9-ccd0-4a69-9d16-2be9a1347b76",
+      "name": "TV Series (Ep 1~101)",
+      "start_chapter": 1,
+      "end_chapter": 242
+    },
+    {
+      "id": "9a209df4-e524-42d6-8dec-d7cee6367e79",
+      "name": "Movie (The First Slam Dunk)",
+      "start_chapter": 243,
+      "end_chapter": 276
+    }
+  ],
+  "episodes": [
+    {
+      "id": "3f0b6401-6b8e-440b-8a1a-7842192fd18c",
+      "episode_number": "1",
+      "title": "천재 농구 선수의 탄생?!",
+      "start_chapter": 1,
+      "end_chapter": 1,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "76055364-b4b7-40a2-b0a1-9f0d964fa1dc",
+      "episode_number": "2",
+      "title": "죽어라 바스켓! 강백호 VS 채치수",
+      "start_chapter": 2,
+      "end_chapter": 4,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a1dd7ed9-fd1d-4548-a079-3ef5418a1836",
+      "episode_number": "3",
+      "title": "강백호 VS 서태웅",
+      "start_chapter": 5,
+      "end_chapter": 6,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3fee2ccb-908e-4824-9841-524dbdf42987",
+      "episode_number": "4",
+      "title": "농구부에 입단한 강백호",
+      "start_chapter": 7,
+      "end_chapter": 8,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "771ca9e3-6df9-488d-bc31-f1814e1611ca",
+      "episode_number": "5",
+      "title": "근성 없는 오후",
+      "start_chapter": 9,
+      "end_chapter": 11,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0d95137b-2f3e-4a46-a589-98ec04c9e0ff",
+      "episode_number": "6",
+      "title": "서태웅 VS 채치수",
+      "start_chapter": 12,
+      "end_chapter": 14,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8a472983-0484-4c5d-b2d2-ffbc60fd564a",
+      "episode_number": "7",
+      "title": "강백호 데뷔! 덩크 폭발",
+      "start_chapter": 15,
+      "end_chapter": 16,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c6da9557-1da3-48bf-a2f5-614820ac96fd",
+      "episode_number": "8",
+      "title": "강백호의 위기! 유도 사나이의 함정",
+      "start_chapter": 17,
+      "end_chapter": 18,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "802260c4-482d-44d4-b1b2-7ff21fcec23a",
+      "episode_number": "9",
+      "title": "난 농구를 할 거다!",
+      "start_chapter": 19,
+      "end_chapter": 21,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d9ba40b0-068f-4fa0-a8de-3b0f204c21f7",
+      "episode_number": "10",
+      "title": "서민 슛은 어려워",
+      "start_chapter": 22,
+      "end_chapter": 24,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cc75e609-16aa-4e30-9b3a-71196cc6d527",
+      "episode_number": "11",
+      "title": "비밀 특훈! 두 사람만의 비밀",
+      "start_chapter": 25,
+      "end_chapter": 26,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "91d00d9a-bf74-4296-9bc0-9b7beaece888",
+      "episode_number": "12",
+      "title": "능남을 쓰러뜨려라! 연습 경기 전날밤",
+      "start_chapter": 27,
+      "end_chapter": 28,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cdcd8f23-c987-4d3f-b796-a9f9ad72a523",
+      "episode_number": "13",
+      "title": "비밀 병기 등장! 능남을 이겨라",
+      "start_chapter": 29,
+      "end_chapter": 30,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "854c0de2-3456-4747-9697-4730a1ca1834",
+      "episode_number": "14",
+      "title": "능남전! 초고교급 윤대협의 맹공",
+      "start_chapter": 31,
+      "end_chapter": 32,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d541bbcd-a1e0-4b08-a2d7-b04e4dfc8c97",
+      "episode_number": "15",
+      "title": "강백호! 리바운드의 실력을 보여라",
+      "start_chapter": 33,
+      "end_chapter": 35,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b9a1c6ab-d644-404c-b686-326416a69021",
+      "episode_number": "16",
+      "title": "윤대협의 역습! 분노의 덩크 슛",
+      "start_chapter": 36,
+      "end_chapter": 38,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "271e154b-35a3-4fb8-babb-2d831b0ee06e",
+      "episode_number": "17",
+      "title": "리바운드 왕 강백호의 고뇌",
+      "start_chapter": 39,
+      "end_chapter": 41,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "901153e2-8e60-403b-954e-6d37d8044611",
+      "episode_number": "18",
+      "title": "라스트 2분! 윤대협은 내가 꺾는다",
+      "start_chapter": 42,
+      "end_chapter": 44,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f46452e2-753e-466b-b390-a7eefc9d6b1e",
+      "episode_number": "19",
+      "title": "타임 업! 능남전의 결말",
+      "start_chapter": 45,
+      "end_chapter": 47,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "012489f2-aefa-4814-8755-42cee5cdf6f7",
+      "episode_number": "20",
+      "title": "농구화 대소동",
+      "start_chapter": 48,
+      "end_chapter": 49,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "6572f7fe-e5d3-49c9-b8ab-f486c6770db0",
+      "episode_number": "21",
+      "title": "문제아들! 강백호 VS 송태섭",
+      "start_chapter": 50,
+      "end_chapter": 52,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d60727f2-9231-45cf-be05-8fa213d5faf5",
+      "episode_number": "22",
+      "title": "사상 최악의 문제아 등장",
+      "start_chapter": 53,
+      "end_chapter": 55,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4c1bf203-a3ed-46ac-ab7d-93dae718e47f",
+      "episode_number": "23",
+      "title": "북산 농구부 최후의 날",
+      "start_chapter": 56,
+      "end_chapter": 58,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c7af5c06-75a7-4b4d-a5a8-d7f8c348a857",
+      "episode_number": "24",
+      "title": "정의의 아군! 강백호 군단 등장",
+      "start_chapter": 59,
+      "end_chapter": 62,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "31c55d18-4531-46c7-9147-bf412daab85e",
+      "episode_number": "25",
+      "title": "전국 제패를 꿈꾸던 사나이",
+      "start_chapter": 63,
+      "end_chapter": 66,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8cd6028d-cc11-4b0e-af92-466d09d0e76f",
+      "episode_number": "26",
+      "title": "정대만, 15세의 번민",
+      "start_chapter": 67,
+      "end_chapter": 69,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "bb69f0ab-92c1-448e-a6d9-3045b1a7394e",
+      "episode_number": "27",
+      "title": "농구가 하고 싶어요!",
+      "start_chapter": 70,
+      "end_chapter": 71,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cd9f3d7c-13a9-4c5c-a613-0a503ff79052",
+      "episode_number": "28",
+      "title": "인터하이 예선 시작",
+      "start_chapter": 72,
+      "end_chapter": 73,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c1b2d997-a93a-4d56-86da-8b3f9cca1754",
+      "episode_number": "29",
+      "title": "강백호! 공식전 데뷔",
+      "start_chapter": 74,
+      "end_chapter": 75,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9c23c5ac-9b04-4ce4-8764-e1896b714111",
+      "episode_number": "30",
+      "title": "문제아 군단의 반격",
+      "start_chapter": 76,
+      "end_chapter": 77,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f436310a-6b19-4dbe-b68f-a5c46c8e0a7e",
+      "episode_number": "31",
+      "title": "강적 삼포고등학교의 맹공",
+      "start_chapter": 78,
+      "end_chapter": 79,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3e4d54c5-38ca-490e-82e8-063ba5d62953",
+      "episode_number": "32",
+      "title": "천재 강백호! 필살의 덩크 슛",
+      "start_chapter": 80,
+      "end_chapter": 81,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cc36623b-d095-4679-8e37-08dd020b2e60",
+      "episode_number": "33",
+      "title": "퇴장왕?! 강백호",
+      "start_chapter": 82,
+      "end_chapter": 83,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "24c7b78f-74ef-4305-ad63-5c19f779459e",
+      "episode_number": "34",
+      "title": "고릴라의 가르침! 눈으로 죽여라",
+      "start_chapter": 84,
+      "end_chapter": 85,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "36d8757c-e667-4c26-9ffe-1382c59c8259",
+      "episode_number": "35",
+      "title": "뜨거운 우정! 문제아들",
+      "start_chapter": 86,
+      "end_chapter": 87,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9c750cea-60ec-4f1b-9b57-17d0cbef4a4d",
+      "episode_number": "36",
+      "title": "상양 고교 등장",
+      "start_chapter": 88,
+      "end_chapter": 90,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "eb760843-3a30-40dd-8139-7f9da5e84321",
+      "episode_number": "37",
+      "title": "강백호! 첫 선발 출장",
+      "start_chapter": 91,
+      "end_chapter": 93,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c229635c-f708-48e8-b4b0-b1723947598e",
+      "episode_number": "38",
+      "title": "서태웅의 반격",
+      "start_chapter": 94,
+      "end_chapter": 96,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "85c3844f-0899-4277-8ba6-9a9a73706faa",
+      "episode_number": "39",
+      "title": "불꽃 사나이 정대만!",
+      "start_chapter": 97,
+      "end_chapter": 99,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a422ee8d-9cf0-4df9-88b8-7c152147d5ba",
+      "episode_number": "40",
+      "title": "공백의 2년! 정대만의 위기",
+      "start_chapter": 100,
+      "end_chapter": 102,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9f9b0ffc-45d4-41c9-be0c-ec2e76854b25",
+      "episode_number": "41",
+      "title": "상양의 에이스 김수겸 등장",
+      "start_chapter": 103,
+      "end_chapter": 105,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "41ebfd3c-c5d7-48fb-995a-c4bf84efd1c1",
+      "episode_number": "42",
+      "title": "김수겸의 실력! 상양의 맹공",
+      "start_chapter": 106,
+      "end_chapter": 108,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "028766bf-2e01-4662-a13f-9af6d0a20e2c",
+      "episode_number": "43",
+      "title": "정대만 한계인가?!",
+      "start_chapter": 109,
+      "end_chapter": 111,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9de98232-f910-4624-bff9-62f130d42237",
+      "episode_number": "44",
+      "title": "정대만! 폭풍 같은 3점 슛",
+      "start_chapter": 112,
+      "end_chapter": 114,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "916d20e4-4020-4d26-b637-f9fae26b7adf",
+      "episode_number": "45",
+      "title": "불안한 퇴장! 강백호의 위기",
+      "start_chapter": 115,
+      "end_chapter": 116,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ecab77bb-6100-4a00-ac81-1570f1c5685c",
+      "episode_number": "46",
+      "title": "강백호! 뜨거운 덩크 슛",
+      "start_chapter": 117,
+      "end_chapter": 118,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "1b9c09b2-5360-4b42-b229-c40a45a399a2",
+      "episode_number": "47",
+      "title": "숙적 해남으로부터의 도전장",
+      "start_chapter": 119,
+      "end_chapter": 120,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e9eb24f5-ae1e-4d05-ac76-49f3d6b60f92",
+      "episode_number": "48",
+      "title": "꼭 이기겠다! 강백호의 결의",
+      "start_chapter": 121,
+      "end_chapter": 122,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "cf6a03e6-d5d6-464d-b8ae-4af739967fc7",
+      "episode_number": "49",
+      "title": "해남의 저력! 상위 랭커의 위용",
+      "start_chapter": 123,
+      "end_chapter": 124,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b6d57f39-1a3f-49d0-a7a1-6efc036e277b",
+      "episode_number": "50",
+      "title": "왕자 해남에게 도전하라!",
+      "start_chapter": 125,
+      "end_chapter": 126,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "82c7b5d4-1bbd-4ce4-9d4d-c46879a203cb",
+      "episode_number": "51",
+      "title": "계산 밖?! 강백호 절호조!",
+      "start_chapter": 127,
+      "end_chapter": 128,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ba047907-0f04-47e0-9bd0-0f74f4865887",
+      "episode_number": "52",
+      "title": "채치수를 막는 비밀 병기",
+      "start_chapter": 129,
+      "end_chapter": 130,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8044c048-8d8f-455e-ab7c-849e3bd6601b",
+      "episode_number": "53",
+      "title": "고릴라 부상! 절체절명의 위기",
+      "start_chapter": 131,
+      "end_chapter": 132,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5a5beff9-4ec0-44b3-baeb-088dcfb55555",
+      "episode_number": "54",
+      "title": "킹콩의 동생",
+      "start_chapter": 133,
+      "end_chapter": 134,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2cac782c-9d08-4356-a55d-b19e12233a07",
+      "episode_number": "55",
+      "title": "경기를 지배하는 남자",
+      "start_chapter": 135,
+      "end_chapter": 136,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "f8ca6195-1c8d-4f2b-b404-44bff5d4e67f",
+      "episode_number": "56",
+      "title": "에이스 서태웅! 폭발하는 공격",
+      "start_chapter": 137,
+      "end_chapter": 138,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9d564f53-7970-46d7-a4b9-aa5aa6945ebb",
+      "episode_number": "57",
+      "title": "승부의 후반전!",
+      "start_chapter": 139,
+      "end_chapter": 140,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b346a558-56d5-47d2-ad60-307231caa2fd",
+      "episode_number": "58",
+      "title": "이정환 VS 서태웅",
+      "start_chapter": 141,
+      "end_chapter": 142,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "634269a8-69c7-4627-8fd5-871788845b9d",
+      "episode_number": "59",
+      "title": "왕자 해남의 위용",
+      "start_chapter": 143,
+      "end_chapter": 145,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "294c0056-3f3f-4bf3-9ffd-016ccebf0884",
+      "episode_number": "60",
+      "title": "북산 절체절명의 위기",
+      "start_chapter": 146,
+      "end_chapter": 148,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "de88e077-93f0-4413-8552-14f1378e3170",
+      "episode_number": "61",
+      "title": "강백호 폭발! 해남에게 다가서다",
+      "start_chapter": 149,
+      "end_chapter": 151,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "4246711a-2879-4600-863f-2e14c225ea75",
+      "episode_number": "62",
+      "title": "특훈 성과?! 절정의 덩크 슛",
+      "start_chapter": 152,
+      "end_chapter": 153,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b0e4cb0f-dbaa-4b74-8cfa-c8567ef58240",
+      "episode_number": "63",
+      "title": "최후의 승부! 이정환 VS 강백호",
+      "start_chapter": 154,
+      "end_chapter": 156,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b9246bdc-48cf-42bc-82df-9e62e35b7d25",
+      "episode_number": "64",
+      "title": "왕자 해남의 승리",
+      "start_chapter": 157,
+      "end_chapter": 158,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d70bea18-1692-418d-8338-27216a035e9f",
+      "episode_number": "65",
+      "title": "결전! 능남 VS 무림",
+      "start_chapter": 159,
+      "end_chapter": 160,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "927fc75c-bc65-4d5a-8383-8bc9e2611cf0",
+      "episode_number": "66",
+      "title": "강백호의 시련",
+      "start_chapter": 161,
+      "end_chapter": 162,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5359e817-e16d-4fba-bed8-0029097649f6",
+      "episode_number": "67",
+      "title": "최종 결전! 북산 VS 능남",
+      "start_chapter": 163,
+      "end_chapter": 164,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "9afea0e0-397b-4708-b2f4-ddbf08928597",
+      "episode_number": "68",
+      "title": "구세주 강백호?!",
+      "start_chapter": 165,
+      "end_chapter": 166,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "66375b64-a260-480d-b7e1-532f5d0b2942",
+      "episode_number": "69",
+      "title": "고릴라 이변!",
+      "start_chapter": 167,
+      "end_chapter": 168,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0c5e640c-d578-4667-88d8-524bdf23d3fd",
+      "episode_number": "70",
+      "title": "고릴라 덩크 II",
+      "start_chapter": 169,
+      "end_chapter": 170,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "2c61d76b-8328-4069-ae30-4ae7322f0097",
+      "episode_number": "71",
+      "title": "고릴라 부활의 함성",
+      "start_chapter": 171,
+      "end_chapter": 172,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "42ade403-953e-4899-be03-1fab4d7ae905",
+      "episode_number": "72",
+      "title": "인생 최대의 굴욕",
+      "start_chapter": 173,
+      "end_chapter": 174,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c252d1ad-1f4e-4434-8044-1e7c4302093a",
+      "episode_number": "73",
+      "title": "서태웅! 후반전에 거는 승부",
+      "start_chapter": 175,
+      "end_chapter": 176,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "c98c4658-f3f3-4eb9-b536-53b68f73f012",
+      "episode_number": "74",
+      "title": "가장 위험한 도전자",
+      "start_chapter": 177,
+      "end_chapter": 178,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "0f66a337-59c4-4b4f-8454-3cb84ea9ee00",
+      "episode_number": "75",
+      "title": "파인 플레이",
+      "start_chapter": 179,
+      "end_chapter": 180,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "62aa4ea3-1e91-4364-a6d1-19426d4e3aaa",
+      "episode_number": "76",
+      "title": "승리의 예감",
+      "start_chapter": 181,
+      "end_chapter": 182,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5b39ab50-8daf-483b-ae0f-27a70fd8d345",
+      "episode_number": "77",
+      "title": "너희는 강하다",
+      "start_chapter": 183,
+      "end_chapter": 184,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "252adcd5-e5dd-4941-b703-eec7392511e7",
+      "episode_number": "78",
+      "title": "부활! 투장 변덕규",
+      "start_chapter": 185,
+      "end_chapter": 186,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "82ee2a5c-4062-4f5d-a31a-e71cdc8bb8ae",
+      "episode_number": "79",
+      "title": "블루 실! 능남의 반격",
+      "start_chapter": 187,
+      "end_chapter": 188,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "fcde8990-394d-4ed8-998f-2c5936af43b8",
+      "episode_number": "80",
+      "title": "북산의 불안 요소",
+      "start_chapter": 189,
+      "end_chapter": 190,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8ee46011-1517-4f78-8d21-f5fce18ba4cf",
+      "episode_number": "81",
+      "title": "윤대협 전개! 북산 붕괴?!",
+      "start_chapter": 191,
+      "end_chapter": 192,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "e94527bf-363e-4249-9c27-b584f50f1741",
+      "episode_number": "82",
+      "title": "풋내기 강백호 본령 발휘",
+      "start_chapter": 193,
+      "end_chapter": 194,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b2e15681-724e-4226-9def-201e7e1270ad",
+      "episode_number": "83",
+      "title": "안경 선배의 집념",
+      "start_chapter": 195,
+      "end_chapter": 196,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "1ac80e2f-7ebf-4422-8dd4-f378da0ebcbd",
+      "episode_number": "84",
+      "title": "승패의 명암",
+      "start_chapter": 197,
+      "end_chapter": 198,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "5a4c7e78-016d-4e75-a491-4ad4702011ea",
+      "episode_number": "85",
+      "title": "새로운 도전! 전국 제패",
+      "start_chapter": 199,
+      "end_chapter": 200,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "edc3f046-7d1b-4ec8-b21c-cec7a5683e58",
+      "episode_number": "86",
+      "title": "서태웅의 야망",
+      "start_chapter": 201,
+      "end_chapter": 202,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a4b78c0e-313a-4a08-ad0f-52f07dbda9da",
+      "episode_number": "87",
+      "title": "일본 제일의 고교생",
+      "start_chapter": 203,
+      "end_chapter": 204,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "8180091d-3ed1-4089-83ee-af44c70c3083",
+      "episode_number": "88",
+      "title": "농구의 나라 미국",
+      "start_chapter": 205,
+      "end_chapter": 206,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a0ba042a-651a-4e29-8252-1d2884ff9492",
+      "episode_number": "89",
+      "title": "서태웅의 기백",
+      "start_chapter": 207,
+      "end_chapter": 208,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d5429dda-50ec-446d-8c35-b36f4a48c05b",
+      "episode_number": "90",
+      "title": "북산의 진짜 에이스",
+      "start_chapter": 209,
+      "end_chapter": 210,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "378dd61c-cebc-44d2-a423-9b486dd1f621",
+      "episode_number": "91",
+      "title": "전국 대회의 위기!",
+      "start_chapter": 211,
+      "end_chapter": 212,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "b786a49d-837c-45dd-8ea5-7e67408ef925",
+      "episode_number": "92",
+      "title": "남자들의 우정! 강백호 군단",
+      "start_chapter": 213,
+      "end_chapter": 214,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3978c434-fbdd-46cc-a311-d8ce0239c9b5",
+      "episode_number": "93",
+      "title": "2만 번의 도전",
+      "start_chapter": 215,
+      "end_chapter": 217,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "194a08f4-25cc-475f-94c3-01813619260d",
+      "episode_number": "94",
+      "title": "시즈오카의 격전! 북산 VS 상성",
+      "start_chapter": 218,
+      "end_chapter": 219,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "85b8fc5b-8a85-49cb-ad14-42f8707b7e5e",
+      "episode_number": "95",
+      "title": "강백호의 가장 뜨거운 하루",
+      "start_chapter": 220,
+      "end_chapter": 221,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3155ca5c-1ecb-458a-bfdb-d629a000a639",
+      "episode_number": "96",
+      "title": "농구화 대소동 II",
+      "start_chapter": 222,
+      "end_chapter": 223,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "807c8365-16ac-496d-bcbb-214faf71101d",
+      "episode_number": "97",
+      "title": "뜨거운 생각! 변덕규의 귀환",
+      "start_chapter": 224,
+      "end_chapter": 226,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "d135b51a-e76d-4be3-8197-77a130f8c9ed",
+      "episode_number": "98",
+      "title": "격투 개시! 북산 VS 능남/상양",
+      "start_chapter": 227,
+      "end_chapter": 230,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "a714f123-4b97-47dc-a327-380927f03e96",
+      "episode_number": "99",
+      "title": "북산 위기! 최강 군단의 위협",
+      "start_chapter": 231,
+      "end_chapter": 234,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "3a6c01b0-f03e-4c76-8331-000ca63fa630",
+      "episode_number": "100",
+      "title": "기적의 사나이 강백호!",
+      "start_chapter": 235,
+      "end_chapter": 238,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "ae371612-9b27-4208-9357-28a373ffe101",
+      "episode_number": "101",
+      "title": "영광의 슬램덩크",
+      "start_chapter": 239,
+      "end_chapter": 242,
+      "cover_url": null,
+      "duration": 24
+    },
+    {
+      "id": "020873ec-592f-44ea-bf4b-059f38a63853",
+      "episode_number": "Movie",
+      "title": "더 퍼스트 슬램덩크(The First Slam Dunk)",
+      "start_chapter": 243,
+      "end_chapter": 276,
+      "cover_url": null,
+      "duration": 125
+    }
+  ],
+  "volumes": [
+    {
+      "id": "e76ff524-b05f-4fdb-ba17-f24da6f4657c",
+      "volume_number": 1,
+      "start_chapter": 1,
+      "end_chapter": 14,
+      "cover_url": "https://image.aladin.co.kr/product/37487/57/cover500/k162032110_1.jpg"
+    },
+    {
+      "id": "a009a54b-27e1-4667-ad1f-88b9fccb575e",
+      "volume_number": 2,
+      "start_chapter": 15,
+      "end_chapter": 28,
+      "cover_url": "https://image.aladin.co.kr/product/37909/16/cover500/k322033931_1.jpg"
+    },
+    {
+      "id": "305af330-a6d0-4cf8-a17b-4f48d7ed603f",
+      "volume_number": 3,
+      "start_chapter": 29,
+      "end_chapter": 42,
+      "cover_url": "https://image.aladin.co.kr/product/37252/21/cover500/k832031026_1.jpg"
+    },
+    {
+      "id": "cd481753-7a37-425b-8275-55400c507eba",
+      "volume_number": 4,
+      "start_chapter": 43,
+      "end_chapter": 56,
+      "cover_url": "https://image.aladin.co.kr/product/37966/44/cover500/k152533843_1.jpg"
+    },
+    {
+      "id": "f4b65e22-ad4f-4194-a604-8a5c4887aeb8",
+      "volume_number": 5,
+      "start_chapter": 57,
+      "end_chapter": 71,
+      "cover_url": "https://image.aladin.co.kr/product/37875/95/cover500/k302033803_1.jpg"
+    },
+    {
+      "id": "f0efbc9f-e156-44a8-9345-1ccc394ff04b",
+      "volume_number": 6,
+      "start_chapter": 72,
+      "end_chapter": 85,
+      "cover_url": "https://image.aladin.co.kr/product/37208/10/cover500/k922031599_1.jpg"
+    },
+    {
+      "id": "5db4ab0a-aeae-4116-aee8-d5309e92b801",
+      "volume_number": 7,
+      "start_chapter": 86,
+      "end_chapter": 99,
+      "cover_url": "https://image.aladin.co.kr/product/37487/60/cover500/k242032110_1.jpg"
+    },
+    {
+      "id": "5e815a76-66d0-4ba0-997c-f272e5fe80c3",
+      "volume_number": 8,
+      "start_chapter": 100,
+      "end_chapter": 113,
+      "cover_url": "https://image.aladin.co.kr/product/37539/69/cover500/k882032120_1.jpg"
+    },
+    {
+      "id": "ba81eb21-bdc6-414b-84b6-6bbf5b5a8702",
+      "volume_number": 9,
+      "start_chapter": 114,
+      "end_chapter": 127,
+      "cover_url": "https://image.aladin.co.kr/product/37728/3/cover500/k542033262_1.jpg"
+    },
+    {
+      "id": "128f5f9b-8606-4c7a-ae26-cd87603218d4",
+      "volume_number": 10,
+      "start_chapter": 128,
+      "end_chapter": 141,
+      "cover_url": "https://image.aladin.co.kr/product/38436/94/cover500/k382135890_1.jpg"
+    },
+    {
+      "id": "268d9d8b-4635-48e7-ad25-7eae3d330fbf",
+      "volume_number": 11,
+      "start_chapter": 142,
+      "end_chapter": 155,
+      "cover_url": "https://image.aladin.co.kr/product/37593/11/cover500/k802032739_1.jpg"
+    },
+    {
+      "id": "bb76f887-5fff-450b-bdd6-7d44051f15ac",
+      "volume_number": 12,
+      "start_chapter": 156,
+      "end_chapter": 169,
+      "cover_url": "https://image.aladin.co.kr/product/37487/63/cover500/k512032110_1.jpg"
+    },
+    {
+      "id": "226c3ccd-b895-4df7-9001-9042c54c655d",
+      "volume_number": 13,
+      "start_chapter": 170,
+      "end_chapter": 183,
+      "cover_url": "https://image.aladin.co.kr/product/37487/59/cover500/k252032110_1.jpg"
+    },
+    {
+      "id": "0e2af0a0-1ef4-43c3-af97-21df630d0959",
+      "volume_number": 14,
+      "start_chapter": 184,
+      "end_chapter": 197,
+      "cover_url": "https://image.aladin.co.kr/product/37487/57/cover500/k432534471_1.jpg"
+    },
+    {
+      "id": "9eee2d4c-e252-4fe6-a385-edb2b8c58290",
+      "volume_number": 15,
+      "start_chapter": 198,
+      "end_chapter": 211,
+      "cover_url": "https://image.aladin.co.kr/product/37875/96/cover500/k592534992_1.jpg"
+    },
+    {
+      "id": "bb148ed8-adaf-461e-b689-9b0ed2c440cb",
+      "volume_number": 16,
+      "start_chapter": 212,
+      "end_chapter": 224,
+      "cover_url": "https://image.aladin.co.kr/product/38358/13/cover500/k922135369_1.jpg"
+    },
+    {
+      "id": "049561f1-0083-4389-924f-6f7f13c412bb",
+      "volume_number": 17,
+      "start_chapter": 225,
+      "end_chapter": 237,
+      "cover_url": "https://image.aladin.co.kr/product/37875/97/cover500/k462033803_1.jpg"
+    },
+    {
+      "id": "f4936df7-5e54-490e-a2f1-099962106498",
+      "volume_number": 18,
+      "start_chapter": 238,
+      "end_chapter": 250,
+      "cover_url": "https://image.aladin.co.kr/product/37675/8/cover500/k672534992_1.jpg"
+    },
+    {
+      "id": "bdf2789b-c328-4b10-80fe-0ace415dbefd",
+      "volume_number": 19,
+      "start_chapter": 251,
+      "end_chapter": 263,
+      "cover_url": "https://image.aladin.co.kr/product/38436/99/cover500/k332135890_1.jpg"
+    },
+    {
+      "id": "8492a2d6-1c9e-4bee-a170-9b7c4e803fdd",
+      "volume_number": 20,
+      "start_chapter": 264,
+      "end_chapter": 276,
+      "cover_url": "https://image.aladin.co.kr/product/37966/45/cover500/k632534992_1.jpg"
+    }
+  ]
+}
