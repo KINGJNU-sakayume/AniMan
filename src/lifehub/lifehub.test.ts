@@ -4,8 +4,8 @@ import type { SeriesRecord } from '../types';
 import { autoPlan, findSeries, normalizeTitle, planProgress } from './resolve';
 import {
   autoApplyEnabled, seriesRefs, setAutoApply, uploadSeriesRefs,
-  beginConnect, CALLBACK_KEY, CALLBACK_URL, CLIENT_ID, completeStoredCallback, isConnected, LIFEHUB_ORIGIN,
-  parseProposal, rejectLocally, rememberReceipt, RESOURCE, sync, type Deps,
+  beginConnect, CALLBACK_KEY, CALLBACK_URL, CLIENT_ID, completeStoredCallback, grantedScopes, isConnected, LIFEHUB_ORIGIN,
+  mayHaveSyncScope, parseProposal, rejectLocally, rememberReceipt, RESOURCE, sync, syncRequest, type Deps,
 } from './remote';
 
 // Synthetic data only.
@@ -91,7 +91,7 @@ describe('connection and sync', () => {
       : json({ ok: true })));
     const url = new URL(await beginConnect(deps));
     expect([url.searchParams.get('client_id'), url.searchParams.get('redirect_uri'), url.searchParams.get('scope'), url.searchParams.get('resource')])
-      .toEqual([CLIENT_ID, CALLBACK_URL, 'animan:inbox', RESOURCE]);
+      .toEqual([CLIENT_ID, CALLBACK_URL, 'animan:inbox animan:sync', RESOURCE]);
     deps.session.setItem(CALLBACK_KEY, `?code=c&state=${url.searchParams.get('state')}&iss=${encodeURIComponent(LIFEHUB_ORIGIN)}`);
     expect(await completeStoredCallback(deps)).toBe(true);
     expect(isConnected(deps)).toBe(true);
@@ -123,6 +123,52 @@ async function connected(handler: (url: string, init?: RequestInit) => Response)
   await completeStoredCallback(deps);
   return deps;
 }
+
+describe('token scope and the inbox/sync 403 split', () => {
+  const withScope = (scope?: string) => () => json({ access_token: 'access-synthetic', refresh_token: 'refresh-synthetic', token_type: 'Bearer', expires_in: 3600, ...(scope ? { scope } : {}) });
+
+  it('keeps the scope the token response reports, and knows when sync was not granted', async () => {
+    const deps = makeDeps(withScope('animan:inbox'));
+    deps.session.setItem(CALLBACK_KEY, `?code=c&state=${new URL(await beginConnect(deps)).searchParams.get('state')}`);
+    await completeStoredCallback(deps);
+    expect(grantedScopes(deps)).toEqual(['animan:inbox']);
+    expect(mayHaveSyncScope(deps)).toBe(false);
+
+    const both = makeDeps(withScope('animan:inbox animan:sync'));
+    both.session.setItem(CALLBACK_KEY, `?code=c&state=${new URL(await beginConnect(both)).searchParams.get('state')}`);
+    await completeStoredCallback(both);
+    expect(grantedScopes(both)).toEqual(['animan:inbox', 'animan:sync']);
+    expect(mayHaveSyncScope(both)).toBe(true);
+
+    const unknown = makeDeps(withScope());
+    unknown.session.setItem(CALLBACK_KEY, `?code=c&state=${new URL(await beginConnect(unknown)).searchParams.get('state')}`);
+    await completeStoredCallback(unknown);
+    expect(grantedScopes(unknown)).toBeNull();
+    expect(mayHaveSyncScope(unknown)).toBe(true); // unknown: try, and let a 403 insufficient_scope tell
+  });
+
+  it('a sync 403 insufficient_scope keeps the token; the same 403 on an inbox call still drops it (inbox behaviour unchanged)', async () => {
+    const challenge = { 'WWW-Authenticate': 'Bearer realm="OAuth", error="insufficient_scope", scope="animan:sync"' };
+    const deps = await connected(() => new Response('{"error":"insufficient_scope"}', { status: 403, headers: challenge }));
+    await expect(syncRequest(deps, 'GET', '/meta')).rejects.toMatchObject({ kind: 'no_sync_scope' });
+    expect(isConnected(deps)).toBe(true);
+    await expect(sync(deps)).rejects.toMatchObject({ kind: 'not_connected' });
+    expect(isConnected(deps)).toBe(false);
+  });
+
+  it('a sync 403 without insufficient_scope, or one that has no readable header, drops the token', async () => {
+    const deps = await connected(() => new Response('{"error":"Forbidden"}', { status: 403 }));
+    await expect(syncRequest(deps, 'GET', '/meta')).rejects.toMatchObject({ kind: 'not_connected' });
+    expect(isConnected(deps)).toBe(false);
+  });
+
+  it('inbox requests do not touch the sync scope or sync paths', async () => {
+    const deps = await connected((url) => (url.includes('/candidates') ? json({ candidates: [] }) : json({ ok: true })));
+    deps.calls.length = 0;
+    await sync(deps);
+    expect(deps.calls.every((c) => !c.url.includes('/sync'))).toBe(true);
+  });
+});
 
 describe('card approvals', () => {
   const approved = (payload: Record<string, unknown>, extra: Record<string, unknown> = {}, key = KEY) => ({ ...candidate(payload, key), status: 'approved', needs_app_review: false, final_candidate: null, ...extra });
