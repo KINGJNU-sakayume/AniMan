@@ -18,13 +18,14 @@ export {
   importProgress,
   importBackup,
   applyRemote,
+  applyStaleReview,
   PROGRESS_KEY,
   LEGACY_PROGRESS_KEY,
 } from './store';
 export type { ItemKind, ImportMode } from './store';
 export { mergeProgressV2 } from './merge';
 export type { ItemEntry, ProgressV2 } from './model';
-export { createBackup, parseBackup, previewImport, backupFileName } from './backup';
+export { createBackup, parseBackup, previewImport, previewResult, backupFileName } from './backup';
 export type { ProgressBackup, ImportPreview, ImportPreviewRow, ParseResult } from './backup';
 
 /** 현재 카탈로그로 미리보기용 인덱스를 만든다. */
@@ -32,7 +33,14 @@ export const buildCatalogIndex = (): CatalogIndex =>
   Object.fromEntries(
     getCatalog().map((s) => [
       s.id,
-      { title: s.title, itemIds: new Set([...s.episodes, ...s.volumes].map((i) => i.id)) },
+      {
+        title: s.title,
+        itemIds: new Set([...s.episodes, ...s.volumes].map((i) => i.id)),
+        labels: {
+          ...Object.fromEntries(s.episodes.map((e) => [e.id, `Ep ${e.episode_number}`])),
+          ...Object.fromEntries(s.volumes.map((v) => [v.id, `Vol ${v.volume_number}`])),
+        },
+      },
     ])
   );
 

@@ -16,3 +16,12 @@ export const raiseClockFloor = (writtenAt: unknown): void => {
   const ms = typeof writtenAt === 'string' ? Date.parse(writtenAt) : NaN;
   if (Number.isFinite(ms) && ms > getClockFloor()) writeJson(CLOCK_FLOOR_KEY, ms);
 };
+
+/**
+ * 문서의 F: 이 기기가 본 가장 늦은 서버 written_at(ms). 한 번도 본 적이 없으면 null.
+ * 180일 넘게 쉰 기기의 검토가 "마지막 동기화 이후 바뀌지 않은 항목"(at ≤ F)을 가려내는 기준이다.
+ */
+export const readClockFloor = (): number | null => {
+  const floor = getClockFloor();
+  return floor > 0 ? floor : null;
+};

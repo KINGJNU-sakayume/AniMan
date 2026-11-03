@@ -15,6 +15,7 @@ import { getSeries, orderedItems } from '../catalog';
 import { getClockFloor } from './clock';
 import { resolveImport, type ProgressBackup } from './backup';
 import { mergeProgressV2 } from './merge';
+import { itemsDeletedElsewhere, removeItems, type RemovedItem } from './staleReview';
 import {
   completedMap, fromV1, latestAt, makeDocV2, normalizeProgress, normalizeV2, progressOfDocV2, pruneTombstones, sameProgress, setDone,
   type ProgressV2,
@@ -169,6 +170,18 @@ export const applyRemote = (remote: unknown): ProgressV2 => {
   const merged = pruneTombstones(mergeProgressV2(state, normalizeV2(remote) ?? {}), Date.now());
   if (!sameProgress(merged, state)) commit(merged);
   return state;
+};
+
+/**
+ * 180일 넘게 쉰 기기의 검토를 확인한 뒤 적용한다(docs/P6_SYNC.md 7절).
+ * 1) 지울 항목을 로컬에서 지운다(묘비를 남기지 않는다) 2) 서버 문서를 병합한다 — 한 번의 저장으로.
+ * 미리보기 이후 로컬이 바뀌었을 수 있으니, 확인받은 항목 중 지금도 규칙(at ≤ F, 서버에 없음)을 만족하는 것만 지운다.
+ */
+export const applyStaleReview = (confirmed: RemovedItem[], server: ProgressV2 | null, floorMs: number | null): void => {
+  const ok = new Set(confirmed.map((i) => `${i.seriesId}\u0000${i.itemId}`));
+  const remove = server && floorMs !== null ? itemsDeletedElsewhere(state, server, floorMs).filter((i) => ok.has(`${i.seriesId}\u0000${i.itemId}`)) : [];
+  const next = mergeProgressV2(removeItems(state, remove), server ?? {});
+  if (!sameProgress(pruneTombstones(next, Date.now()), state)) commit(next);
 };
 
 /** 테스트용: localStorage에서 다시 읽는다. */

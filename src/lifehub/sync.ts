@@ -15,6 +15,7 @@
  *  - Messages and outcomes carry status codes only, never document text, tokens or response bodies.
  */
 import { raiseClockFloor } from '../lib/progress/clock';
+import type { RemovedItem } from '../lib/progress/staleReview';
 import {
   canonicalJson, makeDocV2, progressOfDocV2, pruneTombstones, sameProgress, type ProgressV2,
 } from '../lib/progress/model';
@@ -106,6 +107,11 @@ export interface SyncHost {
   snapshot(): ProgressV2;
   /** Replace local with local ∪ remote and return the result. Must not do anything else to local data. */
   applyRemote(remote: ProgressV2): ProgressV2;
+  /**
+   * Confirmed stale-device review (docs/P6_SYNC.md section 7): remove `remove` locally without tombstones, then merge
+   * `server`, in one write. Only items that still satisfy the rule against the current local data are removed.
+   */
+  applyStaleReview?(remove: RemovedItem[], server: ProgressV2 | null, floorMs: number | null): void;
 }
 
 export type SyncOutcome =
@@ -179,7 +185,8 @@ async function getMeta(deps: Deps): Promise<Meta | null> {
   return meta;
 }
 
-async function getFull(deps: Deps): Promise<{ meta: Meta; progress: ProgressV2 } | null> {
+/** `raiseFloor: false` is for the stale-device review: it needs the floor F as it was before this request. */
+async function getFull(deps: Deps, raiseFloor = true): Promise<{ meta: Meta; progress: ProgressV2 } | null> {
   const response = await read(deps, '');
   if (response.status === 404) return null;
   if (response.status !== 200) throw new Stop(classify(response.status));
@@ -189,14 +196,17 @@ async function getFull(deps: Deps): Promise<{ meta: Meta; progress: ProgressV2 }
   // Never merge into, or write over, a document in a format this client does not know.
   const progress = progressOfDocV2(body.doc);
   if (!progress) throw new Stop({ kind: 'error', status: null });
-  raiseClockFloor(meta.written_at);
+  if (raiseFloor) raiseClockFloor(meta.written_at);
   return { meta, progress };
 }
 
-/** The server document for the manual import preview (a device that must not auto-merge). Changes nothing local. */
+/**
+ * The server document for the stale-device review. Changes nothing local, and does NOT raise the clock floor F:
+ * the review needs F as of the last successful sync (the next normal sync raises it).
+ */
 export async function fetchServerDocument(deps: Deps): Promise<{ progress: ProgressV2; writtenAt: string } | null> {
   try {
-    const full = await getFull(deps);
+    const full = await getFull(deps, false);
     return full ? { progress: full.progress, writtenAt: full.meta.written_at } : null;
   } catch (error) {
     if (error instanceof Stop) {
