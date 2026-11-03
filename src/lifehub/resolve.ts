@@ -85,3 +85,15 @@ export function planProgress(series: SeriesRecord, p: Pick<ProgressProposal, 'ki
   found.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
   return { ids: found.map((it) => it.id), labels: found.map(label), missing };
 }
+
+/**
+ * What may be marked without asking: approved in the Claude card, no last check asked, auto-apply on, the title
+ * means exactly one series, and every requested number exists there. Null otherwise (the owner decides here).
+ */
+export function autoPlan<S extends SeriesRecord>(p: ProgressProposal, catalog: S[], autoApply: boolean): { series: S; plan: ProgressPlan } | null {
+  if (!autoApply || p.status !== 'approved' || p.needsAppReview) return null;
+  const { exact } = findSeries(p.title, catalog);
+  if (!exact) return null;
+  const plan = planProgress(exact, p);
+  return plan.ids.length && !plan.missing.length ? { series: exact, plan } : null;
+}

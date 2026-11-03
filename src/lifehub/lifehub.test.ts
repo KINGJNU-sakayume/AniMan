@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { syntheticSeries } from '../test/fixtures';
 import type { SeriesRecord } from '../types';
-import { findSeries, normalizeTitle, planProgress } from './resolve';
+import { autoPlan, findSeries, normalizeTitle, planProgress } from './resolve';
 import {
+  autoApplyEnabled, seriesRefs, setAutoApply, uploadSeriesRefs,
   beginConnect, CALLBACK_KEY, CALLBACK_URL, CLIENT_ID, completeStoredCallback, isConnected, LIFEHUB_ORIGIN,
   parseProposal, rejectLocally, rememberReceipt, RESOURCE, sync, type Deps,
 } from './remote';
@@ -18,6 +19,7 @@ describe('proposal contract', () => {
   it('accepts up_to or numbers, season only for episodes', () => {
     expect(parseProposal(candidate({ title: '가상 애니', kind: 'episode', season: 2, up_to: 5 }))).toEqual({
       key: KEY, createdAt: '2026-11-02T01:00:00Z', title: '가상 애니', kind: 'episode', season: 2, upTo: 5, numbers: null, note: null,
+      status: 'pending', needsAppReview: false,
     });
     expect(parseProposal(candidate({ title: '가상 만화', kind: 'volume', numbers: [2, 1] }))?.numbers).toEqual([2, 1]);
     for (const bad of [
@@ -109,5 +111,57 @@ describe('connection and sync', () => {
     await beginConnect(forged);
     forged.session.setItem(CALLBACK_KEY, '?code=c&state=forged');
     await expect(completeStoredCallback(forged)).rejects.toMatchObject({ kind: 'state' });
+  });
+});
+
+// ── Life Hub cards stage 6: card approvals and the shared catalogue ──
+
+async function connected(handler: (url: string, init?: RequestInit) => Response) {
+  const deps = makeDeps((url, init) => (url.endsWith('/oauth/token') ? tokens() : handler(url, init)));
+  const url = new URL(await beginConnect(deps));
+  deps.session.setItem(CALLBACK_KEY, `?code=c&state=${url.searchParams.get('state')}`);
+  await completeStoredCallback(deps);
+  return deps;
+}
+
+describe('card approvals', () => {
+  const approved = (payload: Record<string, unknown>, extra: Record<string, unknown> = {}, key = KEY) => ({ ...candidate(payload, key), status: 'approved', needs_app_review: false, final_candidate: null, ...extra });
+
+  it('reads the hub state, prefers the owner\'s card edit and accepts codex', () => {
+    const edited = approved({ title: '가상 애니 극장판', kind: 'episode', up_to: 9 }, { final_candidate: candidate({ title: '가상 애니', kind: 'episode', season: 2, up_to: 3 }).candidate });
+    expect(parseProposal(edited)).toMatchObject({ title: '가상 애니', season: 2, upTo: 3, status: 'approved', needsAppReview: false });
+    expect(parseProposal({ ...edited, status: 'rejected' })).toBeNull();
+    expect(parseProposal(approved({ title: 'x', kind: 'volume', up_to: 1 }, {}, 'codex:mcp-' + 'c'.repeat(40)))).not.toBeNull();
+  });
+
+  it('marks without asking only when approved, exact, complete and allowed', () => {
+    const p = parseProposal(approved({ title: '가상애니', kind: 'episode', season: 2, up_to: 1 }))!;
+    const auto = autoPlan(p, [twoSeasons, other], true);
+    expect(auto?.series.id).toBe('two');
+    expect(auto?.plan.missing).toEqual([]);
+    expect(autoPlan(p, [twoSeasons, other], false)).toBeNull();
+    expect(autoPlan({ ...p, status: 'pending' }, [twoSeasons, other], true)).toBeNull();
+    expect(autoPlan({ ...p, needsAppReview: true }, [twoSeasons, other], true)).toBeNull();
+    expect(autoPlan({ ...p, title: '가상 애니 극' }, [twoSeasons, other], true)).toBeNull();
+    expect(autoPlan({ ...p, season: 9 }, [twoSeasons], true), 'a number that does not exist waits').toBeNull();
+  });
+
+  it('auto-apply is on by default and per device', () => {
+    const deps = makeDeps(() => new Response('{}'));
+    expect(autoApplyEnabled(deps)).toBe(true);
+    setAutoApply(deps, false);
+    expect(autoApplyEnabled(deps)).toBe(false);
+  });
+
+  it('shares series id, title and accent only, and only when they changed', async () => {
+    const refs = seriesRefs([twoSeasons, { ...other, accent_color: 'not-a-colour' }]);
+    expect(refs).toEqual([{ id: 'two', label: '가상 애니 (仮想アニメ)', group: twoSeasons.accent_color }, { id: 'other', label: '가상 애니 극장판', group: '#03acb1' }]);
+    const puts: Array<{ revision: number; items: unknown[] }> = [];
+    const deps = await connected((_url, init) => { if (init?.method === 'PUT') puts.push(JSON.parse(String(init.body))); return new Response('{}'); });
+    expect(await uploadSeriesRefs(refs, deps)).toBe(true);
+    expect(await uploadSeriesRefs(refs, deps)).toBe(false);
+    expect(await uploadSeriesRefs(refs.slice(0, 1), deps)).toBe(true);
+    expect(puts).toHaveLength(2);
+    expect(puts[1].revision).toBeGreaterThan(puts[0].revision);
   });
 });

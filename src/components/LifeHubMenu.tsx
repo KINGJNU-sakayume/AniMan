@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { Sparkles, X } from 'lucide-react';
 import { getCatalog, subscribeCatalog, type CatalogEntry } from '../lib/catalog';
 import { getProgress, markCompleted, subscribe } from '../lib/progress';
-import { findSeries, planProgress } from '../lifehub/resolve';
+import { autoPlan, findSeries, planProgress } from '../lifehub/resolve';
 import {
-  beginConnect, browserDeps, completeStoredCallback, connectAvailable, disconnect, isConnected, LifeHubError,
-  rejectLocally, rememberReceipt, sync, type ProgressProposal,
+  autoApplyEnabled, beginConnect, browserDeps, completeStoredCallback, connectAvailable, disconnect, isConnected, LifeHubError,
+  rejectLocally, rememberReceipt, seriesRefs, setAutoApply, sync, type ProgressProposal,
 } from '../lifehub/remote';
 
 const btn =
@@ -40,6 +40,9 @@ function ProposalRow({ proposal, catalog, onDone }: {
   return (
     <li className="py-3 border-t border-zinc-800 space-y-2">
       <p className="text-sm font-semibold">{describe(proposal)}</p>
+      {proposal.status === 'approved' && (
+        <p className="text-xs text-indigo-200">Claude 카드에서 승인함{proposal.needsAppReview ? ' · 여기서 작품을 골라 주세요' : ''}</p>
+      )}
       {proposal.note && <p className="text-xs text-zinc-400">“{proposal.note}”</p>}
       {found.choices.length === 0 ? (
         <p className="text-xs text-amber-300">카탈로그에서 이 작품을 찾지 못했어요. 작품을 추가한 뒤 다시 확인하세요.</p>
@@ -98,12 +101,28 @@ export const LifeHubMenu = () => {
   const [open, setOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [autoApply, setAutoApplyState] = useState(() => autoApplyEnabled(browserDeps()));
 
   const runSync = useCallback(async () => {
     if (!isConnected(browserDeps())) return;
     setSyncing(true);
     try {
-      const result = await sync(browserDeps());
+      const deps = browserDeps();
+      const catalogNow = getCatalog();
+      let result = await sync(deps, seriesRefs(catalogNow));
+      // Approved in a Claude card with nothing left to decide: mark it now, then send the receipts right away.
+      const marked: string[] = [];
+      for (const p of result.proposals) {
+        const auto = autoPlan(p, catalogNow, autoApplyEnabled(deps));
+        if (!auto) continue;
+        markCompleted(auto.series.id, auto.plan.ids);
+        rememberReceipt(p.key, auto.series.id, deps);
+        marked.push(auto.series.title);
+      }
+      if (marked.length) {
+        result = await sync(deps, seriesRefs(catalogNow));
+        setMessage(`Claude에서 승인한 진행 ${marked.length}개를 기록했어요: ${marked.join(', ')}`);
+      }
       setProposals(result.proposals);
       if (result.conflicts) setMessage(`${result.conflicts}개 제안은 Life Hub와 상태가 달라요. 진행 기록은 그대로예요.`);
     } catch (e) {
@@ -177,6 +196,18 @@ export const LifeHubMenu = () => {
                   <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} onClick={() => { disconnect(browserDeps()); setConnected(false); setProposals([]); setMessage('Life Hub 연결을 해제했어요.'); }}>
                     연결 해제
                   </button>
+                  <label className="flex w-full items-center gap-2 pt-1 text-xs text-zinc-300">
+                    <input
+                      type="checkbox"
+                      checked={autoApply}
+                      onChange={(e) => {
+                        setAutoApply(browserDeps(), e.target.checked);
+                        setAutoApplyState(e.target.checked);
+                        if (e.target.checked) void runSync();
+                      }}
+                    />
+                    Claude에서 승인된 항목 자동 반영 <span className="text-zinc-500">(작품과 번호가 정확할 때만)</span>
+                  </label>
                 </>
               ) : (
                 <>
