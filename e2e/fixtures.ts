@@ -37,8 +37,21 @@ export const test = base.extend<{ page: Page }>({
 
 export { expect };
 
+/** 화면에 보이는 완료 목록({ 작품 id: 완료 id[] }). 저장 형식은 v2(묘비 포함)라서 done:true 만 뽑아 낸다. */
 export const readProgress = (page: Page) =>
-  page.evaluate(() => JSON.parse(localStorage.getItem('animan:progress:v1') ?? '{}'));
+  page.evaluate(() => {
+    const doc = JSON.parse(localStorage.getItem('animan:progress:v2') ?? 'null');
+    const out: Record<string, string[]> = {};
+    for (const [seriesId, items] of Object.entries((doc?.progress ?? {}) as Record<string, Record<string, { done: boolean }>>)) {
+      const ids = Object.entries(items).filter(([, e]) => e.done).map(([id]) => id);
+      if (ids.length > 0) out[seriesId] = ids;
+    }
+    return out;
+  });
+
+/** 저장된 v2 항목({ done, at }) 전체(묘비 포함). */
+export const readProgressV2 = (page: Page) =>
+  page.evaluate(() => JSON.parse(localStorage.getItem('animan:progress:v2') ?? '{"progress":{}}').progress as Record<string, Record<string, { done: boolean; at: string }>>);
 
 export const openSeries = async (page: Page) => {
   await page.goto('./');

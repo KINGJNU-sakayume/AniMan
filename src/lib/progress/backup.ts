@@ -1,35 +1,50 @@
 // src/lib/progress/backup.ts
 // 진행 기록 백업 파일 형식과 불러오기 미리보기.
 //
-// 형식: { app: 'animan', version: 1, exportedAt: ISO 문자열, progress: { [seriesId]: string[] } }
+// v2(현재): { app:'animan', version:2, exportedAt, progress: { [작품 id]: { [항목 id]: { done, at } } } }
+// v1(구형, 가져오기만 지원): { app:'animan', version:1, exportedAt, progress: { [작품 id]: string[] } }
+//  - v1 파일을 가져올 때는 모든 id 가 done:true, at = 파일의 exportedAt (없거나 해석 못 하면 epoch).
+//  - createBackupV1 은 묘비를 뺀 구형 내보내기용이다(화면에서는 쓰지 않는다).
 import type { ProgressMap } from '../../types';
-import { mergeProgress, normalizeProgress, type ImportMode } from './store';
+import { mergeProgressV2 } from './merge';
+import {
+  EPOCH_AT, completedMap, fromV1, isoOf, makeDocV2, normalizeProgress, normalizeV2, parseAt, pruneTombstones, replaceCompleted,
+  type ProgressDocV2, type ProgressV2,
+} from './model';
+import type { ImportMode } from './store';
 
 export const BACKUP_APP = 'animan';
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 
-export interface ProgressBackup {
+export interface ProgressBackupV1 {
   app: typeof BACKUP_APP;
-  version: typeof BACKUP_VERSION;
+  version: 1;
   exportedAt: string;
   progress: ProgressMap;
 }
+export type ProgressBackupV2 = ProgressDocV2;
+export type ProgressBackup = ProgressBackupV1 | ProgressBackupV2;
 
 export type ParseResult =
   | { ok: true; backup: ProgressBackup }
   | { ok: false; error: string };
 
-export const createBackup = (progress: ProgressMap, now: Date = new Date()): ProgressBackup => ({
+/** v2 백업(내보내기 기본 형식). 묘비는 쓰기 직전 규칙대로 180일이 지난 것만 뺀다. */
+export const createBackup = (progress: ProgressV2, now: Date = new Date()): ProgressBackupV2 =>
+  makeDocV2(pruneTombstones(normalizeV2(progress) ?? {}, now.getTime()), now);
+
+/** 구형(v1) 내보내기: 완료 목록만, 묘비 없음. */
+export const createBackupV1 = (progress: ProgressV2, now: Date = new Date()): ProgressBackupV1 => ({
   app: BACKUP_APP,
-  version: BACKUP_VERSION,
+  version: 1,
   exportedAt: now.toISOString(),
-  progress: normalizeProgress(progress) ?? {},
+  progress: completedMap(normalizeV2(progress) ?? {}),
 });
 
 export const backupFileName = (now: Date = new Date()) =>
   `animan-backup-${now.toISOString().slice(0, 10)}.json`;
 
-/** 백업 JSON 문자열을 검증·정규화한다. */
+/** 백업 JSON 문자열을 검증·정규화한다. v1 과 v2 를 받는다. */
 export const parseBackup = (text: string): ParseResult => {
   let raw: unknown;
   try {
@@ -42,20 +57,42 @@ export const parseBackup = (text: string): ParseResult => {
   }
   const r = raw as Record<string, unknown>;
   if (r.app !== BACKUP_APP) return { ok: false, error: 'AniMan 백업 파일이 아닙니다 (app 값 불일치).' };
-  if (r.version !== BACKUP_VERSION) {
-    return { ok: false, error: `지원하지 않는 백업 버전입니다: ${String(r.version)}` };
+  const exportedAt = typeof r.exportedAt === 'string' ? r.exportedAt : '';
+  if (r.version === 1) {
+    const progress = normalizeProgress(r.progress);
+    if (!progress) return { ok: false, error: 'progress 항목이 올바르지 않습니다.' };
+    return { ok: true, backup: { app: BACKUP_APP, version: 1, exportedAt, progress } };
   }
-  const progress = normalizeProgress(r.progress);
-  if (!progress) return { ok: false, error: 'progress 항목이 올바르지 않습니다.' };
-  return {
-    ok: true,
-    backup: {
-      app: BACKUP_APP,
-      version: BACKUP_VERSION,
-      exportedAt: typeof r.exportedAt === 'string' ? r.exportedAt : '',
-      progress,
-    },
-  };
+  if (r.version === 2) {
+    const progress = normalizeV2(r.progress);
+    if (!progress) return { ok: false, error: 'progress 항목이 올바르지 않습니다.' };
+    return { ok: true, backup: { app: BACKUP_APP, version: 2, exportedAt, progress } };
+  }
+  return { ok: false, error: `지원하지 않는 백업 버전입니다: ${String(r.version)}` };
+};
+
+/** 백업을 v2 항목으로 바꾼다. v1 은 모두 done:true, at = 파일의 exportedAt(해석 못 하면 epoch). */
+export const backupToV2 = (backup: ProgressBackup): ProgressV2 => {
+  if (backup.version === 2) return backup.progress;
+  const ms = parseAt(backup.exportedAt);
+  return fromV1(backup.progress, ms === null ? EPOCH_AT : isoOf(ms));
+};
+
+/**
+ * 불러오기 결과(순수 함수).
+ *  - merge: 항목별 마지막 쓰기 우선. 파일의 해제(묘비)도 더 늦으면 적용된다.
+ *  - replace: 완료 집합을 파일과 같게. 사라지는 항목은 baseMs 시각의 묘비가 되어 다음 동기화에서 되살아나지 않는다.
+ */
+export const resolveImport = (
+  current: ProgressV2,
+  backup: ProgressBackup,
+  mode: ImportMode,
+  baseMs: number
+): ProgressV2 => {
+  const incoming = backupToV2(backup);
+  return mode === 'replace'
+    ? replaceCompleted(current, completedMap(incoming), baseMs)
+    : mergeProgressV2(current, incoming);
 };
 
 export interface ImportPreviewRow {
@@ -75,7 +112,7 @@ export interface ImportPreview {
   rows: ImportPreviewRow[];
   totalAdded: number;
   totalRemoved: number;
-  result: ProgressMap;
+  result: ProgressV2;
 }
 
 /** 카탈로그 정보: 시리즈 ID → { 제목, 유효 항목 ID 집합 } */
@@ -83,28 +120,33 @@ export type CatalogIndex = Record<string, { title: string; itemIds: Set<string> 
 
 /** 불러오기를 적용했을 때의 변화를 계산한다(상태는 바꾸지 않음). */
 export const previewImport = (
-  current: ProgressMap,
-  incoming: ProgressMap,
+  current: ProgressV2,
+  backup: ProgressBackup,
   mode: ImportMode,
-  catalog: CatalogIndex = {}
+  catalog: CatalogIndex = {},
+  baseMs: number = Date.now()
 ): ImportPreview => {
-  const result = mergeProgress(current, incoming, mode);
-  const seriesIds = Array.from(new Set([...Object.keys(current), ...Object.keys(result)]));
+  const result = resolveImport(current, backup, mode, baseMs);
+  const before = completedMap(current);
+  const after = completedMap(result);
+  const incoming = completedMap(backupToV2(backup));
+  const incomingSeries = new Set(Object.keys(backupToV2(backup)));
+  const seriesIds = Array.from(new Set([...Object.keys(before), ...Object.keys(after)]));
   const rows: ImportPreviewRow[] = [];
   for (const seriesId of seriesIds) {
-    const before = current[seriesId] ?? [];
-    const after = result[seriesId] ?? [];
-    const beforeSet = new Set(before);
-    const afterSet = new Set(after);
-    const added = after.filter((id) => !beforeSet.has(id)).length;
-    const removed = before.filter((id) => !afterSet.has(id)).length;
-    if (added === 0 && removed === 0 && !(seriesId in incoming)) continue;
+    const b = before[seriesId] ?? [];
+    const a = after[seriesId] ?? [];
+    const beforeSet = new Set(b);
+    const afterSet = new Set(a);
+    const added = a.filter((id) => !beforeSet.has(id)).length;
+    const removed = b.filter((id) => !afterSet.has(id)).length;
+    if (added === 0 && removed === 0 && !incomingSeries.has(seriesId)) continue;
     const info = catalog[seriesId];
     rows.push({
       seriesId,
       title: info?.title ?? null,
-      before: before.length,
-      after: after.length,
+      before: b.length,
+      after: a.length,
       added,
       removed,
       unknownIds: info

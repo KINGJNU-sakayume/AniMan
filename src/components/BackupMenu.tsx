@@ -1,6 +1,6 @@
 // src/components/BackupMenu.tsx
 // 진행 기록 JSON 백업 내보내기 / 불러오기(미리보기 → 승인).
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download, Upload, X } from 'lucide-react';
 import {
   applyBackup,
@@ -12,13 +12,14 @@ import {
   type ProgressBackup,
 } from '../lib/progress';
 import { downloadJson } from '../lib/download';
+import { subscribeImportReview } from '../lib/progress/importReview';
 
 const btn =
   'flex items-center gap-1.5 px-3 py-2 text-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-lg transition-colors';
 
 export const BackupMenu = () => {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [pending, setPending] = useState<{ backup: ProgressBackup; fileName: string } | null>(null);
+  const [pending, setPending] = useState<{ backup: ProgressBackup; fileName: string; note?: string } | null>(null);
   const [mode, setMode] = useState<ImportMode>('merge');
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
 
@@ -31,6 +32,16 @@ export const BackupMenu = () => {
     downloadJson(backupFileName(), exportBackup());
     flash('백업 파일을 내려받았습니다. (공개 저장소에 커밋하지 마세요)');
   };
+
+  // 동기화 설정이 요청한 검토(예: 180일 넘게 동기화하지 않은 기기의 서버 문서)를 같은 미리보기로 연다.
+  useEffect(
+    () =>
+      subscribeImportReview((request) => {
+        setMode(request.mode ?? 'merge');
+        setPending({ backup: request.backup, fileName: request.fileName, note: request.note });
+      }),
+    []
+  );
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return;
@@ -106,11 +117,18 @@ export const BackupMenu = () => {
               </button>
             </div>
 
+            {pending.note && <p className="text-xs text-amber-300" data-testid="backup-note">{pending.note}</p>}
+            {pending.backup.version === 1 && (
+              <p className="text-xs text-zinc-400">
+                구형(v1) 백업 파일이에요. 모든 항목이 파일을 내보낸 시각에 완료로 들어와요.
+              </p>
+            )}
+
             <fieldset className="flex gap-4 text-sm">
               <legend className="sr-only">불러오기 방식</legend>
               <label className="flex items-center gap-2">
                 <input type="radio" name="mode" checked={mode === 'merge'} onChange={() => setMode('merge')} />
-                합치기 (기존 기록 유지)
+                합치기 (항목별로 더 나중에 바꾼 쪽이 적용)
               </label>
               <label className="flex items-center gap-2">
                 <input type="radio" name="mode" checked={mode === 'replace'} onChange={() => setMode('replace')} />
