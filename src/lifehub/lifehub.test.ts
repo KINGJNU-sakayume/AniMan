@@ -165,3 +165,24 @@ describe('card approvals', () => {
     expect(puts[1].revision).toBeGreaterThan(puts[0].revision);
   });
 });
+
+describe('series list after a 409', () => {
+  it('is not recorded as sent, and goes again with a later revision', async () => {
+    const revisions: number[] = [];
+    let status = 409;
+    let now = 1_000_000;
+    const deps = await connected((_url, init) => {
+      if (init?.method === 'PUT') revisions.push(JSON.parse(String(init.body)).revision);
+      return new Response('{}', { status });
+    });
+    deps.now = () => now;
+    const refs = seriesRefs([twoSeasons]);
+    expect(await uploadSeriesRefs(refs, deps)).toBe(false);
+    now += 60_000;
+    status = 200;
+    expect(await uploadSeriesRefs(refs, deps)).toBe(true);
+    expect(await uploadSeriesRefs(refs, deps)).toBe(false);
+    expect(revisions).toHaveLength(2);
+    expect(revisions[1]).toBeGreaterThan(revisions[0]);
+  });
+});

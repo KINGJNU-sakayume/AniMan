@@ -256,14 +256,17 @@ export function seriesRefs(catalog: Array<{ id: string; title: string; accent_co
     .slice(0, 500)
     .map((s) => ({ id: s.id, label: s.title.trim().slice(0, 80), group: (s.accent_color && /^#[0-9a-fA-F]{3,8}$/.test(s.accent_color) ? s.accent_color : '#03acb1') }));
 }
-/** Shares the catalogue titles when they changed (newer revision wins on Life Hub; 409 = a newer one is there). */
+/**
+ * Shares the catalogue titles when they changed. A newer revision wins on Life Hub; a 409 (another device, or a
+ * clock ahead of ours, sent a later one) is not recorded as sent, so the next sync sends them again later.
+ */
 export async function uploadSeriesRefs(items: SeriesRef[], deps: Deps): Promise<boolean> {
   const body = JSON.stringify(items);
   const last = readJson<{ revision: number; body: string }>(deps.storage, SERIES_REFS_KEY);
   if (!items.length || last?.body === body) return false;
   const revision = Math.max(deps.now(), (last?.revision ?? 0) + 1);
   const response = await api(deps, 'PUT', '/refs/series', { revision, items });
-  if (!response.ok && response.status !== 409) return false;
+  if (!response.ok) return false;
   deps.storage.setItem(SERIES_REFS_KEY, JSON.stringify({ revision, body }));
   return true;
 }
