@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { backupFileName, backupToV2, createBackup, createBackupV1, parseBackup, previewImport, resolveImport } from './backup';
+import { backupFileName, backupToV2, createBackup, parseBackup, previewImport, resolveImport } from './backup';
+import { createBackupV1 } from './legacyExport';
 import { EPOCH_AT, type ProgressV2 } from './model';
 import { SERIES_ID } from '../../test/fixtures';
 
