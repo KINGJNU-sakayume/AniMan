@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -12,6 +12,7 @@ import { LifeHubMenu } from './components/LifeHubMenu';
 import { useTimelineData } from './hooks/useTimelineData';
 import { useProgress } from './hooks/useProgress';
 import { markUpTo } from './lib/progress';
+import { syncController } from './lifehub/syncController';
 
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
@@ -26,6 +27,9 @@ export default function App() {
 
   // ── 진도 (이 기기 localStorage) ───────────────────────────────────────────
   const { completedMap, toggle } = useProgress();
+
+  // ── 기기 간 동기화: 켜져 있을 때만 시작·탭 복귀 시 가져오고, 변경 후 몇 초 뒤·탭이 숨겨질 때 올린다 ──
+  useEffect(() => syncController().start(), []);
 
   // ── 타임라인 데이터 ───────────────────────────────────────────────────────
   const { data: fetchedData, loading: isLoading, error: isError } =

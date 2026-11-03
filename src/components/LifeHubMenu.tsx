@@ -5,6 +5,8 @@ import { Sparkles, X } from 'lucide-react';
 import { getCatalog, subscribeCatalog, type CatalogEntry } from '../lib/catalog';
 import { getProgress, markCompleted, subscribe } from '../lib/progress';
 import { autoPlan, findSeries, planProgress } from '../lifehub/resolve';
+import { SyncSettings } from './SyncSettings';
+import { syncController } from '../lifehub/syncController';
 import {
   autoApplyEnabled, beginConnect, browserDeps, completeStoredCallback, connectAvailable, disconnect, isConnected, LifeHubError,
   rejectLocally, rememberReceipt, seriesRefs, setAutoApply, sync, type ProgressProposal,
@@ -129,6 +131,7 @@ export const LifeHubMenu = () => {
       if (e instanceof LifeHubError && e.kind === 'not_connected') {
         setConnected(false);
         setProposals([]);
+        syncController().refresh();
       }
       setMessage(e instanceof Error ? e.message : '동기화하지 못했어요.');
     } finally {
@@ -145,6 +148,7 @@ export const LifeHubMenu = () => {
           setConnected(true);
           setMessage('Life Hub에 연결했어요.');
           setOpen(true);
+          syncController().notifyConnected();
         }
         void runSync();
       })
@@ -193,7 +197,7 @@ export const LifeHubMenu = () => {
                   <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} disabled={syncing} onClick={() => void runSync()}>
                     {syncing ? '동기화 중…' : '지금 동기화'}
                   </button>
-                  <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} onClick={() => { disconnect(browserDeps()); setConnected(false); setProposals([]); setMessage('Life Hub 연결을 해제했어요.'); }}>
+                  <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} onClick={() => { disconnect(browserDeps()); setConnected(false); setProposals([]); setMessage('Life Hub 연결을 해제했어요.'); syncController().refresh(); }}>
                     연결 해제
                   </button>
                   <label className="flex w-full items-center gap-2 pt-1 text-xs text-zinc-300">
@@ -220,6 +224,7 @@ export const LifeHubMenu = () => {
             </div>
 
             {message && <p role="status" className="text-xs text-zinc-300">{message}</p>}
+            <SyncSettings connected={connected} onReconnect={connect} onClose={() => setOpen(false)} />
             {connected && proposals.length === 0 && !syncing && <p className="text-sm text-zinc-500">검토할 제안이 없어요.</p>}
             {proposals.length > 0 && (
               <ul>

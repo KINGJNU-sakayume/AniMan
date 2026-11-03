@@ -3,7 +3,7 @@
 애니메이션 에피소드를 원작 만화 챕터 범위에 매핑해 타임라인으로 보여 주고, 어디까지 봤는지/읽었는지 기록하는 개인용 앱입니다.
 
 - **서버 없음.** 시리즈 데이터는 이 저장소의 JSON으로 번들되고, 진행 기록은 **이 브라우저의 localStorage**에만 저장됩니다.
-- **로그인 없음.** 이 기기 = 소유자입니다. 다른 기기로 옮길 때는 JSON 백업을 내보내고 불러옵니다.
+- **로그인 없음.** 이 기기 = 소유자입니다. 다른 기기로 옮길 때는 JSON 백업을 내보내고 불러오거나, (선택) Life Hub 기기 동기화를 켭니다.
 - GitHub Pages로 정적 배포됩니다.
 
 > ⚠️ 공개 저장소입니다. 개인 진행 기록 백업(`animan-backup-*.json`), 토큰, Supabase 키는 커밋하지 마세요. `.gitignore`가 백업 파일 이름 패턴과 `.env*`를 막아 둡니다.
@@ -34,8 +34,10 @@ src/
 │   └── useAccentColor.ts
 ├── lib/
 │   ├── progress/              # ★ 진행 기록을 바꾸는 유일한 모듈 (React 비의존)
-│   │   ├── store.ts           #   markCompleted / unmarkCompleted / toggleCompleted / markUpTo / importProgress
-│   │   ├── backup.ts          #   백업 형식, 검증, 불러오기 미리보기
+│   │   ├── model.ts           #   v2 형식(항목별 { done, at }), 정규화, 묘비 정리, 시각 찍기 (순수 함수)
+│   │   ├── merge.ts           #   v2 병합(항목별 마지막 쓰기 우선) — 교환·결합·멱등 (순수 함수)
+│   │   ├── store.ts           #   markCompleted / unmarkCompleted / toggleCompleted / markUpTo / importBackup / applyRemote
+│   │   ├── backup.ts          #   백업 형식(v2 내보내기, v1·v2 가져오기), 검증, 불러오기 미리보기
 │   │   └── index.ts           #   공개 API (window.animan.progress 로도 노출)
 │   ├── catalog.ts             # 번들 JSON + 로컬 초안 병합, TimelineData 변환
 │   ├── seriesBuilder.ts       # Admin 입력 ↔ 시리즈 레코드 (ID 유지)
@@ -57,8 +59,9 @@ flowchart TD
 
     UI -->|toggle / 우클릭·롱프레스 = 여기까지 완료| P[lib/progress<br/>markCompleted · markUpTo ...]
     X[화면 밖 호출<br/>window.animan.progress<br/>향후 Life Hub 승인] --> P
-    B[BackupMenu<br/>불러오기 미리보기 → 승인] -->|importProgress merge/replace| P
-    P <--> L[(localStorage<br/>animan:progress:v1)]
+    B[BackupMenu<br/>불러오기 미리보기 → 승인] -->|importBackup merge/replace| P
+    S[lifehub/sync.ts · syncController.ts<br/>기기 동기화] -->|applyRemote = 로컬 ∪ 서버| P
+    P <--> L[(localStorage<br/>animan:progress:v2<br/>animan:progress:v1 = 롤백용 원본)]
     P -->|subscribe| UP[useProgress] --> UI
     B -->|내보내기| F[/animan-backup-YYYY-MM-DD.json/]
 
@@ -105,7 +108,7 @@ erDiagram
     }
     PROGRESS_LOCALSTORAGE {
         uuid seriesId "key"
-        text_array completed_ids "에피소드/권 ID"
+        map items "에피소드/권 ID → { done, at }"
     }
     SERIES_JSON ||--o{ SEASON : seasons
     SERIES_JSON ||--o{ EPISODE : episodes
@@ -113,7 +116,7 @@ erDiagram
     SERIES_JSON ||--o| PROGRESS_LOCALSTORAGE : "tracked by"
 ```
 
-필드 이름은 기존 Supabase 컬럼명과 같고, **모든 id는 기존 UUID를 그대로 유지**합니다. 그래서 진행 기록(`{ [seriesId]: completed_ids }`)이 Supabase 시절 형식과 1:1로 맞습니다.
+필드 이름은 기존 Supabase 컬럼명과 같고, **모든 id는 기존 UUID를 그대로 유지**합니다. 화면·훅이 보는 완료 목록(`{ [seriesId]: completed_ids }`)은 Supabase 시절 형식 그대로이고, 저장은 항목마다 시각을 찍은 v2(아래)에서 파생합니다.
 
 ### View Flow
 
@@ -142,19 +145,25 @@ markCompleted(seriesId, ['<episode-or-volume-id>']); // 합집합, 새로 추가
 markUpTo(seriesId, 'episode', 12);                    // 원작 챕터 순서로 12화까지 완료
 markUpTo(seriesId, 'volume', 3);                      // 3권까지 완료
 unmarkCompleted(seriesId, ['<id>']);
-importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(합집합) | 'replace'
+importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(항목별 마지막 쓰기 우선) | 'replace'(완료 집합을 같게)
 ```
+
+`getProgress()`는 화면용 완료 목록, `getProgressV2()`는 체크 해제 흔적(묘비)까지 포함한 전체 기록입니다.
 
 브라우저 콘솔에서는 `window.animan.progress.markUpTo(...)` 로 같은 API를 호출할 수 있습니다.
 
-### 백업 형식
+### 저장 형식과 백업 형식 (v2)
 
 ```json
-{ "app": "animan", "version": 1, "exportedAt": "2026-01-01T00:00:00.000Z",
-  "progress": { "<seriesId>": ["<episode-or-volume-id>", "..."] } }
+{ "app": "animan", "version": 2, "exportedAt": "2026-01-01T00:00:00.000Z",
+  "progress": { "<seriesId>": { "<episode-or-volume-id>": { "done": true, "at": "2026-01-01T00:00:00.000Z" } } } }
 ```
 
-작품 목록 화면 오른쪽 위 **백업 내보내기 / 불러오기**. 불러오기는 미리보기(작품별 현재 → 적용 후, 추가/제거 수, 카탈로그에 없는 ID 경고)를 보여 주고, **합치기(기본, 합집합)** 또는 덮어쓰기를 고른 뒤 **적용**해야 반영됩니다.
+- 저장: `localStorage` `animan:progress:v2`(위 형식 그대로). 구 `animan:progress:v1`은 v2 키가 없을 때 **한 번만** 변환하고 **지우지 않습니다**(롤백용). 변환할 때 각 id는 `done:true`, `at`은 `1970-01-01T00:00:00.000Z`(다른 기기의 실제 체크·해제가 항상 이기도록).
+- `done:false`는 체크 해제 **묘비**입니다. 항목마다 `at`이 더 늦은 쪽이 이기고(같으면 `done:true`), 180일 넘은 묘비는 쓸 때만 지웁니다.
+- 구형 v1 백업 파일(`"version": 1`, id 배열)도 그대로 가져올 수 있습니다(모든 id가 `done:true`, `at` = 파일의 `exportedAt`).
+
+작품 목록 화면 오른쪽 위 **백업 내보내기 / 불러오기**. 불러오기는 미리보기(작품별 현재 → 적용 후, 추가/제거 수, 카탈로그에 없는 ID 경고)를 보여 주고, **합치기(기본, 항목별 마지막 쓰기 우선)** 또는 덮어쓰기(사라지는 항목은 묘비가 됨)를 고른 뒤 **적용**해야 반영됩니다. 이 수동 내보내기/가져오기는 Life Hub 없이도 되는 비상용 경로입니다.
 
 ---
 
@@ -162,12 +171,22 @@ importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(합집합) | 'r
 
 Claude에게 "주술회전 2기 5화까지 봤어", "최애의 아이 만화 7권까지 읽었어"처럼 말하면 Claude가 [Life Hub](https://github.com/KINGJNU-sakayume/life-hub)에 **진행 제안**(`media_progress`)을 남기고, AniMan이 받아 온다.
 
-- 첫 화면의 **Life Hub** 버튼에서 한 번 연결한다(배포 주소에서만). OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox` 권한만. Life Hub는 `public/lifehub/`로 돌아온다.
+- 첫 화면의 **Life Hub** 버튼에서 한 번 연결한다(배포 주소에서만). OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox animan:sync`를 요청한다. 동기화 권한을 실제로 주는지는 동의 화면의 「기기끼리 동기화도 허용」 체크가 정한다(체크하지 않아도 제안 가져오기는 그대로 된다). Life Hub는 `public/lifehub/`로 돌아온다.
 - 제안이 있으면 버튼에 숫자 배지. 작품 제목(또는 괄호 안 원제)이 하나로 맞을 때만 자동 선택, 애매하면 고른다. 카탈로그에 없는 작품은 추가한 뒤 다시 확인.
 - "N화/권까지"는 타임라인 순서로 그 앞까지 모두, 번호 목록은 그것만. "2기 5화"는 시즌의 챕터 범위로 바꿔 계산한다(`src/lifehub/resolve.ts`). 기록 전에 새로 완료될 개수를 보여 준다.
-- 「기록」은 `markCompleted`(합집합, 지우지 않음), 「거절」은 변경 없음. 승인(시리즈 ID)·거절 결과는 동기화 때 Life Hub로 보내고 응답이 올 때까지 다시 보낸다(localStorage `animan.lifehub.*`).
+- 「기록」은 `markCompleted`(지우지 않음), 「거절」은 변경 없음. 승인(시리즈 ID)·거절 결과는 동기화 때 Life Hub로 보내고 응답이 올 때까지 다시 보낸다(localStorage `animan.lifehub.*`).
 - **Claude 대화 카드**에서 승인한 진행은, 작품이 하나로 정해지고 요청한 번호가 모두 있을 때 앱을 열면 바로 완료로 표시한다(설정 「Claude에서 승인된 항목 자동 반영」, 기본 켜짐). 아니면 위 목록에서 「Claude 카드에서 승인함」으로 기다린다.
 - 카드의 작품 이름 제안을 위해 카탈로그의 **작품 id·제목·강조 색**만 Life Hub에 공유한다(바뀔 때만). 진행 기록은 보내지 않는다.
+
+## Life Hub로 기기끼리 동기화 (선택)
+
+Life Hub의 `/animan/v1/sync`에 진행 기록 v2 문서를 한 개 보관해 여러 기기의 기록을 맞춥니다([life-hub `docs/P6_SYNC.md`](https://github.com/KINGJNU-sakayume/life-hub/blob/main/docs/P6_SYNC.md)가 계약). 코드는 `src/lifehub/sync.ts`(한 번의 동기화), `syncController.ts`(언제 할지), 화면은 Life Hub 메뉴 안의 「기기 간 동기화」.
+
+- **켜기:** Life Hub에 연결(동의 화면에서 「기기끼리 동기화도 허용」 체크) → Life Hub 메뉴에서 「이 기기에서 동기화 켜기」. 기본은 꺼짐. 이미 연결해 둔 기기는 한 번 **다시 연결**해야 동기화 권한이 생긴다(권한이 없으면 「권한 없음」이 보이고, 제안 가져오기는 그대로 된다).
+- **언제:** 앱 시작·탭이 다시 보일 때 가져오고(폴링 없음), 변경 5초 뒤·탭이 숨겨질 때 올린다. 한 번에 하나만 돈다.
+- **어떻게:** `GET /sync/meta` → 서버 version이 다르거나 올릴 변경이 있으면 `GET /sync` → 로컬 ∪ 서버로 병합 → 다르면 `PUT`(`If-Match: "<version>"`, 최초는 `If-None-Match: *`). `412`면 다시 읽고 병합해 최대 3번. 로컬에는 언제나 병합 결과만 쓰고, 실패해도 로컬 기록은 그대로다.
+- **멈춤:** `413`(너무 큼)·`400/415/428`(오류)는 자동 동기화를 멈추고 알린다. 180일 넘게 동기화하지 않은 기기는 자동 병합하지 않고, 서버 문서를 가져오기 미리보기로 검토한 뒤 「동기화 재개」.
+- **끄기·롤백:** 동기화를 끄면 이 기기는 Life Hub와 주고받지 않는다. `animan:progress:v1`은 남아 있고(옛 빌드로 되돌릴 수 있음), 수동 JSON 내보내기/가져오기는 그대로 쓸 수 있다.
 
 ## 콘텐츠 추가 / 수정
 
