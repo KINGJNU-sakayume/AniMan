@@ -3,7 +3,6 @@
 import { useState, useSyncExternalStore } from 'react';
 import { requestImportReview } from '../lib/progress/importReview';
 import { browserDeps, isConnected } from '../lifehub/remote';
-import { fetchServerDocument } from '../lifehub/sync';
 import { syncController, type SyncPhase } from '../lifehub/syncController';
 
 const small = 'px-3 py-1.5 text-sm rounded-lg border transition-colors disabled:opacity-40';
@@ -27,7 +26,7 @@ const HELP: Partial<Record<SyncPhase, string>> = {
   retry: '네트워크나 서버 문제로 동기화하지 못했어요. 이 기기의 기록은 그대로이고, 잠시 뒤 자동으로 다시 시도해요.',
   too_large: '동기화 문서가 너무 커서 자동 동기화를 멈췄어요. 이 기기의 기록은 그대로예요.',
   error: '동기화 요청에 문제가 있어 자동 동기화를 멈췄어요. 이 기기의 기록은 그대로예요. 「기기 동기화 실행」으로 다시 시도할 수 있어요.',
-  needs_review: '180일 넘게 동기화하지 않아서 자동으로 합치지 않아요. 「서버 문서 검토」로 가져오기 미리보기에서 확인하고 반영한 뒤, 「동기화 재개」를 눌러 주세요.',
+  needs_review: '180일 넘게 동기화하지 않아서 자동으로 합치지 않아요. 「서버 문서 검토」에서 지울 항목과 병합 결과를 확인하고 적용해야 동기화가 다시 시작돼요. 취소하면 그대로예요.',
 };
 
 const formatTime = (ms: number | null) => (ms === null ? '아직 없음' : new Date(ms).toLocaleString());
@@ -39,20 +38,24 @@ export function SyncSettings({ connected, onReconnect, onClose }: { connected: b
   const [notice, setNotice] = useState<string | null>(null);
   const busy = snap.phase === 'syncing';
 
+  // 180일 넘게 쉰 기기: 서버 문서를 읽어 계획을 만들고(아무것도 바꾸지 않음) 가져오기 미리보기에서 확인받는다.
+  // 취소하면 그대로 「검토 필요」이고, 확인해야만 controller.applyReview 가 지우기·병합·동기화를 한다.
   const review = async () => {
     setNotice(null);
     try {
-      const doc = await fetchServerDocument(browserDeps());
-      if (!doc) {
-        setNotice('서버에 동기화 문서가 아직 없어요.');
-        return;
-      }
+      const plan = await controller.prepareReview();
+      const reasons: string[] = [];
+      if (plan.server === null) reasons.push('서버에 동기화 문서가 아직 없어서 아무것도 지우지 않아요.');
+      else if (plan.floorMs === null) reasons.push('마지막 동기화 시각을 알 수 없어서 아무것도 지우지 않아요.');
       onClose();
       requestImportReview({
-        backup: { app: 'animan', version: 2, exportedAt: doc.writtenAt, progress: doc.progress },
+        kind: 'stale',
         fileName: 'Life Hub 동기화 문서',
-        mode: 'replace',
-        note: '오래 동기화하지 않은 기기예요. 서버 문서와 같게 맞추려면 「덮어쓰기」를, 이 기기의 기록을 살리려면 「합치기」를 고르세요.',
+        remove: plan.remove,
+        result: plan.result,
+        server: plan.server,
+        note: reasons[0],
+        onApply: () => controller.applyReview(plan),
       });
     } catch {
       setNotice('서버 문서를 가져오지 못했어요.');
@@ -93,7 +96,6 @@ export function SyncSettings({ connected, onReconnect, onClose }: { connected: b
         {snap.phase === 'needs_review' && (
           <>
             <button type="button" className={plain} onClick={() => void review()}>서버 문서 검토</button>
-            <button type="button" className={plain} onClick={() => controller.resumeAfterReview()}>동기화 재개</button>
           </>
         )}
       </div>

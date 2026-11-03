@@ -220,6 +220,58 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
     expect(server.log).toHaveLength(0); // 권한이 없는 걸 아는 토큰으로는 요청도 보내지 않는다
   });
 
+  test('a device that rested 180+ days reviews first: cancel changes nothing, confirm removes what was deleted elsewhere', async ({ browser, baseURL }) => {
+    const a = await device(browser, baseURL);
+    await toggle(a, 'Ep 1');
+    await toggle(a, 'Ep 2');
+    await enableSync(a);
+    await toggle(a, 'Vol 1'); // a real offline edit after the last sync (later than F)
+    // Another device deleted Ep 1 long ago and its tombstone has been pruned: the server just has no entry for it.
+    const doc = server.document()!;
+    delete doc.progress[SERIES_ID]['e2e-ep-1'];
+    const put = await server.handle({
+      method: 'PUT', path: '/sync',
+      headers: { authorization: 'Bearer x', 'content-type': 'application/json', 'if-match': `"${server.current()!.version}"` },
+      body: JSON.stringify(doc),
+    });
+    expect(put.status).toBe(200);
+    // Make this device "stale": its last successful sync was 181 days ago.
+    await a.evaluate(() => {
+      const state = JSON.parse(localStorage.getItem('animan.sync.state.v1')!);
+      state.lastSyncAt = Date.now() - 181 * 86_400_000;
+      localStorage.setItem('animan.sync.state.v1', JSON.stringify(state));
+    });
+    await a.goto('./');
+    const dialog = await openDialog(a);
+    await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'needs_review');
+    await expect(dialog.getByRole('button', { name: '동기화 재개' })).toHaveCount(0); // no way around the review
+
+    await dialog.getByRole('button', { name: '서버 문서 검토' }).click();
+    const review = a.getByRole('dialog', { name: '오래 쉰 기기 검토' });
+    await expect(review.getByTestId('stale-remove-count')).toHaveText('다른 기기에서 지워진 것으로 보이는 항목 1개');
+    await expect(review.getByTestId('stale-remove-list')).toContainText('E2E 테스트 작품');
+    await expect(review.getByTestId('stale-remove-list')).toContainText('Ep 1');
+    await expect(review.getByTestId('stale-remove-list')).not.toContainText('Vol 1');
+    const [download] = await Promise.all([a.waitForEvent('download'), review.getByRole('button', { name: '현재 로컬 진행도 내려받기' }).click()]);
+    expect(download.suggestedFilename()).toMatch(/^animan-backup-/);
+
+    // Cancel: nothing changes and it stays stopped.
+    await review.getByRole('button', { name: '취소' }).click();
+    expect(await readProgress(a)).toEqual({ [SERIES_ID]: ['e2e-ep-1', 'e2e-ep-2', 'e2e-vol-1'] });
+    const again = await openDialog(a);
+    await expect(again.getByTestId('sync-status')).toHaveAttribute('data-phase', 'needs_review');
+    await expect(again.getByTestId('sync-last')).toHaveAttribute('data-last', /^\d+$/);
+
+    // Confirm: Ep 1 is removed, the rest is merged, the review is released and it syncs.
+    await again.getByRole('button', { name: '서버 문서 검토' }).click();
+    await a.getByRole('dialog', { name: '오래 쉰 기기 검토' }).getByRole('button', { name: '지우고 병합 적용' }).click();
+    const after = await openDialog(a);
+    await expect(after.getByTestId('sync-status')).toHaveAttribute('data-phase', 'idle');
+    await expect.poll(async () => (await readProgress(a))[SERIES_ID]).toEqual(['e2e-ep-2', 'e2e-vol-1']);
+    await expect.poll(() => Object.keys(server.document()!.progress[SERIES_ID]).sort()).toEqual(['e2e-ep-2', 'e2e-vol-1']);
+    expect(server.document()!.progress[SERIES_ID]['e2e-ep-1']).toBeUndefined(); // no resurrection, no tombstone
+  });
+
   test('the device name is saved and sent, and an unusable one falls back to the default', async ({ browser, baseURL }) => {
     const a = await device(browser, baseURL);
     await toggle(a, 'Ep 1');
