@@ -4,7 +4,7 @@
 // v2(현재): { app:'animan', version:2, exportedAt, progress: { [작품 id]: { [항목 id]: { done, at } } } }
 // v1(구형, 가져오기만 지원): { app:'animan', version:1, exportedAt, progress: { [작품 id]: string[] } }
 //  - v1 파일을 가져올 때는 모든 id 가 done:true, at = 파일의 exportedAt (없거나 해석 못 하면 epoch).
-//  - createBackupV1 은 묘비를 뺀 구형 내보내기용이다(화면에서는 쓰지 않는다).
+//  - 구형(v1) 내보내기는 legacyExport.ts 에 따로 두었다(화면·공개 API 어디에서도 쓰지 않는다).
 import type { ProgressMap } from '../../types';
 import { mergeProgressV2 } from './merge';
 import {
@@ -32,14 +32,6 @@ export type ParseResult =
 /** v2 백업(내보내기 기본 형식). 묘비는 쓰기 직전 규칙대로 180일이 지난 것만 뺀다. */
 export const createBackup = (progress: ProgressV2, now: Date = new Date()): ProgressBackupV2 =>
   makeDocV2(pruneTombstones(normalizeV2(progress) ?? {}, now.getTime()), now);
-
-/** 구형(v1) 내보내기: 완료 목록만, 묘비 없음. */
-export const createBackupV1 = (progress: ProgressV2, now: Date = new Date()): ProgressBackupV1 => ({
-  app: BACKUP_APP,
-  version: 1,
-  exportedAt: now.toISOString(),
-  progress: completedMap(normalizeV2(progress) ?? {}),
-});
 
 export const backupFileName = (now: Date = new Date()) =>
   `animan-backup-${now.toISOString().slice(0, 10)}.json`;

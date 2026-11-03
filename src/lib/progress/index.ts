@@ -24,7 +24,7 @@ export {
 export type { ItemKind, ImportMode } from './store';
 export { mergeProgressV2 } from './merge';
 export type { ItemEntry, ProgressV2 } from './model';
-export { createBackup, createBackupV1, parseBackup, previewImport, backupFileName } from './backup';
+export { createBackup, parseBackup, previewImport, backupFileName } from './backup';
 export type { ProgressBackup, ImportPreview, ImportPreviewRow, ParseResult } from './backup';
 
 /** 현재 카탈로그로 미리보기용 인덱스를 만든다. */
