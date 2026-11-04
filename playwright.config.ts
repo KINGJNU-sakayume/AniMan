@@ -10,8 +10,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'html',
   use: {
-    // vite.config.ts의 base('/AniMan/')와 맞춤. 테스트에서는 page.goto('./')
-    baseURL: `http://localhost:${PORT}/AniMan/`,
+    // vite.config.ts의 base('/animan/')와 맞춤. 테스트에서는 page.goto('./')
+    baseURL: `http://localhost:${PORT}/animan/`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     // 사전 설치된 Chromium을 쓰고 싶을 때: PW_CHROMIUM_PATH=/path/to/chrome
@@ -21,7 +21,7 @@ export default defineConfig({
   },
   webServer: {
     command: `npm run dev -- --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}/AniMan/`,
+    url: `http://localhost:${PORT}/animan/`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },

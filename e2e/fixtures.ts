@@ -65,3 +65,11 @@ export const openSeries = async (page: Page) => {
 /** 화면 크기에 따라 보이는 타임라인 항목 버튼 (데스크톱/모바일 공통) */
 export const itemButton = (page: Page, label: string) =>
   page.getByRole('button', { name: new RegExp(`^${label} \\(`) }).filter({ visible: true }).first();
+
+/** 헤더 톱니로 「설정」 시트를 연다(이미 열려 있으면 그대로). */
+export const openSettings = async (page: Page) => {
+  const sheet = page.getByRole('dialog', { name: '설정' });
+  if (!(await sheet.isVisible())) await page.getByRole('button', { name: /^설정/ }).click();
+  await expect(sheet).toBeVisible();
+  return sheet;
+};

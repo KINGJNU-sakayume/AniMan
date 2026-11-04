@@ -1,5 +1,5 @@
 import type { Browser, BrowserContext, Page } from '@playwright/test';
-import { test, expect, SERIES_ID, SERIES_TITLE, itemButton, readProgress, syntheticSeries } from './fixtures';
+import { test, expect, SERIES_ID, SERIES_TITLE, itemButton, openSettings, readProgress, syntheticSeries } from './fixtures';
 import { createFakeSyncServer, type FakeSyncServer } from '../src/test/fakeSyncServer';
 
 // 기기 동기화 수렴 확인 (P6 2단계). 브라우저 컨텍스트마다 localStorage 가 따로라 "기기"가 된다.
@@ -51,12 +51,7 @@ async function newDevice(browser: Browser, baseURL: string | undefined, server: 
 }
 type Device = { context: BrowserContext; page: Page; net: Net };
 
-// 오프라인일 때는 page.goto 를 쓸 수 없으니, 앱 안에서 화면을 오간다. (Life Hub 메뉴는 목록 화면에만 있다.)
-const landing = async (page: Page) => {
-  if (page.url() === 'about:blank') await page.goto('./');
-  else if (!(await page.getByText('내 작품 목록').isVisible())) await page.getByRole('banner').getByRole('button').first().click();
-  await expect(page.getByText('내 작품 목록')).toBeVisible();
-};
+// 오프라인일 때는 page.goto 를 쓸 수 없으니, 앱 안에서 화면을 오간다.
 const seriesView = async (page: Page) => {
   if (page.url() === 'about:blank') await page.goto('./');
   if (!(await page.getByRole('heading', { name: 'My Progress Tracker' }).first().isVisible())) {
@@ -65,34 +60,25 @@ const seriesView = async (page: Page) => {
   await expect(page.getByRole('heading', { name: 'My Progress Tracker' }).first()).toBeVisible();
 };
 
+// 동기화 화면은 설정 시트(톱니) › Life Hub 섹션이다. 톱니는 목록·시리즈 화면 어디에나 있다.
 const openDialog = async (page: Page) => {
-  await landing(page);
-  if (!(await page.getByRole('dialog', { name: 'Claude가 제안한 진행 기록' }).isVisible())) {
-    await page.getByTitle('Claude가 제안한 진행 기록').click();
-  }
-  return page.getByRole('dialog', { name: 'Claude가 제안한 진행 기록' });
+  if (page.url() === 'about:blank') await page.goto('./');
+  return openSettings(page);
 };
 const closeDialog = async (page: Page) => {
-  const dialog = page.getByRole('dialog', { name: 'Claude가 제안한 진행 기록' });
-  if (await dialog.isVisible()) await dialog.getByRole('button', { name: '닫기' }).click();
+  const dialog = page.getByRole('dialog', { name: '설정' });
+  if (await dialog.isVisible()) await dialog.getByRole('button', { name: '닫기' }).first().click();
 };
 
-/** 「기기 동기화 실행」을 누르고, 한 번의 동기화가 끝나(마지막 동기화 시각이 바뀜) 상태가 켜짐으로 돌아올 때까지 기다린다. */
+/** 「지금 동기화」를 누르고, 한 번의 동기화가 끝나(마지막 동기화 시각이 바뀜) 평소 상태로 돌아올 때까지 기다린다. */
 const syncNow = async (page: Page) => {
   const dialog = await openDialog(page);
-  const last = dialog.getByTestId('sync-last');
-  const before = await last.getAttribute('data-last');
-  await dialog.getByRole('button', { name: '기기 동기화 실행' }).click();
-  await expect(last).not.toHaveAttribute('data-last', before ?? '');
-  await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'idle');
-  await closeDialog(page);
-};
-
-const enableSync = async (page: Page) => {
-  const dialog = await openDialog(page);
-  await dialog.getByLabel('이 기기에서 동기화 켜기').check();
-  await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'idle');
-  await expect(dialog.getByTestId('sync-status')).toHaveText('켜짐');
+  const status = dialog.getByTestId('sync-status');
+  const before = await status.getAttribute('data-last');
+  await dialog.getByRole('button', { name: '지금 동기화' }).click();
+  await expect(status).not.toHaveAttribute('data-last', before ?? '');
+  await expect(status).toHaveAttribute('data-phase', 'idle');
+  await expect(status).toContainText(/^연결됨 · .+ 동기화$/);
   await closeDialog(page);
 };
 
@@ -133,10 +119,10 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
 
     await toggle(a, 'Ep 1');
     expect(await readProgress(a)).toEqual({ [SERIES_ID]: ['e2e-ep-1'] });
-    await enableSync(a);
+    await syncNow(a);
     expect(server.document()?.progress[SERIES_ID]['e2e-ep-1'].done).toBe(true);
 
-    await enableSync(b); // B pulls A's check
+    await syncNow(b); // B pulls A's check (connected = sync on, no switch)
     expect(await pressed(b, 'Ep 1')).toBe(true);
 
     await toggle(b, 'Ep 1'); // later, on B
@@ -158,8 +144,8 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
       const b = await device(browser, baseURL);
 
       await toggle(a, 'Ep 1');
-      await enableSync(a);
-      await enableSync(b);
+      await syncNow(a);
+      await syncNow(b);
       expect(await pressed(b, 'Ep 1')).toBe(true);
 
       setDown(a, true);
@@ -191,13 +177,15 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
   test('a failed sync (server down) changes nothing locally and recovers when it is back', async ({ browser, baseURL }) => {
     const a = await device(browser, baseURL);
     await toggle(a, 'Ep 1');
-    await enableSync(a);
+    await syncNow(a);
     setDown(a, true);
     await toggle(a, 'Ep 2');
     const dialog = await openDialog(a);
-    await dialog.getByRole('button', { name: '기기 동기화 실행' }).click();
+    await dialog.getByRole('button', { name: '지금 동기화' }).click();
     await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'retry');
-    await expect(dialog.getByTestId('sync-help')).toContainText('이 기기의 기록은 그대로');
+    // 네트워크 문제로 재시도 대기는 「확인 필요」가 아니라 평소 상태(B)의 문구다
+    await expect(dialog.getByTestId('sync-status')).toHaveText('연결됨 · 잠시 뒤 다시 시도');
+    await expect(dialog.getByTestId('lifehub-attention')).toHaveCount(0);
     await closeDialog(a);
     expect(await readProgress(a)).toEqual({ [SERIES_ID]: ['e2e-ep-1', 'e2e-ep-2'] });
     setDown(a, false);
@@ -205,16 +193,19 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
     expect(Object.keys(server.document()!.progress[SERIES_ID]).sort()).toEqual(['e2e-ep-1', 'e2e-ep-2']);
   });
 
-  test('a token without the sync checkbox shows "권한 없음" and keeps the connection (the inbox still works)', async ({ browser, baseURL }) => {
+  test('a token without the sync scope shows 「확인 필요」 with 다시 연결 and keeps the connection (the inbox still works)', async ({ browser, baseURL }) => {
     server.state.syncScope = false;
     const a = await device(browser, baseURL, { scope: 'animan:inbox' });
+    await a.goto('./');
+    // 설정 진입점의 점과 접근성 이름
+    await expect(a.getByRole('button', { name: '설정 (확인 필요)' })).toBeVisible();
+    await expect(a.getByTestId('settings-attention')).toBeVisible();
     const dialog = await openDialog(a);
-    await dialog.getByLabel('이 기기에서 동기화 켜기').check();
     await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'no_permission');
-    await expect(dialog.getByTestId('sync-status')).toHaveText('권한 없음');
-    await expect(dialog.getByTestId('sync-help')).toContainText('동기화도 허용');
-    await expect(dialog.getByRole('button', { name: '동기화를 허용하며 다시 연결' })).toBeVisible();
-    // 연결은 그대로: 인박스 쪽 「지금 동기화」 상태가 아니라 연결 해제 버튼이 보인다
+    await expect(dialog.getByTestId('sync-status')).toHaveText('확인 필요');
+    await expect(dialog.getByTestId('lifehub-attention')).toContainText('동기화 권한이 없는 연결입니다. 한 번 다시 연결하면 제안과 동기화가 함께 켜집니다.');
+    await expect(dialog.getByRole('button', { name: '다시 연결' })).toBeVisible();
+    // 연결은 그대로: 연결 해제 버튼이 보이고 토큰이 남아 있다
     await expect(dialog.getByRole('button', { name: '연결 해제' })).toBeVisible();
     expect(await a.evaluate(() => localStorage.getItem('animan.lifehub.tokens.v1'))).not.toBeNull();
     expect(server.log).toHaveLength(0); // 권한이 없는 걸 아는 토큰으로는 요청도 보내지 않는다
@@ -224,7 +215,7 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
     const a = await device(browser, baseURL);
     await toggle(a, 'Ep 1');
     await toggle(a, 'Ep 2');
-    await enableSync(a);
+    await syncNow(a);
     await toggle(a, 'Vol 1'); // a real offline edit after the last sync (later than F)
     // Another device deleted Ep 1 long ago and its tombstone has been pruned: the server just has no entry for it.
     const doc = server.document()!;
@@ -260,7 +251,8 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
     expect(await readProgress(a)).toEqual({ [SERIES_ID]: ['e2e-ep-1', 'e2e-ep-2', 'e2e-vol-1'] });
     const again = await openDialog(a);
     await expect(again.getByTestId('sync-status')).toHaveAttribute('data-phase', 'needs_review');
-    await expect(again.getByTestId('sync-last')).toHaveAttribute('data-last', /^\d+$/);
+    await expect(again.getByTestId('sync-status')).toHaveAttribute('data-last', /^\d+$/);
+    await expect(a.getByRole('button', { name: '설정 (확인 필요)' })).toHaveCount(1);
 
     // Confirm: Ep 1 is removed, the rest is merged, the review is released and it syncs.
     await again.getByRole('button', { name: '서버 문서 검토' }).click();
@@ -276,11 +268,11 @@ test.describe('two devices converge through the (fake) Life Hub sync API', () =>
     const a = await device(browser, baseURL);
     await toggle(a, 'Ep 1');
     const dialog = await openDialog(a);
+    await dialog.getByText('고급').click(); // 접힌 「고급」 안에 있다
     const input = dialog.getByLabel(/기기 이름/);
     await input.fill('  Desk PC  ');
     await input.blur();
-    await dialog.getByLabel('이 기기에서 동기화 켜기').check();
-    await expect(dialog.getByTestId('sync-status')).toHaveAttribute('data-phase', 'idle');
+    await syncNow(a);
     expect(server.current()?.device).toBe('Desk PC');
   });
 });

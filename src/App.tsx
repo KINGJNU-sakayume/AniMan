@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -7,12 +7,13 @@ import { Timeline } from './components/Timeline';
 import { SocialCard } from './components/SocialCard';
 import { SeriesLanding } from './components/SeriesLanding';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { BackupMenu } from './components/BackupMenu';
+import { BackupDialogs } from './components/BackupMenu';
 import { LifeHubMenu } from './components/LifeHubMenu';
+import { SettingsSheet } from './components/SettingsSheet';
+import { useLifeHubBoot, useLifeHubView } from './hooks/useLifeHub';
 import { useTimelineData } from './hooks/useTimelineData';
 import { useProgress } from './hooks/useProgress';
 import { markUpTo } from './lib/progress';
-import { syncController } from './lifehub/syncController';
 
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
@@ -24,12 +25,21 @@ export default function App() {
   const [selectedAnime, setSelectedAnime] = useState<string>('');
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [showSocialCard, setShowSocialCard] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // ── 진도 (이 기기 localStorage) ───────────────────────────────────────────
   const { completedMap, toggle } = useProgress();
 
-  // ── 기기 간 동기화: 켜져 있을 때만 시작·탭 복귀 시 가져오고, 변경 후 몇 초 뒤·탭이 숨겨질 때 올린다 ──
-  useEffect(() => syncController().start(), []);
+  // ── Life Hub: 기기 동기화(시작·탭 복귀 시 가져오고, 변경 후 몇 초 뒤·탭이 숨겨질 때 올림)와 제안 가져오기.
+  //    화면과 무관하게 여기서 돈다. 연결 콜백이 끝나면 설정 시트를 연다. ──
+  useLifeHubBoot(() => setSettingsOpen(true));
+  const needsAttention = useLifeHubView().state === 'C';
+  const overlays = (
+    <>
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} onCatalog={() => setCurrentView('admin')} />}
+      <BackupDialogs />
+    </>
+  );
 
   // ── 타임라인 데이터 ───────────────────────────────────────────────────────
   const { data: fetchedData, loading: isLoading, error: isError } =
@@ -86,8 +96,11 @@ export default function App() {
           completedMap={completedMap}
           onSelectSeries={handleSelectSeries}
           onAdminClick={() => setCurrentView('admin')}
-          actions={<><LifeHubMenu /><BackupMenu /></>}
+          onSettingsClick={() => setSettingsOpen(true)}
+          needsAttention={needsAttention}
+          actions={<LifeHubMenu />}
         />
+        {overlays}
       </div>
     );
   }
@@ -98,7 +111,8 @@ export default function App() {
       <Header
         accentColor={accentColor}
         onLogoClick={() => setCurrentView('landing')}
-        onAdminClick={() => setCurrentView('admin')}
+        onSettingsClick={() => setSettingsOpen(true)}
+        needsAttention={needsAttention}
       />
 
       {/* 로딩 */}
@@ -162,6 +176,8 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {overlays}
 
       <footer className="bg-zinc-900 border-t border-zinc-800 py-8 text-center text-gray-500">
         <p>© {new Date().getFullYear()} AniMan Timeline Tracker. All rights reserved.</p>

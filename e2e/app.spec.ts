@@ -1,4 +1,4 @@
-import { test, expect, SERIES_ID, SERIES_TITLE, openSeries, itemButton, readProgress, readProgressV2 } from './fixtures';
+import { test, expect, SERIES_ID, SERIES_TITLE, openSeries, openSettings, itemButton, readProgress, readProgressV2 } from './fixtures';
 
 test.describe('Landing (no login)', () => {
   test('opens directly without a login screen', async ({ page }) => {
@@ -84,6 +84,7 @@ test.describe('Backup', () => {
   test('exports the versioned backup file', async ({ page }) => {
     await page.goto('./');
     await page.evaluate((id) => window.animan!.progress.markCompleted(id, ['e2e-ep-1']), SERIES_ID);
+    await openSettings(page);
     const [download] = await Promise.all([
       page.waitForEvent('download'),
       page.getByTitle('진행 기록 백업 내보내기').click(),
@@ -105,6 +106,7 @@ test.describe('Backup', () => {
       window.animan!.progress.markCompleted(id, ['e2e-ep-1', 'e2e-ep-2']);
       window.animan!.progress.unmarkCompleted(id, ['e2e-ep-1']);
     }, SERIES_ID);
+    await openSettings(page);
     const [download] = await Promise.all([
       page.waitForEvent('download'),
       page.getByTitle('진행 기록 백업 내보내기').click(),
@@ -126,6 +128,7 @@ test.describe('Backup', () => {
       exportedAt: '2099-01-02T00:00:00.000Z',
       progress: { [SERIES_ID]: ['e2e-vol-1', 'e2e-ep-1'] },
     };
+    await openSettings(page);
     await page.getByTestId('backup-file-input').setInputFiles({
       name: 'synthetic-backup.json',
       mimeType: 'application/json',
@@ -147,6 +150,7 @@ test.describe('Backup', () => {
 
   test('still imports an old v1 backup file: every id enters done at the file\'s exportedAt', async ({ page }) => {
     await page.goto('./');
+    await openSettings(page);
     await page.getByTestId('backup-file-input').setInputFiles({
       name: 'old-v1.json',
       mimeType: 'application/json',
@@ -162,6 +166,7 @@ test.describe('Backup', () => {
   test('replacing from a file leaves tombstones for what disappears', async ({ page }) => {
     await page.goto('./');
     await page.evaluate((id) => window.animan!.progress.markCompleted(id, ['e2e-ep-1', 'e2e-ep-2']), SERIES_ID);
+    await openSettings(page);
     await page.getByTestId('backup-file-input').setInputFiles({
       name: 'replace.json',
       mimeType: 'application/json',
@@ -176,13 +181,14 @@ test.describe('Backup', () => {
 
   test('rejects an invalid backup file', async ({ page }) => {
     await page.goto('./');
+    await openSettings(page);
     await page.getByTestId('backup-file-input').setInputFiles({
       name: 'bad.json',
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify({ app: 'other', version: 1, progress: {} })),
     });
-    await expect(page.getByRole('status')).toContainText('불러오기 실패');
-    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.getByRole('dialog', { name: '설정' }).getByRole('status')).toContainText('불러오기 실패');
+    await expect(page.getByRole('dialog', { name: '백업 불러오기 미리보기' })).toHaveCount(0);
   });
 });
 

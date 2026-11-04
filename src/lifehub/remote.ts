@@ -10,7 +10,7 @@
  * - Receipts (proposal → series ID) and rejections are kept in localStorage and retried until answered.
  */
 export const LIFEHUB_ORIGIN = 'https://life-hub-api.213303.workers.dev';
-export const APP_URL = 'https://kingjnu-sakayume.github.io/AniMan/';
+export const APP_URL = 'https://kingjnu-sakayume.github.io/animan/';
 export const CALLBACK_URL = APP_URL + 'lifehub/';
 export const CLIENT_ID = APP_URL + 'lifehub-client.json';
 export const RESOURCE = LIFEHUB_ORIGIN + '/animan';

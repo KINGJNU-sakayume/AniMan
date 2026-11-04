@@ -1,24 +1,18 @@
 // src/components/LifeHubMenu.tsx
 // Life Hub: Claude가 제안한 시청·독서 진행을 확인하고 기록한다(승인해야 반영, 지우지는 않음).
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+// 제안이 1건 이상일 때만 렌더한다. 연결·동기화 버튼은 설정 › Life Hub 에만 있다.
+import { useState, useSyncExternalStore } from 'react';
 import { Sparkles, X } from 'lucide-react';
 import { getCatalog, subscribeCatalog, type CatalogEntry } from '../lib/catalog';
 import { getProgress, markCompleted, subscribe } from '../lib/progress';
-import { autoPlan, findSeries, planProgress } from '../lifehub/resolve';
-import { SyncSettings } from './SyncSettings';
-import { syncController } from '../lifehub/syncController';
-import {
-  autoApplyEnabled, beginConnect, browserDeps, completeStoredCallback, connectAvailable, disconnect, isConnected, LifeHubError,
-  rejectLocally, rememberReceipt, seriesRefs, setAutoApply, sync, type ProgressProposal,
-} from '../lifehub/remote';
+import { findSeries, planProgress } from '../lifehub/resolve';
+import { browserDeps, rejectLocally, rememberReceipt, type ProgressProposal } from '../lifehub/remote';
+import { proposalHandled } from '../lifehub/hub';
+import { useHub } from '../hooks/useLifeHub';
 
 const btn =
   'flex items-center gap-1.5 px-3 py-2 text-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-lg transition-colors';
 const small = 'px-3 py-1.5 text-sm rounded-lg border transition-colors disabled:opacity-40';
-
-/** One token exchange per page load, even when effects run twice (StrictMode). */
-let callbackOnce: Promise<boolean> | null = null;
-const finishCallback = () => (callbackOnce ??= completeStoredCallback(browserDeps()));
 
 const describe = (p: ProgressProposal) => {
   const unit = p.kind === 'episode' ? '화' : '권';
@@ -98,84 +92,20 @@ function ProposalRow({ proposal, catalog, onDone }: {
 
 export const LifeHubMenu = () => {
   const catalog = useSyncExternalStore(subscribeCatalog, getCatalog, getCatalog);
-  const [connected, setConnected] = useState(() => isConnected(browserDeps()));
-  const [proposals, setProposals] = useState<ProgressProposal[]>([]);
+  const { proposals, message } = useHub();
   const [open, setOpen] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [autoApply, setAutoApplyState] = useState(() => autoApplyEnabled(browserDeps()));
 
-  const runSync = useCallback(async () => {
-    if (!isConnected(browserDeps())) return;
-    setSyncing(true);
-    try {
-      const deps = browserDeps();
-      const catalogNow = getCatalog();
-      let result = await sync(deps, seriesRefs(catalogNow));
-      // Approved in a Claude card with nothing left to decide: mark it now, then send the receipts right away.
-      const marked: string[] = [];
-      for (const p of result.proposals) {
-        const auto = autoPlan(p, catalogNow, autoApplyEnabled(deps));
-        if (!auto) continue;
-        markCompleted(auto.series.id, auto.plan.ids);
-        rememberReceipt(p.key, auto.series.id, deps);
-        marked.push(auto.series.title);
-      }
-      if (marked.length) {
-        result = await sync(deps, seriesRefs(catalogNow));
-        setMessage(`Claude에서 승인한 진행 ${marked.length}개를 기록했어요: ${marked.join(', ')}`);
-      }
-      setProposals(result.proposals);
-      if (result.conflicts) setMessage(`${result.conflicts}개 제안은 Life Hub와 상태가 달라요. 진행 기록은 그대로예요.`);
-    } catch (e) {
-      if (e instanceof LifeHubError && e.kind === 'not_connected') {
-        setConnected(false);
-        setProposals([]);
-        syncController().refresh();
-      }
-      setMessage(e instanceof Error ? e.message : '동기화하지 못했어요.');
-    } finally {
-      setSyncing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    finishCallback()
-      .then((done) => {
-        if (!active) return;
-        if (done) {
-          setConnected(true);
-          setMessage('Life Hub에 연결했어요.');
-          setOpen(true);
-          syncController().notifyConnected();
-        }
-        void runSync();
-      })
-      .catch((e: unknown) => {
-        if (active) setMessage(e instanceof Error ? e.message : 'Life Hub에 연결하지 못했어요.');
-      });
-    return () => {
-      active = false;
-    };
-  }, [runSync]);
-
-  const canConnect = connectAvailable(window.location);
-  const connect = () =>
-    void beginConnect(browserDeps())
-      .then((url) => window.location.assign(url))
-      .catch((e: unknown) => setMessage(e instanceof Error ? e.message : '연결을 시작하지 못했어요.'));
+  // 0건이면 진입점 자체를 렌더하지 않는다(처리해서 0건이 되면 대화상자도 함께 닫힌다).
+  if (proposals.length === 0) return null;
 
   return (
     <>
       <button type="button" className={`${btn} relative`} onClick={() => setOpen(true)} title="Claude가 제안한 진행 기록">
         <Sparkles className="w-4 h-4" />
         <span className="hidden sm:inline">Life Hub</span>
-        {proposals.length > 0 && (
-          <span data-testid="lifehub-count" className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-400 text-zinc-950 text-[11px] font-bold leading-[18px] text-center">
-            {proposals.length}
-          </span>
-        )}
+        <span data-testid="lifehub-count" className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-400 text-zinc-950 text-[11px] font-bold leading-[18px] text-center">
+          {proposals.length}
+        </span>
       </button>
 
       {open && (
@@ -191,57 +121,12 @@ export const LifeHubMenu = () => {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {connected ? (
-                <>
-                  <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} disabled={syncing} onClick={() => void runSync()}>
-                    {syncing ? '동기화 중…' : '지금 동기화'}
-                  </button>
-                  <button type="button" className={`${small} border-zinc-700 text-zinc-300 hover:bg-zinc-800`} onClick={() => { disconnect(browserDeps()); setConnected(false); setProposals([]); setMessage('Life Hub 연결을 해제했어요.'); syncController().refresh(); }}>
-                    연결 해제
-                  </button>
-                  <label className="flex w-full items-center gap-2 pt-1 text-xs text-zinc-300">
-                    <input
-                      type="checkbox"
-                      checked={autoApply}
-                      onChange={(e) => {
-                        setAutoApply(browserDeps(), e.target.checked);
-                        setAutoApplyState(e.target.checked);
-                        if (e.target.checked) void runSync();
-                      }}
-                    />
-                    Claude에서 승인된 항목 자동 반영 <span className="text-zinc-500">(작품과 번호가 정확할 때만)</span>
-                  </label>
-                </>
-              ) : (
-                <>
-                  <button type="button" className={`${small} bg-indigo-500/20 border-indigo-400/40 text-indigo-100`} disabled={!canConnect} onClick={connect}>
-                    Life Hub 연결
-                  </button>
-                  {!canConnect && <p className="text-xs text-zinc-500">배포된 주소에서만 연결할 수 있어요.</p>}
-                </>
-              )}
-            </div>
-
             {message && <p role="status" className="text-xs text-zinc-300">{message}</p>}
-            <SyncSettings connected={connected} onReconnect={connect} onClose={() => setOpen(false)} />
-            {connected && proposals.length === 0 && !syncing && <p className="text-sm text-zinc-500">검토할 제안이 없어요.</p>}
-            {proposals.length > 0 && (
-              <ul>
-                {proposals.map((p) => (
-                  <ProposalRow
-                    key={p.key}
-                    proposal={p}
-                    catalog={catalog}
-                    onDone={(text) => {
-                      setProposals((old) => old.filter((x) => x.key !== p.key));
-                      setMessage(text);
-                      void runSync();
-                    }}
-                  />
-                ))}
-              </ul>
-            )}
+            <ul>
+              {proposals.map((p) => (
+                <ProposalRow key={p.key} proposal={p} catalog={catalog} onDone={(text) => proposalHandled(p.key, text)} />
+              ))}
+            </ul>
           </div>
         </div>
       )}
