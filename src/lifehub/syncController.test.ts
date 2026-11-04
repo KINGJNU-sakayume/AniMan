@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mergeProgressV2 } from '../lib/progress/merge';
+import { itemsDeletedElsewhere, removeItems } from '../lib/progress/staleReview';
 import type { ProgressV2 } from '../lib/progress/model';
 import { createFakeSyncServer, type FakeSyncServer } from '../test/fakeSyncServer';
 import { LIFEHUB_ORIGIN, type Deps } from './remote';
@@ -44,6 +45,12 @@ function setup(server: FakeSyncServer, options: { scope?: string; down?: { value
       }
       return local.progress;
     },
+  };
+  host.applyStaleReview = (remove, server, floor) => {
+    const ok = new Set(remove.map((i) => `${i.seriesId}/${i.itemId}`));
+    const gone = server && floor !== null ? itemsDeletedElsewhere(local.progress, server, floor).filter((i) => ok.has(`${i.seriesId}/${i.itemId}`)) : [];
+    local.progress = mergeProgressV2(removeItems(local.progress, gone), server ?? {});
+    emit();
   };
   const controller = createSyncController({
     deps, host, userAgent: 'Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0',
@@ -283,7 +290,7 @@ describe('sync controller', () => {
     expect(t.calls).toHaveLength(0);
   });
 
-  it('180 days without a successful sync: automatic merge is off until the owner resumes', async () => {
+  it('180 days without a successful sync: automatic merge stays off; only the confirmed review releases it', async () => {
     const t = setup(server);
     t.change('a');
     t.controller.setEnabled(true);
@@ -296,7 +303,22 @@ describe('sync controller', () => {
     setVisibility('visible');
     await advance(t, DEBOUNCE_MS * 3);
     expect(t.calls).toHaveLength(0);
-    t.controller.resumeAfterReview();
+    // turning sync off and on, a manual run and a reconnect do not release it either
+    t.controller.setEnabled(false);
+    t.controller.setEnabled(true);
+    t.controller.request('manual');
+    t.controller.notifyConnected();
+    await settle(t);
+    expect(t.calls).toHaveLength(0);
+    expect(t.controller.getSnapshot().phase).toBe('needs_review');
+    expect('resumeAfterReview' in t.controller).toBe(false);
+
+    // reading the plan changes nothing
+    const plan = await t.controller.prepareReview();
+    expect(t.controller.getSnapshot().phase).toBe('needs_review');
+    expect(t.puts()).toBe(0);
+    // confirming releases it and syncs once
+    t.controller.applyReview(plan);
     await settle(t);
     expect(t.controller.getSnapshot().phase).toBe('idle');
     expect(t.puts()).toBe(1);

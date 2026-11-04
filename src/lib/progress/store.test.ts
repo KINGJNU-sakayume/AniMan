@@ -256,6 +256,45 @@ describe('progress store (v2)', () => {
     });
   });
 
+  describe('applyStaleReview', () => {
+    const F = NOW - 1000;
+    const local = { a: { gone1: entry(true, F - 5000), tomb: entry(false, F - 5000), edit: entry(true, F + 10) } };
+
+    it('removes the confirmed items without tombstones, merges the server in, in one write', async () => {
+      const s = await loadStore({ v2: local });
+      const listener = vi.fn();
+      s.subscribe(listener);
+      s.applyStaleReview(
+        [{ seriesId: 'a', itemId: 'gone1', done: true, at: iso(F - 5000) }, { seriesId: 'a', itemId: 'tomb', done: false, at: iso(F - 5000) }],
+        { a: { fresh: entry(true, F + 5) } },
+        F
+      );
+      expect(storedV2()).toEqual({ a: { edit: entry(true, F + 10), fresh: entry(true, F + 5) } });
+      expect(s.getCompletedIds('a')).toEqual(['edit', 'fresh']);
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it('only removes items that are still unchanged and missing: a change made after the preview is kept', async () => {
+      const s = await loadStore({ v2: local });
+      const confirmed = [{ seriesId: 'a', itemId: 'gone1', done: true, at: iso(F - 5000) }, { seriesId: 'a', itemId: 'edit', done: true, at: iso(F + 10) }];
+      s.applyStaleReview(confirmed, { a: {} }, F); // `edit` is newer than F, `gone1` is the confirmed one
+      expect(storedV2().a.edit).toBeDefined();
+      expect(storedV2().a.gone1).toBeUndefined();
+      // an item that is on the server after all is not removed either
+      const t = await loadStore({ v2: local });
+      t.applyStaleReview([{ seriesId: 'a', itemId: 'gone1', done: true, at: iso(F - 5000) }], { a: { gone1: entry(false, F + 1) } }, F);
+      expect(storedV2().a.gone1).toEqual(entry(false, F + 1)); // the server's tombstone wins by the normal merge
+    });
+
+    it('no server document or no F: nothing is removed', async () => {
+      const s = await loadStore({ v2: local });
+      const confirmed = [{ seriesId: 'a', itemId: 'gone1', done: true, at: iso(F - 5000) }];
+      s.applyStaleReview(confirmed, null, F);
+      s.applyStaleReview(confirmed, { b: { z: entry(true, F) } }, null);
+      expect(storedV2().a.gone1).toBeDefined();
+    });
+  });
+
   it('recovers from corrupted or malformed storage', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     let s = await loadStore({ raw2: '{not json' });

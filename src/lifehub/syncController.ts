@@ -4,10 +4,13 @@
  * exponentially with a cap. Everything about *how* a pass works is in sync.ts.
  */
 import { onExternalChange } from '../lib/storage';
-import { applyRemote, getProgressV2, subscribe } from '../lib/progress/store';
+import { readClockFloor } from '../lib/progress/clock';
+import { planStaleReview, type StaleReviewPlan } from '../lib/progress/staleReview';
+import type { ProgressV2 } from '../lib/progress/model';
+import { applyRemote, applyStaleReview, getProgressV2, subscribe } from '../lib/progress/store';
 import { isConnected, mayHaveSyncScope, browserDeps, type Deps } from './remote';
 import {
-  defaultDeviceLabel, needsReview, readState, runSync, sanitizeDeviceLabel, STATE_KEY, updateState, type SyncHost, type SyncOutcome,
+  defaultDeviceLabel, fetchServerDocument, needsReview, readState, runSync, sanitizeDeviceLabel, STATE_KEY, updateState, type SyncHost, type SyncOutcome,
 } from './sync';
 
 export const DEBOUNCE_MS = 5_000;
@@ -25,6 +28,14 @@ export interface SyncSnapshot {
   customLabel: string | null;
   /** What is sent as X-Device-Label (null = header omitted). */
   effectiveLabel: string | null;
+}
+
+/** What the stale-device review shows and, once the owner confirms, applies. */
+export interface ReviewPlan extends StaleReviewPlan {
+  /** The server document, or null when there is none yet (404). */
+  server: ProgressV2 | null;
+  /** F as it was before the review fetched anything; null when this device never saw a server time. */
+  floorMs: number | null;
 }
 
 export type SyncReason = 'start' | 'visible' | 'hidden' | 'change' | 'manual';
@@ -216,8 +227,28 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
       notify();
       request('start');
     },
-    /** The owner reviewed the server document by hand (manual import) and wants automatic sync back. */
-    resumeAfterReview() {
+    /**
+     * Step 1–2 of the stale-device review: read the server document (without raising F) and work out what would be
+     * removed and what the rest of the merge looks like. Changes nothing, locally or on the server.
+     */
+    async prepareReview(): Promise<ReviewPlan> {
+      const floorMs = readClockFloor(); // before any request
+      const doc = await fetchServerDocument(deps);
+      const server = doc?.progress ?? null;
+      return { ...planStaleReview(host.snapshot(), server, floorMs), server, floorMs };
+    },
+    /**
+     * Step 3–4, after the owner confirmed: remove those items without tombstones, merge the rest, release the review
+     * state and sync once. This is the only way out of "needs review"; cancelling simply never calls it.
+     */
+    applyReview(plan: ReviewPlan) {
+      if (!host.applyStaleReview) throw new Error('host cannot apply a review');
+      applying = true; // our own write is not a user change
+      try {
+        host.applyStaleReview(plan.remove, plan.server, plan.floorMs);
+      } finally {
+        applying = false;
+      }
       updateState(deps.storage, { lastSyncAt: deps.now() });
       request('manual');
     },
@@ -250,7 +281,7 @@ let instance: SyncController | null = null;
 export const syncController = (): SyncController =>
   (instance ??= createSyncController({
     deps: browserDeps(),
-    host: { snapshot: getProgressV2, applyRemote },
+    host: { snapshot: getProgressV2, applyRemote, applyStaleReview },
     onLocalChange: subscribe,
     userAgent: typeof navigator === 'undefined' ? '' : navigator.userAgent,
   }));

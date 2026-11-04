@@ -108,7 +108,8 @@ export interface ImportPreview {
 }
 
 /** 카탈로그 정보: 시리즈 ID → { 제목, 유효 항목 ID 집합 } */
-export type CatalogIndex = Record<string, { title: string; itemIds: Set<string> }>;
+/** `labels`(항목 id → "Ep 3"/"Vol 2")가 있으면 지울 항목 목록에서 번호로 보여 준다. */
+export type CatalogIndex = Record<string, { title: string; itemIds: Set<string>; labels?: Record<string, string> }>;
 
 /** 불러오기를 적용했을 때의 변화를 계산한다(상태는 바꾸지 않음). */
 export const previewImport = (
@@ -118,11 +119,21 @@ export const previewImport = (
   catalog: CatalogIndex = {},
   baseMs: number = Date.now()
 ): ImportPreview => {
-  const result = resolveImport(current, backup, mode, baseMs);
+  return previewResult(current, resolveImport(current, backup, mode, baseMs), backupToV2(backup), mode, catalog);
+};
+
+/** 이미 계산된 결과(result)를 현재(current)와 견줘 미리보기를 만든다. incomingV2 는 들어오는 쪽(파일/서버 문서). */
+export const previewResult = (
+  current: ProgressV2,
+  result: ProgressV2,
+  incomingV2: ProgressV2,
+  mode: ImportMode,
+  catalog: CatalogIndex = {}
+): ImportPreview => {
   const before = completedMap(current);
   const after = completedMap(result);
-  const incoming = completedMap(backupToV2(backup));
-  const incomingSeries = new Set(Object.keys(backupToV2(backup)));
+  const incoming = completedMap(incomingV2);
+  const incomingSeries = new Set(Object.keys(incomingV2));
   const seriesIds = Array.from(new Set([...Object.keys(before), ...Object.keys(after)]));
   const rows: ImportPreviewRow[] = [];
   for (const seriesId of seriesIds) {
