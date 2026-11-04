@@ -102,8 +102,9 @@ const setVisibility = (state: 'visible' | 'hidden') => {
 };
 
 describe('sync controller', () => {
-  it('does nothing while sync is off (default), whatever happens', async () => {
+  it('does nothing while not connected (sync off), whatever happens', async () => {
     const t = setup(server);
+    t.storage.removeItem('animan.lifehub.tokens.v1');
     const stop = t.controller.start();
     t.change('a');
     setVisibility('hidden');
@@ -111,7 +112,38 @@ describe('sync controller', () => {
     await advance(t, 60_000);
     expect(t.calls).toHaveLength(0);
     expect(t.controller.getSnapshot().phase).toBe('off');
+    expect(readState(t.storage).enabled).toBe(false);
     stop();
+  });
+
+  it('connected with the sync scope: a stored "off" is switched on at start and it syncs (no on/off switch)', async () => {
+    const t = setup(server);
+    updateState(t.storage, { enabled: false });
+    t.change('a');
+    const stop = t.controller.start();
+    expect(readState(t.storage).enabled).toBe(true);
+    await settle(t);
+    expect(t.controller.getSnapshot()).toMatchObject({ phase: 'idle', enabled: true, lastSyncAt: START });
+    expect(server.document()!.progress.s.a).toBeDefined();
+    stop();
+  });
+
+  it('connected without the sync scope: switched on but shown as "no permission" and nothing is sent', async () => {
+    const t = setup(server, { scope: 'animan:inbox' });
+    const stop = t.controller.start();
+    await settle(t);
+    expect(t.controller.getSnapshot()).toMatchObject({ phase: 'no_permission', enabled: true });
+    expect(t.calls).toHaveLength(0);
+    stop();
+  });
+
+  it('a (re)connect switches a stored "off" on and syncs', async () => {
+    const t = setup(server);
+    t.change('a');
+    t.controller.notifyConnected();
+    await settle(t);
+    expect(t.controller.getSnapshot()).toMatchObject({ phase: 'idle', enabled: true });
+    expect(t.puts()).toBe(1);
   });
 
   it('turning it on syncs at once; the phase goes syncing → idle and the time is recorded', async () => {

@@ -1,4 +1,4 @@
-import { test, expect, SERIES_ID, SERIES_TITLE, readProgress } from './fixtures';
+import { test, expect, SERIES_ID, SERIES_TITLE, openSettings, readProgress } from './fixtures';
 
 // Life Hub cards stage 6. Synthetic data only; the Life Hub API is faked.
 const HUB = 'https://life-hub-api.213303.workers.dev';
@@ -41,6 +41,9 @@ test('opening AniMan marks what the owner approved in a Claude card, shares titl
   await expect(page.getByText(/Claude에서 승인한 진행 1개를 기록했어요/)).toBeVisible();
   await expect(page.getByText('Claude 카드에서 승인함')).toBeVisible();
   await expect(page.getByText('이 작품에 없는 번호: 9')).toBeVisible();
-  await expect(page.getByLabel(/Claude에서 승인된 항목 자동 반영/)).toBeChecked();
+  // The auto-apply preference lives in 설정 › Life Hub now.
+  await page.getByRole('dialog', { name: 'Claude가 제안한 진행 기록' }).getByRole('button', { name: '닫기' }).click();
+  const settings = await openSettings(page);
+  await expect(settings.getByLabel(/Claude에서 승인한 기록은 바로 반영/)).toBeChecked();
   expect(errors).toEqual([]);
 });

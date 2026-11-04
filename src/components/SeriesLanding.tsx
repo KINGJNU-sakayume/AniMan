@@ -2,16 +2,21 @@
 import type { ReactNode } from 'react';
 import { Sparkles, Plus } from 'lucide-react';
 import { useCatalog } from '../hooks/useCatalog';
+import { SettingsButton } from './Header';
 
 interface SeriesLandingProps {
   completedMap: Record<string, string[]>;
   onSelectSeries: (id: string) => void;
   onAdminClick: () => void;
-  /** 상단 바 오른쪽에 추가로 보여줄 버튼(백업 메뉴 등) */
+  /** 톱니: 「설정」 시트 */
+  onSettingsClick: () => void;
+  /** Life Hub 「확인 필요」(상태 C): 톱니에 경고색 점 */
+  needsAttention?: boolean;
+  /** 상단 바 오른쪽에 추가로 보여줄 버튼(Claude 제안 등) */
   actions?: ReactNode;
 }
 
-export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick, actions }: SeriesLandingProps) => {
+export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick, onSettingsClick, needsAttention, actions }: SeriesLandingProps) => {
   const catalog = useCatalog();
   const seriesCards = catalog.map((s) => ({
     id: s.id,
@@ -47,6 +52,7 @@ export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick, acti
           <Plus className="w-4 h-4" />
           Add Series
         </button>
+        <SettingsButton onClick={onSettingsClick} needsAttention={needsAttention} />
         </div>
       </div>
 
@@ -55,8 +61,7 @@ export const SeriesLanding = ({ completedMap, onSelectSeries, onAdminClick, acti
 
         {seriesCards.length === 0 && (
           <p className="text-sm text-zinc-500 mb-4">
-            아직 등록된 작품이 없습니다. <code className="text-zinc-400">npm run export:catalog</code>로
-            기존 데이터를 가져오거나, "Add Series"에서 새 작품을 추가하세요.
+            아직 등록된 작품이 없습니다. "Add Series"에서 새 작품을 추가하세요.
           </p>
         )}
         {(

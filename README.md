@@ -6,7 +6,7 @@
 - **로그인 없음.** 이 기기 = 소유자입니다. 다른 기기로 옮길 때는 JSON 백업을 내보내고 불러오거나, (선택) Life Hub 기기 동기화를 켭니다.
 - GitHub Pages로 정적 배포됩니다.
 
-> ⚠️ 공개 저장소입니다. 개인 진행 기록 백업(`animan-backup-*.json`), 토큰, Supabase 키는 커밋하지 마세요. `.gitignore`가 백업 파일 이름 패턴과 `.env*`를 막아 둡니다.
+> ⚠️ 공개 저장소입니다. 개인 진행 기록 백업(`animan-backup-*.json`), 토큰·키는 커밋하지 마세요. `.gitignore`가 백업 파일 이름 패턴과 `.env*`를 막아 둡니다.
 
 ---
 
@@ -17,8 +17,11 @@ src/
 ├── App.tsx                    # 화면 전환 (landing / series / admin)
 ├── data/series/*.json         # 번들 카탈로그 — 시리즈당 1파일 (공개 데이터)
 ├── components/
-│   ├── SeriesLanding.tsx      # 작품 목록 + 진행률, 백업 메뉴 자리
-│   ├── BackupMenu.tsx         # 진행 기록 백업 내보내기 / 불러오기(미리보기 → 승인)
+│   ├── SeriesLanding.tsx      # 작품 목록 + 진행률, ⚙ 설정·제안 버튼 자리
+│   ├── SettingsSheet.tsx      # ⚙ 설정 시트: Life Hub · 백업 · 카탈로그 관리
+│   ├── LifeHubSettings.tsx    # 설정 › Life Hub 섹션 (연결·지금 동기화·고급)
+│   ├── LifeHubMenu.tsx        # Claude 제안 목록 (제안이 있을 때만)
+│   ├── BackupMenu.tsx         # 백업 섹션 + 불러오기 미리보기·오래 쉰 기기 검토 대화상자
 │   ├── Header.tsx             # 시리즈 화면 상단 바
 │   ├── Hero.tsx               # 시리즈 히어로 + 진행 바 + BGM
 │   ├── Timeline.tsx           # 에피소드 ↔ 권 타임라인 (PC + 모바일)
@@ -44,8 +47,6 @@ src/
 │   ├── storage.ts             # 안전한 localStorage 래퍼
 │   └── download.ts
 └── types/index.ts
-scripts/
-└── export-supabase-catalog.mjs  # (1회용) Supabase → src/data/series/*.json
 ```
 
 ### Data Flow
@@ -59,7 +60,7 @@ flowchart TD
 
     UI -->|toggle / 우클릭·롱프레스 = 여기까지 완료| P[lib/progress<br/>markCompleted · markUpTo ...]
     X[화면 밖 호출<br/>window.animan.progress<br/>향후 Life Hub 승인] --> P
-    B[BackupMenu<br/>불러오기 미리보기 → 승인] -->|importBackup merge/replace| P
+    B[BackupDialogs<br/>불러오기 미리보기 → 승인] -->|importBackup merge/replace| P
     S[lifehub/sync.ts · syncController.ts<br/>기기 동기화] -->|applyRemote = 로컬 ∪ 서버| P
     P <--> L[(localStorage<br/>animan:progress:v2<br/>animan:progress:v1 = 롤백용 원본)]
     P -->|subscribe| UP[useProgress] --> UI
@@ -126,9 +127,11 @@ stateDiagram-v2
     Landing --> Series : 작품 카드 클릭
     Series --> Landing : 로고 클릭
     Landing --> Admin : Add Series
-    Series --> Admin : ⚙ 버튼
+    Landing --> Settings : ⚙ 버튼
+    Series --> Settings : ⚙ 버튼
+    Settings --> Admin : 카탈로그 관리
     Admin --> Landing : 뒤로
-    Landing --> BackupPreview : 불러오기 (파일 선택)
+    Settings --> BackupPreview : 백업 › 불러오기 (파일 선택)
     BackupPreview --> Landing : 적용 / 취소
 ```
 
@@ -171,26 +174,26 @@ importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(항목별 마�
 
 Claude에게 "주술회전 2기 5화까지 봤어", "최애의 아이 만화 7권까지 읽었어"처럼 말하면 Claude가 [Life Hub](https://github.com/KINGJNU-sakayume/life-hub)에 **진행 제안**(`media_progress`)을 남기고, AniMan이 받아 온다.
 
-- 첫 화면의 **Life Hub** 버튼에서 한 번 연결한다(배포 주소에서만). OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox animan:sync`를 요청한다. 동기화 권한을 실제로 주는지는 동의 화면의 「기기끼리 동기화도 허용」 체크가 정한다(체크하지 않아도 제안 가져오기는 그대로 된다). Life Hub는 `public/lifehub/`로 돌아온다.
-- 제안이 있으면 버튼에 숫자 배지. 작품 제목(또는 괄호 안 원제)이 하나로 맞을 때만 자동 선택, 애매하면 고른다. 카탈로그에 없는 작품은 추가한 뒤 다시 확인.
+- 헤더 톱니(**설정**) › **Life Hub** 섹션에서 한 번 연결한다(배포 주소에서만). 연결·해제·「지금 동기화」 버튼은 이 섹션에만 있다. OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox animan:sync`를 요청한다. 동기화 권한을 실제로 주는지는 동의 화면의 「기기끼리 동기화도 허용」 체크가 정한다(체크하지 않아도 제안 가져오기는 그대로 된다). Life Hub는 `public/lifehub/`로 돌아온다.
+- 제안이 1건 이상일 때만 첫 화면에 **Life Hub** 버튼(숫자 배지)이 나타나고, 누르면 제안 목록이 열린다. 0건이면 버튼이 없다. 작품 제목(또는 괄호 안 원제)이 하나로 맞을 때만 자동 선택, 애매하면 고른다. 카탈로그에 없는 작품은 추가한 뒤 다시 확인.
 - "N화/권까지"는 타임라인 순서로 그 앞까지 모두, 번호 목록은 그것만. "2기 5화"는 시즌의 챕터 범위로 바꿔 계산한다(`src/lifehub/resolve.ts`). 기록 전에 새로 완료될 개수를 보여 준다.
 - 「기록」은 `markCompleted`(지우지 않음), 「거절」은 변경 없음. 승인(시리즈 ID)·거절 결과는 동기화 때 Life Hub로 보내고 응답이 올 때까지 다시 보낸다(localStorage `animan.lifehub.*`).
-- **Claude 대화 카드**에서 승인한 진행은, 작품이 하나로 정해지고 요청한 번호가 모두 있을 때 앱을 열면 바로 완료로 표시한다(설정 「Claude에서 승인된 항목 자동 반영」, 기본 켜짐). 아니면 위 목록에서 「Claude 카드에서 승인함」으로 기다린다.
+- **Claude 대화 카드**에서 승인한 진행은, 작품이 하나로 정해지고 요청한 번호가 모두 있을 때 앱을 열면 바로 완료로 표시한다(설정 › Life Hub 「Claude에서 승인한 기록은 바로 반영」, 기본 켜짐). 아니면 위 목록에서 「Claude 카드에서 승인함」으로 기다린다.
 - 카드의 작품 이름 제안을 위해 카탈로그의 **작품 id·제목·강조 색**만 Life Hub에 공유한다(바뀔 때만). 진행 기록은 보내지 않는다.
 
 ## Life Hub로 기기끼리 동기화 (선택)
 
-Life Hub의 `/animan/v1/sync`에 진행 기록 v2 문서를 한 개 보관해 여러 기기의 기록을 맞춥니다([life-hub `docs/P6_SYNC.md`](https://github.com/KINGJNU-sakayume/life-hub/blob/main/docs/P6_SYNC.md)가 계약). 코드는 `src/lifehub/sync.ts`(한 번의 동기화), `syncController.ts`(언제 할지), 화면은 Life Hub 메뉴 안의 「기기 간 동기화」.
+Life Hub의 `/animan/v1/sync`에 진행 기록 v2 문서를 한 개 보관해 여러 기기의 기록을 맞춥니다([life-hub `docs/P6_SYNC.md`](https://github.com/KINGJNU-sakayume/life-hub/blob/main/docs/P6_SYNC.md)가 계약). 코드는 `src/lifehub/sync.ts`(한 번의 동기화), `syncController.ts`(언제 할지), 화면은 설정 › Life Hub 섹션(상태 줄, 「지금 동기화」, 접힌 「고급」의 기기 이름).
 
-- **켜기:** Life Hub에 연결(동의 화면에서 「기기끼리 동기화도 허용」 체크) → Life Hub 메뉴에서 「이 기기에서 동기화 켜기」. 기본은 꺼짐. 이미 연결해 둔 기기는 한 번 **다시 연결**해야 동기화 권한이 생긴다(권한이 없으면 「권한 없음」이 보이고, 제안 가져오기는 그대로 된다).
+- **켜기:** 따로 없다. Life Hub에 연결되어 있으면 동기화는 켜진 것으로 동작한다(예전 저장값이 꺼짐이어도 앱 시작 시 켜짐으로 바꾼다). 토큰에 동기화 권한이 없으면 설정 톱니에 점이 생기고 「확인 필요 — 동기화 권한이 없는 연결」과 「다시 연결」이 보인다(제안 가져오기는 그대로 된다).
 - **언제:** 앱 시작·탭이 다시 보일 때 가져오고(폴링 없음), 변경 5초 뒤·탭이 숨겨질 때 올린다. 한 번에 하나만 돈다.
 - **어떻게:** `GET /sync/meta` → 서버 version이 다르거나 올릴 변경이 있으면 `GET /sync` → 로컬 ∪ 서버로 병합 → 다르면 `PUT`(`If-Match: "<version>"`, 최초는 `If-None-Match: *`). `412`면 다시 읽고 병합해 최대 3번. 로컬에는 언제나 병합 결과만 쓰고, 실패해도 로컬 기록은 그대로다.
 - **멈춤:** `413`(너무 큼)·`400/415/428`(오류)는 자동 동기화를 멈추고 알린다. 180일 넘게 동기화하지 않은 기기는 자동 병합하지 않고, 「서버 문서 검토」를 거쳐야만 풀린다: 다른 기기에서 이미 지워진 것으로 보이는 항목(마지막 동기화 시각 F 이하이고 서버에 없는 로컬 항목)을 목록으로 보여 주고, 현재 로컬 진행도 내려받기를 권한 뒤, 확인하면 그 항목을 묘비 없이 지우고 나머지를 병합해 동기화한다. 취소하면 아무것도 바뀌지 않는다.
-- **끄기·롤백:** 동기화를 끄면 이 기기는 Life Hub와 주고받지 않는다. `animan:progress:v1`은 남아 있고(옛 빌드로 되돌릴 수 있음), 수동 JSON 내보내기/가져오기는 그대로 쓸 수 있다.
+- **끄기·롤백:** 「연결 해제」를 하면 제안과 동기화가 모두 멈추고 이 기기는 Life Hub와 주고받지 않는다(이 기기의 기록은 지우지 않는다). `animan:progress:v1`은 남아 있고(옛 빌드로 되돌릴 수 있음), 수동 JSON 내보내기/가져오기는 그대로 쓸 수 있다.
 
 ## 콘텐츠 추가 / 수정
 
-1. 앱에서 **Add Series**(또는 시리즈 화면의 ⚙) → Admin Dashboard.
+1. 앱에서 **Add Series**(또는 ⚙ 설정 › 카탈로그 관리) → Admin Dashboard.
 2. 새 작품이면 그대로, 기존 작품이면 **편집 대상**에서 선택 (JSON에 기존 id가 들어 있어 저장해도 ID가 유지됩니다).
 3. **이 기기에 초안 저장** → 앱에서 바로 확인 (카드에 `로컬 초안` / `로컬 수정` 배지).
 4. **시리즈 JSON 내보내기** → 받은 `<series-id>.json`을 `src/data/series/`에 넣고 커밋·푸시.
@@ -208,36 +211,6 @@ Episodes/Volumes JSON 입력 예:
 
 ---
 
-## Supabase에서 이전하기 (1회)
-
-기존 Supabase 데이터는 이 순서로 옮깁니다. 진행 기록(user_progress)은 샘플 데이터라 옮기지 않습니다. (필요하면 위 백업 형식으로 만들어 불러오면 ID가 그대로 맞습니다.)
-
-1. **카탈로그 내보내기** — series/seasons/episodes/volumes는 anon 읽기가 허용돼 있어 URL + anon 키만 있으면 됩니다. 키는 환경변수로만 넘기고 파일에 저장하지 마세요.
-
-   ```bash
-   SUPABASE_URL=https://<project>.supabase.co SUPABASE_ANON_KEY=<anon-key> npm run export:catalog
-   ```
-
-   명령을 못 돌리는 환경이면 GitHub **Actions → Export catalog from Supabase → Run workflow**로 같은 작업을 실행할 수 있습니다(저장소 secrets `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` 사용, 결과를 실행한 브랜치에 커밋).
-
-   `src/data/series/<series-id>.json`이 시리즈별로 생성됩니다(모든 UUID 유지). 이미 있는 파일 중 Supabase에 없는 것은 경고만 하며, `-- --clean`을 붙이면 삭제합니다.
-
-2. **확인 후 커밋**
-
-   ```bash
-   npm run dev
-   ```
-
-   ```bash
-   git add src/data/series && git commit -m "Import catalog from Supabase"
-   ```
-
-3. **정리 (이전이 끝난 뒤, 선택)**
-   - `supabase/` 폴더(마이그레이션 SQL)는 더 이상 앱에서 쓰지 않습니다. 이전이 끝나면 삭제해도 됩니다.
-   - Supabase 프로젝트 일시정지/삭제, GitHub 저장소 secrets의 `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` 삭제, 로컬 `.env` 삭제.
-
----
-
 ## Setup
 
 Node.js 20 권장. 환경변수는 필요 없습니다.
@@ -252,12 +225,11 @@ npm run dev
 
 | Script | 설명 |
 |---|---|
-| `npm run dev` | 개발 서버 (`http://localhost:5173/AniMan/`) |
+| `npm run dev` | 개발 서버 (`http://localhost:5173/animan/`) |
 | `npm run build` / `npm run preview` | 프로덕션 빌드 / 미리보기 |
 | `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
 | `npm test` | 단위 테스트 (Vitest — 진행 저장소, 백업, Admin 빌더) |
 | `npm run test:e2e` | Playwright E2E (dev 서버 자동 실행) |
-| `npm run export:catalog` | Supabase → 카탈로그 JSON (1회용) |
 
 ### 테스트
 
@@ -267,7 +239,7 @@ npm run dev
 ### CI / 배포
 
 - `.github/workflows/ci.yml`: PR과 main push마다 lint → typecheck → unit → build → e2e(Chromium).
-- `.github/workflows/deploy.yml`: main push 시 GitHub Pages 배포 (시크릿 불필요).
+- `.github/workflows/deploy.yml`: main push 시 GitHub Pages 배포 (시크릿 불필요). 배포 주소: https://kingjnu-sakayume.github.io/animan/
 
 ---
 
@@ -278,3 +250,7 @@ npm run dev
 - **ID 안정성**: 진행 항목 ID는 에피소드/권 UUID입니다. 내보내기 스크립트와 Admin 편집 모두 기존 ID를 유지하며, 새 항목만 `crypto.randomUUID()`로 만듭니다.
 - **단일 쓰기 경로**: 진행 기록 변경은 `lib/progress`의 함수로만 일어나므로, 이후 외부 제안(Life Hub) 승인 흐름을 같은 함수 위에 붙일 수 있습니다.
 - **챕터 범위 매핑**: 별도 매핑 테이블 없이 `start_chapter` / `end_chapter`로 겹침을 메모리에서 계산합니다.
+
+---
+
+카탈로그는 2026년에 Supabase에서 src/data/series/로 옮겼고, 이전 도구는 커밋 e7c0221에 남아 있습니다.

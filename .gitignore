@@ -3,7 +3,7 @@ node_modules/
 dist/
 *.local
 
-# env & secrets — 공개 저장소: Supabase 키/토큰 커밋 금지
+# env & secrets — 공개 저장소: 토큰·키 커밋 금지
 .env
 .env.*
 !.env.example

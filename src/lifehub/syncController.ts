@@ -195,6 +195,15 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
 
   let stop: (() => void) | null = null;
 
+  /**
+   * Connected means sync is on: there is no on/off switch any more. A device that still has "off" stored from the
+   * old checkbox is switched on (a stop reason, if any, is kept). Without a sync scope the phase then reads
+   * "no permission" and no request is sent (runSync refuses a token known to lack the scope).
+   */
+  const enableIfConnected = () => {
+    if (isConnected(deps) && !readState(deps.storage).enabled) updateState(deps.storage, { enabled: true });
+  };
+
   return {
     getSnapshot: (): SyncSnapshot => (snapshot ??= compute()),
     /** Re-read the stored state (after connect/disconnect or another tab's change). */
@@ -220,8 +229,9 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
       updateState(deps.storage, { deviceLabel: sanitizeDeviceLabel(label) });
       notify();
     },
-    /** After a (re)connect: forget a permission stop and sync if it is on. */
+    /** After a (re)connect: forget a permission stop and sync (connected = on). */
     notifyConnected() {
+      enableIfConnected();
       const state = readState(deps.storage);
       if (state.halt === 'no_permission') updateState(deps.storage, { halt: null });
       notify();
@@ -261,6 +271,8 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
       const offState = onExternalChange(STATE_KEY, notify);
       const onVisibility = () => request(document.visibilityState === 'hidden' ? 'hidden' : 'visible');
       document.addEventListener('visibilitychange', onVisibility);
+      enableIfConnected();
+      notify();
       request('start');
       stop = () => {
         offLocal();

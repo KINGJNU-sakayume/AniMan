@@ -1,5 +1,7 @@
 // src/components/BackupMenu.tsx
 // 진행 기록 JSON 백업 내보내기 / 불러오기(미리보기 → 승인).
+// - BackupSection: 설정 시트의 「백업」 섹션(내보내기·불러오기 버튼).
+// - BackupDialogs: 항상 마운트되는 미리보기·오래 쉰 기기 검토 대화상자와 안내 토스트. 설정 시트가 닫혀도 남는다.
 import { useEffect, useRef, useState } from 'react';
 import { Download, Upload, X } from 'lucide-react';
 import {
@@ -16,7 +18,7 @@ import {
   type ProgressBackup,
 } from '../lib/progress';
 import { downloadJson } from '../lib/download';
-import { subscribeImportReview, type StaleDeviceReview } from '../lib/progress/importReview';
+import { requestImportReview, subscribeImportReview, type StaleDeviceReview } from '../lib/progress/importReview';
 
 const btn =
   'flex items-center gap-1.5 px-3 py-2 text-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-lg transition-colors';
@@ -59,8 +61,7 @@ const PreviewTable = ({ preview }: { preview: ImportPreview }) => (
           </div>
 );
 
-export const BackupMenu = () => {
-  const fileRef = useRef<HTMLInputElement>(null);
+export const BackupDialogs = () => {
   const [pending, setPending] = useState<{ backup: ProgressBackup; fileName: string; note?: string } | null>(null);
   const [stale, setStale] = useState<StaleDeviceReview | null>(null);
   const [mode, setMode] = useState<ImportMode>('merge');
@@ -90,18 +91,6 @@ export const BackupMenu = () => {
     []
   );
 
-  const handleFile = async (file: File | undefined) => {
-    if (!file) return;
-    const result = parseBackup(await file.text());
-    if (fileRef.current) fileRef.current.value = '';
-    if (!result.ok) {
-      flash(`불러오기 실패: ${result.error}`, true);
-      return;
-    }
-    setMode('merge');
-    setPending({ backup: result.backup, fileName: file.name });
-  };
-
   const preview = pending ? previewBackup(pending.backup, mode) : null;
   const catalog = stale ? buildCatalogIndex() : {};
   const stalePreview = stale ? previewResult(getProgressV2(), stale.result, stale.server ?? {}, 'merge', catalog) : null;
@@ -123,23 +112,6 @@ export const BackupMenu = () => {
 
   return (
     <>
-      <button type="button" onClick={handleExport} className={btn} title="진행 기록 백업 내보내기">
-        <Download className="w-4 h-4" />
-        <span className="hidden sm:inline">백업 내보내기</span>
-      </button>
-      <button type="button" onClick={() => fileRef.current?.click()} className={btn} title="진행 기록 백업 불러오기">
-        <Upload className="w-4 h-4" />
-        <span className="hidden sm:inline">불러오기</span>
-      </button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="application/json,.json"
-        className="hidden"
-        data-testid="backup-file-input"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-
       {message && (
         <div
           role="status"
@@ -284,5 +256,57 @@ export const BackupMenu = () => {
         </div>
       )}
     </>
+  );
+};
+
+/** 설정 시트의 「백업」 섹션. 불러오기는 파일을 검사한 뒤 시트를 닫고 BackupDialogs 의 미리보기로 넘긴다. */
+export const BackupSection = ({ onClose }: { onClose: () => void }) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
+
+  const handleExport = () => {
+    downloadJson(backupFileName(), exportBackup());
+    setMessage({ text: '백업 파일을 내려받았습니다. (공개 저장소에 커밋하지 마세요)' });
+  };
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    const result = parseBackup(await file.text());
+    if (fileRef.current) fileRef.current.value = '';
+    if (!result.ok) {
+      setMessage({ text: `불러오기 실패: ${result.error}`, error: true });
+      return;
+    }
+    onClose();
+    requestImportReview({ kind: 'import', backup: result.backup, fileName: file.name, mode: 'merge' });
+  };
+
+  return (
+    <section className="space-y-2 border-t border-zinc-800 pt-4" aria-labelledby="backup-settings-title">
+      <h3 id="backup-settings-title" className="text-sm font-bold">백업</h3>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={handleExport} className={btn} title="진행 기록 백업 내보내기">
+          <Download className="w-4 h-4" />
+          백업 내보내기
+        </button>
+        <button type="button" onClick={() => fileRef.current?.click()} className={btn} title="진행 기록 백업 불러오기">
+          <Upload className="w-4 h-4" />
+          불러오기
+        </button>
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="application/json,.json"
+        className="hidden"
+        data-testid="backup-file-input"
+        onChange={(e) => void handleFile(e.target.files?.[0])}
+      />
+      {message && (
+        <p role="status" className={`text-xs ${message.error ? 'text-rose-300' : 'text-emerald-300'}`}>
+          {message.text}
+        </p>
+      )}
+    </section>
   );
 };
