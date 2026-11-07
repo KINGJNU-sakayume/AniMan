@@ -2,7 +2,7 @@
  * AniMan ↔ Life Hub connection.
  *
  * - Connect: OAuth 2.1 authorization code + PKCE (S256); AniMan is a public client identified by
- *   public/lifehub-client.json. It asks for `animan:inbox animan:sync`; whether the sync scope is actually
+ *   public/lifehub-client.json. It asks for `animan:inbox animan:sync animan:board`; whether the sync scope is actually
  *   granted is decided by the owner's checkbox on Life Hub's consent page, so the token response's `scope`
  *   is kept. Life Hub returns to /lifehub/ (public/lifehub/index.html), which hands the result to the app.
  * - Proposals (`media_progress`) are fetched live and validated again here; nothing is marked until
@@ -16,7 +16,8 @@ export const CLIENT_ID = APP_URL + 'lifehub-client.json';
 export const RESOURCE = LIFEHUB_ORIGIN + '/animan';
 export const INBOX_SCOPE = 'animan:inbox';
 export const SYNC_SCOPE = 'animan:sync';
-export const SCOPE = `${INBOX_SCOPE} ${SYNC_SCOPE}`;
+export const BOARD_SCOPE = 'animan:board';
+export const SCOPE = `${INBOX_SCOPE} ${SYNC_SCOPE} ${BOARD_SCOPE}`;
 const API = LIFEHUB_ORIGIN + '/animan/v1';
 /** Written by public/lifehub/index.html. */
 export const CALLBACK_KEY = 'animan.lifehub.callback.v1';
@@ -42,7 +43,8 @@ export function browserDeps(): Deps {
 }
 
 /** 'no_sync_scope': the token is valid but was granted without the sync checkbox (the inbox still works). */
-export type LifeHubErrorKind = 'not_connected' | 'denied' | 'state' | 'network' | 'server' | 'no_sync_scope';
+/** 'no_board_scope': the token has no `animan:board` (connected before that scope existed); the token is kept. */
+export type LifeHubErrorKind = 'not_connected' | 'denied' | 'state' | 'network' | 'server' | 'no_sync_scope' | 'no_board_scope';
 export class LifeHubError extends Error {
   kind: LifeHubErrorKind;
   constructor(kind: LifeHubErrorKind, message: string) {
@@ -146,6 +148,9 @@ export function grantedScopes(deps: Pick<Deps, 'storage'>): string[] | null {
 }
 /** False only when the token is known to lack the sync scope; unknown scopes are tried (a 403 then tells). */
 export const mayHaveSyncScope = (deps: Pick<Deps, 'storage'>): boolean => grantedScopes(deps)?.includes(SYNC_SCOPE) ?? true;
+
+/** False only when the token is known to lack the board scope; unknown scopes are tried (a 403 then tells). */
+export const mayHaveBoardScope = (deps: Pick<Deps, 'storage'>): boolean => grantedScopes(deps)?.includes(BOARD_SCOPE) ?? true;
 
 export async function beginConnect(deps: Deps): Promise<string> {
   const verifier = b64url(deps.random(32));
@@ -275,6 +280,39 @@ export async function syncRequest(
   if (response.status === 401) response = await send(await accessToken(deps, true));
   if (response.status === 403 && /error="?insufficient_scope"?/i.test(response.headers.get('WWW-Authenticate') ?? ''))
     throw new LifeHubError('no_sync_scope', '이 연결에는 동기화 권한이 없어요. 다시 연결하면서 동기화를 허용해 주세요.');
+  if (response.status === 401 || response.status === 403) {
+    deps.storage.removeItem(TOKENS_KEY);
+    throw new LifeHubError('not_connected', 'Life Hub 연결이 더 이상 유효하지 않아요. 다시 연결해 주세요.');
+  }
+  return response;
+}
+
+const BOARD_TIMEOUT_MS = 30_000;
+
+/**
+ * The board upload (`PUT /animan/v1/board`). Kept apart from `api()`/`syncRequest()` on purpose: those drop the
+ * Life Hub token on any 401/403, which would cut the inbox and the device sync over a missing board permission.
+ * Here a 403 with `WWW-Authenticate: ... error="insufficient_scope"` is checked FIRST: the token is KEPT and
+ * `no_board_scope` is thrown. A 401 that survives one token refresh, or any other 403, means the grant is unusable:
+ * the token is dropped, as everywhere else. Never put a response body or a token into an error message.
+ */
+export async function boardRequest(deps: Deps, body: string): Promise<Response> {
+  const send = async (token: string) => {
+    try {
+      return await deps.fetch(API + '/board', {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body,
+        signal: typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal ? AbortSignal.timeout(BOARD_TIMEOUT_MS) : undefined,
+      });
+    } catch {
+      throw new LifeHubError('network', 'Life Hub에 연결할 수 없어요. 네트워크를 확인해 주세요.');
+    }
+  };
+  let response = await send(await accessToken(deps));
+  if (response.status === 401) response = await send(await accessToken(deps, true));
+  if (response.status === 403 && /error="?insufficient_scope"?/i.test(response.headers.get('WWW-Authenticate') ?? ''))
+    throw new LifeHubError('no_board_scope', '보드에 올리려면 Life Hub에 다시 연결해 주세요.');
   if (response.status === 401 || response.status === 403) {
     deps.storage.removeItem(TOKENS_KEY);
     throw new LifeHubError('not_connected', 'Life Hub 연결이 더 이상 유효하지 않아요. 다시 연결해 주세요.');

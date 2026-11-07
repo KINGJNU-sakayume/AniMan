@@ -70,6 +70,16 @@ export function LifeHubSettings({ onClose }: { onClose: () => void }) {
       연결 해제
     </button>
   );
+  const boardNotice = hub.boardNeedsReconnect && (
+    <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3" data-testid="board-reconnect">
+      <p className="text-xs text-amber-200">
+        보드에 올리려면 Life Hub에 다시 연결해 주세요. 지금 연결은 보드 권한이 없어요. 제안·동기화는 그대로 쓸 수 있어요.
+      </p>
+      <button type="button" className={primary} disabled={!canConnect} onClick={connect}>
+        다시 연결
+      </button>
+    </div>
+  );
   const messages = (
     <>
       {hub.message && <p role="status" className="text-xs text-zinc-400">{hub.message}</p>}
@@ -104,6 +114,7 @@ export function LifeHubSettings({ onClose }: { onClose: () => void }) {
             {view.text}
           </p>
           {messages}
+          {boardNotice}
           <div className="flex flex-wrap gap-2">
             {syncButton}
             {disconnectButton}
@@ -157,6 +168,7 @@ export function LifeHubSettings({ onClose }: { onClose: () => void }) {
             {view.cause === 'error' && syncButton}
           </div>
           {messages}
+          {view.cause !== 'no_permission' && boardNotice}
           {view.cause !== 'disconnected' && <div className="flex flex-wrap gap-2">{disconnectButton}</div>}
         </div>
       )}

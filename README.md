@@ -42,6 +42,7 @@ src/
 │   │   ├── store.ts           #   markCompleted / unmarkCompleted / toggleCompleted / markUpTo / importBackup / applyRemote
 │   │   ├── backup.ts          #   백업 형식(v2 내보내기, v1·v2 가져오기), 검증, 불러오기 미리보기
 │   │   └── index.ts           #   공개 API (window.animan.progress 로도 노출)
+│   ├── board/                 # 보드 타일 목록(manifest v1)을 만드는 순수 함수 (tiles.ts) + 예시 상태(sampleState.ts)
 │   ├── catalog.ts             # 번들 JSON + 로컬 초안 병합, TimelineData 변환
 │   ├── seriesBuilder.ts       # Admin 입력 ↔ 시리즈 레코드 (ID 유지)
 │   ├── storage.ts             # 안전한 localStorage 래퍼
@@ -174,7 +175,7 @@ importProgress({ [seriesId]: ['<id>'] }, 'merge');    // 'merge'(항목별 마�
 
 Claude에게 "주술회전 2기 5화까지 봤어", "최애의 아이 만화 7권까지 읽었어"처럼 말하면 Claude가 [Life Hub](https://github.com/KINGJNU-sakayume/life-hub)에 **진행 제안**(`media_progress`)을 남기고, AniMan이 받아 온다.
 
-- 헤더 톱니(**설정**) › **Life Hub** 섹션에서 한 번 연결한다(배포 주소에서만). 연결·해제·「지금 동기화」 버튼은 이 섹션에만 있다. OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox animan:sync`를 요청한다. 동기화 권한을 실제로 주는지는 동의 화면의 「기기끼리 동기화도 허용」 체크가 정한다(체크하지 않아도 제안 가져오기는 그대로 된다). Life Hub는 `public/lifehub/`로 돌아온다.
+- 헤더 톱니(**설정**) › **Life Hub** 섹션에서 한 번 연결한다(배포 주소에서만). 연결·해제·「지금 동기화」 버튼은 이 섹션에만 있다. OAuth 공개 클라이언트(`public/lifehub-client.json`, PKCE), `animan:inbox animan:sync animan:board`를 요청한다. 동기화 권한을 실제로 주는지는 동의 화면의 「기기끼리 동기화도 허용」 체크가 정한다(체크하지 않아도 제안 가져오기는 그대로 된다). Life Hub는 `public/lifehub/`로 돌아온다.
 - 제안이 1건 이상일 때만 첫 화면에 **Life Hub** 버튼(숫자 배지)이 나타나고, 누르면 제안 목록이 열린다. 0건이면 버튼이 없다. 작품 제목(또는 괄호 안 원제)이 하나로 맞을 때만 자동 선택, 애매하면 고른다. 카탈로그에 없는 작품은 추가한 뒤 다시 확인.
 - "N화/권까지"는 타임라인 순서로 그 앞까지 모두, 번호 목록은 그것만. "2기 5화"는 시즌의 챕터 범위로 바꿔 계산한다(`src/lifehub/resolve.ts`). 기록 전에 새로 완료될 개수를 보여 준다.
 - 「기록」은 `markCompleted`(지우지 않음), 「거절」은 변경 없음. 승인(시리즈 ID)·거절 결과는 동기화 때 Life Hub로 보내고 응답이 올 때까지 다시 보낸다(localStorage `animan.lifehub.*`).
@@ -190,6 +191,44 @@ Life Hub의 `/animan/v1/sync`에 진행 기록 v2 문서를 한 개 보관해 �
 - **어떻게:** `GET /sync/meta` → 서버 version이 다르거나 올릴 변경이 있으면 `GET /sync` → 로컬 ∪ 서버로 병합 → 다르면 `PUT`(`If-Match: "<version>"`, 최초는 `If-None-Match: *`). `412`면 다시 읽고 병합해 최대 3번. 로컬에는 언제나 병합 결과만 쓰고, 실패해도 로컬 기록은 그대로다.
 - **멈춤:** `413`(너무 큼)·`400/415/428`(오류)는 자동 동기화를 멈추고 알린다. 180일 넘게 동기화하지 않은 기기는 자동 병합하지 않고, 「서버 문서 검토」를 거쳐야만 풀린다: 다른 기기에서 이미 지워진 것으로 보이는 항목(마지막 동기화 시각 F 이하이고 서버에 없는 로컬 항목)을 목록으로 보여 주고, 현재 로컬 진행도 내려받기를 권한 뒤, 확인하면 그 항목을 묘비 없이 지우고 나머지를 병합해 동기화한다. 취소하면 아무것도 바뀌지 않는다.
 - **끄기·롤백:** 「연결 해제」를 하면 제안과 동기화가 모두 멈추고 이 기기는 Life Hub와 주고받지 않는다(이 기기의 기록은 지우지 않는다). `animan:progress:v1`은 남아 있고(옛 빌드로 되돌릴 수 있음), 수동 JSON 내보내기/가져오기는 그대로 쓸 수 있다.
+
+## 보드 타일
+
+[Life Board](https://github.com/KINGJNU-sakayume/board)에 **최근 흐름**(지금 보는 것, 최근에 끝낸 것, 다음 차례)을 타일로 보냅니다. "이번 주 몇 편" 같은 거시 통계는 보내지 않습니다. 보내는 것은 보드용 목록(manifest v1)뿐이고, 진행 기록 자체는 올리지 않습니다. 모양은 보드가 정하고 이 저장소는 데이터만 만듭니다(규격: board `docs/TILES.md`).
+
+| id | 타일 | 톤·형태 | 허용 크기 (처음) | 처음부터 보임 | 보여 주는 것 |
+|---|---|---|---|---|---|
+| `now` | AniMan · 정주행 중 | sleeve | 1x1 2x1 2x2 4x2 (2x2) | ✓ | 가장 최근에 체크한 작품의 포스터, 시즌·화·제목, 진행 막대(`완료 / 전체화`), `11/6 이어 봄` 날짜 배지. 뒷면 목록(4개)과 상세(최대 5개)는 같은 "최근 정주행" 데이터 |
+| `done` | AniMan · 최근 완주 | strip | 2x1 4x1 (4x1) | ✓ | 모든 화를 끝낸 작품 포스터, 최근 순 최대 8개 (없으면 타일을 보내지 않음) |
+| `next` | AniMan · 이어 볼 차례 | type·list | 2x1 2x2 (2x2) |  | 진행 중인 작품을 마지막 시청 순으로, 챕터 순서로 처음 안 본 화(`3화`) (없으면 타일을 보내지 않음) |
+
+`streak`(연속 시청)은 보내지 않습니다. 체크한 시각이 시청한 시각과 같다고 할 수 없고(몰아서 체크), 글자가 앱을 다시 열 때까지 보드에 남아 곧 낡기 때문입니다. `id`는 사용자 배치가 저장되는 키라서 바꾸지 않습니다.
+
+**데이터 출처.** 진행 기록 v2의 항목별 `at`(`getProgressV2()`)과 카탈로그(`getCatalog()`). 에피소드만 셉니다(권은 쓰지 않음). `done:false`(체크 해제 흔적)는 빼고, v1에서 변환돼 시각이 없는 기록(1970-01-01)은 진행률에는 세지만 날짜는 붙이지 않습니다. 에피소드가 없는 작품은 완주로 세지 않습니다. 포인트색은 작품의 `accent_color`를 `{h, s}`로 바꿔 그대로 보냅니다(새 색을 정하지 않음). 날짜는 `11/6`처럼 적고(해가 다르면 `2025/11/6`), "어제" 같은 말은 쓰지 않습니다. 글자는 보드 `schema.js`의 최대 길이로 자르고 빈 글자는 필드째 뺍니다.
+
+**표지: TMDB 포스터.** 작품 JSON에 `tmdb_id`, `tmdb_media_type`(`tv`/`movie`), `tmdb_poster_path`를 두고, 주소는 `https://image.tmdb.org/t/p/w780<경로>`(sleeve), `w342`(strip·행 썸네일)로 만듭니다. 포스터 경로가 없으면 sleeve는 제목 첫 글자 칸(`{mono}`), strip 항목·행 썸네일은 `cover`를 뺍니다. 경로는 `scripts/fill-tmdb.mjs`가 한 번 조회해 JSON에 저장합니다(앱에 키를 넣지 않음).
+
+```bash
+# 1) 조회만: 작품마다 찾은 TMDB 항목(후보, 포스터)을 표로 보여 줌. 동명 작품 오매칭이 없는지 확인
+TMDB_READ_TOKEN=... node scripts/fill-tmdb.mjs
+# 2) 맞으면 저장(다른 후보를 쓰려면 --pick <작품 id 앞 8자>=<tv|movie>:<tmdb id>, 한 작품만은 --only <앞 8자>)
+TMDB_READ_TOKEN=... node scripts/fill-tmdb.mjs --write --pick 7034cdbd=tv:12345
+```
+
+키(`TMDB_READ_TOKEN` 읽기 토큰 또는 `TMDB_API_KEY`)는 환경 변수로만 넣고 커밋하지 않습니다. 한국어 포스터가 있으면 그것을, 없으면 원어 포스터를 고릅니다. 설정 시트 맨 아래에 TMDB 출처 문구("This product uses the TMDB API but is not endorsed or certified by TMDB.")가 있고, 로고는 TMDB가 제공하는 공식 파일을 `public/tmdb-logo.svg`로 두면 함께 보입니다(없으면 로고만 숨김; 사용 조건은 TMDB 사이트에서 확인). 권 표지(알라딘)는 이번 범위가 아닙니다.
+
+**언제 올리나.** `PUT https://life-hub-api.213303.workers.dev/animan/v1/board`(스코프 `animan:board`, `src/lifehub/boardUpload.ts`).
+- 진행 기록이나 카탈로그가 바뀌면, 마지막 전송에서 10분이 지났으면 바로, 아니면 10분이 차는 때 한 번 보냅니다(**10분에 한 번 이하**). 마지막으로 성공한 본문의 sha256(`generated_at` 뺀 것)과 같으면 보내지 않습니다.
+- 앱을 열 때(탭이 다시 보일 때도) 마지막 성공이 하루가 넘었으면 내용이 같아도 한 번 보냅니다(보드의 '오래됨'은 Hub가 받은 시각 기준).
+- 보낼 것이 남은 채 앱이 닫혀도 '보낼 것 있음'과 마지막 성공 정보가 localStorage(`animan.lifehub.board.v1`)에 있어, 다음에 앱을 열 때(10분 제한 안에서) 보냅니다.
+- 응답 `200`은 모두 성공(`unchanged`, `ignored` 포함). `400`·`413`은 이 앱 쪽 문제라 개발자 콘솔에만 남기고 같은 내용은 다시 보내지 않습니다. 네트워크 오류·`5xx`는 10분 뒤 다시 시도합니다. 업로드 실패는 앱의 다른 기능을 막지 않습니다.
+- **올리지 않는 경우:** Life Hub에 연결돼 있지 않을 때, 이 앱의 완료 기록이 하나도 없을 때(새 기기가 빈 목록으로 덮지 않게), 기기 동기화가 아직 합치기 전일 때. 이 앱에는 예시·체험 모드가 없고, 연결은 배포 주소에서만 되므로 로컬 개발 화면은 올리지 않습니다.
+
+**어느 기기에서 올리나.** 기록이 있는 기기라면 어디서든 올립니다. Hub는 앱마다 최신 목록 하나만 보관하는데, 기기 동기화로 기록이 맞춰지므로 **동기화가 한 번 받아 합친 뒤의 상태**로 목록을 만들어 올립니다(받기 전의 옛 상태는 올리지 않음). 동기화 권한이 없는 연결(제안만 쓰는 기기)은 합칠 것이 없어서 이 기기의 상태를 올립니다.
+
+**다시 연결이 필요한 경우.** `animan:board` 권한이 생기기 전에 만든 연결은 첫 업로드가 `403` + `WWW-Authenticate: ... error="insufficient_scope"`로 옵니다. 그러면 **Life Hub 토큰을 지우지 않고**(제안·동기화는 그대로) 자동 업로드만 멈추고, 설정 › Life Hub에 "보드에 올리려면 Life Hub에 다시 연결해 주세요"와 「다시 연결」 버튼이 나옵니다. 다시 연결하면 새 권한으로 이어서 올립니다. 보드 업로드 요청 함수(`boardRequest`)는 기존 요청 함수와 분리돼 있어, 401이 토큰 갱신 뒤에도 계속되거나 `insufficient_scope`가 아닌 403일 때만 기존 규칙(연결 해제)을 따릅니다.
+
+**예시 출력과 검사.** `board/sample.json`은 지어낸 작품·기록(`src/lib/board/sampleState.ts`)으로 만든 예시입니다(실제 기록 아님). `npm test`가 이 파일이 함수의 출력과 같은지, board `js/schema.js`의 복사본(`src/test/boardSchema.js`)과 허용 출처 정책(`src/test/boardPolicy.ts`)으로 검사해 `errors`가 비어 있고 타일 수가 입력과 같은지 확인합니다. 보드 규격이 바뀌면 복사본을 다시 받고, 예시는 `UPDATE_BOARD_SAMPLE=1 npx vitest run src/lib/board`로 다시 만듭니다.
 
 ## 콘텐츠 추가 / 수정
 

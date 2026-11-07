@@ -5,6 +5,28 @@ import { X } from 'lucide-react';
 import { LifeHubSettings } from './LifeHubSettings';
 import { BackupSection } from './BackupMenu';
 
+/**
+ * TMDB 출처 표기(작품 포스터). 약관의 문구 그대로 두고, 로고는 TMDB 가 내려주는 공식 파일을 public/tmdb-logo.svg 로 둔다
+ * (없으면 로고 칸만 숨기고 문구와 링크는 남는다).
+ */
+function TmdbAttribution() {
+  return (
+    <div className="border-t border-zinc-800 pt-4 flex items-start gap-3 text-xs text-zinc-500" data-testid="tmdb-attribution">
+      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="shrink-0">
+        <img
+          src={`${import.meta.env.BASE_URL}tmdb-logo.svg`}
+          alt="TMDB"
+          className="h-3 w-auto mt-0.5"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      </a>
+      <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    </div>
+  );
+}
+
 const small = 'px-3 py-1.5 text-sm rounded-lg border transition-colors disabled:opacity-40';
 
 export function SettingsSheet({ onClose, onCatalog }: { onClose: () => void; onCatalog: () => void }) {
@@ -51,6 +73,8 @@ export function SettingsSheet({ onClose, onCatalog }: { onClose: () => void; onC
             카탈로그 관리
           </button>
         </div>
+
+        <TmdbAttribution />
       </div>
     </div>
   );

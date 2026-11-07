@@ -26,6 +26,8 @@ export interface BuildOptions {
   createdAt?: string;
   makeId?: () => string;
   now?: Date;
+  /** 편집 중인 기존 시리즈의 TMDB 항목(폼에 없는 값이라 그대로 이어 붙인다) */
+  tmdb?: Pick<SeriesRecord, 'tmdb_id' | 'tmdb_media_type' | 'tmdb_poster_path'>;
 }
 
 /** 폼 + JSON 입력으로 시리즈 레코드를 만든다. 항목 id가 있으면 그대로 유지한다. */
@@ -53,6 +55,9 @@ export const buildSeriesRecord = (
     accent_color: textOrNull(form.accentColor) ?? DEFAULT_ACCENT,
     youtube_bgm_id: textOrNull(form.youtubeBgmId),
     created_at: opts.createdAt ?? (opts.now ?? new Date()).toISOString(),
+    ...(opts.tmdb?.tmdb_id != null && opts.tmdb.tmdb_poster_path
+      ? { tmdb_id: opts.tmdb.tmdb_id, tmdb_media_type: opts.tmdb.tmdb_media_type ?? 'tv', tmdb_poster_path: opts.tmdb.tmdb_poster_path }
+      : {}),
     seasons: (json.seasons ?? []).map((s, i) => ({
       id: s.id ?? makeId(),
       name: String(s.name ?? '').trim() || `Season ${i + 1}`,

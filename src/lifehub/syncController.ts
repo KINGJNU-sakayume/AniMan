@@ -50,6 +50,7 @@ export interface ControllerOptions {
 
 export function createSyncController({ deps, host, onLocalChange, userAgent = '' }: ControllerOptions) {
   const listeners = new Set<() => void>();
+  const passListeners = new Set<(kind: SyncOutcome['kind']) => void>();
   let running = false;
   let again = false;
   let applying = false;
@@ -158,6 +159,7 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
     running = false;
     settle(outcome);
     notify();
+    passListeners.forEach((l) => l(outcome.kind));
     if (again) {
       again = false;
       if (outcome.kind === 'ok' && canRunAutomatically()) void run();
@@ -213,6 +215,11 @@ export function createSyncController({ deps, host, onLocalChange, userAgent = ''
       return () => void listeners.delete(listener);
     },
     request,
+    /** Called after every sync pass settles (its outcome kind). The board upload waits for the first merge with it. */
+    onPass(listener: (kind: SyncOutcome['kind']) => void): () => void {
+      passListeners.add(listener);
+      return () => void passListeners.delete(listener);
+    },
     /** Turns sync on or off for this device. On: start a pass now. */
     setEnabled(on: boolean) {
       updateState(deps.storage, { enabled: on, ...(on ? { halt: null } : {}) });
