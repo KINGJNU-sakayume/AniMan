@@ -1,8 +1,10 @@
 // src/lifehub/hub.ts
 // Life Hub 연결·제안 상태를 화면 밖에서 가진다. 앱 시작 시 자동 제안 가져오기와 기기 동기화는
 // 어떤 대화상자를 렌더하지 않아도 여기서 돈다(App 의 useLifeHubBoot). 화면은 구독만 한다.
-import { getCatalog } from '../lib/catalog';
+import { getCatalog, subscribeCatalog } from '../lib/catalog';
 import { markCompleted } from '../lib/progress';
+import { getProgressV2, subscribe as subscribeProgress } from '../lib/progress/store';
+import { createBoardUploader, createMergedGate, readBoardState, type BoardUploader } from './boardUpload';
 import { autoPlan } from './resolve';
 import { syncController } from './syncController';
 import {
@@ -20,6 +22,8 @@ export interface HubState {
   /** 마지막 처리 결과·오류 문구(기존 문구) */
   message: string | null;
   autoApply: boolean;
+  /** 이 연결에는 보드 업로드 권한(animan:board)이 없다: 다시 연결하면 된다(토큰은 그대로 둔다). */
+  boardNeedsReconnect: boolean;
 }
 
 const listeners = new Set<() => void>();
@@ -30,6 +34,7 @@ let state: HubState = {
   busy: false,
   message: null,
   autoApply: autoApplyEnabled(browserDeps()),
+  boardNeedsReconnect: readBoardState(browserDeps().storage).halt === 'no_scope',
 };
 
 const set = (patch: Partial<HubState>) => {
@@ -97,6 +102,8 @@ export function connect(): void {
 /** 제안과 동기화를 모두 멈춘다. 이 기기의 기록은 지우지 않는다. */
 export function disconnectHub(): void {
   disconnect(browserDeps());
+  mergedGate.reset();
+  boardUploader().dispose();
   set({ connected: false, lost: false, proposals: [], message: 'Life Hub 연결을 해제했어요.' });
   syncController().refresh();
 }
@@ -117,6 +124,33 @@ export function proposalHandled(key: string, message: string): void {
 let callbackOnce: Promise<boolean> | null = null;
 const finishCallback = () => (callbackOnce ??= completeStoredCallback(browserDeps()));
 
+/* ---------- board tiles upload (boardUpload.ts) ---------- */
+
+/** 기기 동기화가 합친 뒤에만 올린다(받기 전의 옛 상태를 올리지 않게). */
+const mergedGate = createMergedGate({
+  phase: () => syncController().getSnapshot().phase,
+  onPass: (l) => syncController().onPass(l),
+});
+
+let uploader: BoardUploader | null = null;
+export const boardUploader = (): BoardUploader =>
+  (uploader ??= createBoardUploader({
+    deps: browserDeps(),
+    getProgress: getProgressV2,
+    getCatalog,
+    ready: mergedGate.ready,
+    onState: (s) => set({ boardNeedsReconnect: s.needsReconnect }),
+    onNotConnected: markLost,
+  }));
+
+let dailyPending = true;
+/** 앱을 열 때·탭이 다시 보일 때·동기화가 끝났을 때: 보낼 것이 있으면 보낸다. 하루 지난 것은 앱을 연 뒤 첫 시도에서 보낸다. */
+const tryBoard = (daily = dailyPending) => {
+  void boardUploader().attempt(daily).then((r) => {
+    if (r !== 'skipped') dailyPending = false;
+  });
+};
+
 let booted: Promise<boolean> | null = null;
 /**
  * 앱 시작 시 한 번: 연결 콜백을 마무리하고(끝나면 true), 제안을 가져온다. 동기화가 Life Hub 연결이 사라졌다고
@@ -125,6 +159,12 @@ let booted: Promise<boolean> | null = null;
 export function bootHub(): Promise<boolean> {
   if (booted) return booted;
   const controller = syncController();
+  controller.onPass(() => tryBoard());
+  subscribeProgress(() => boardUploader().notifyChange());
+  subscribeCatalog(() => boardUploader().notifyChange());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') tryBoard(true); // 탭을 며칠 열어 둔 경우에도 하루가 지나면 보낸다
+  });
   controller.subscribe(() => {
     if (state.connected && controller.getSnapshot().phase === 'not_connected' && !isConnected(browserDeps())) markLost();
   });
@@ -133,7 +173,9 @@ export function bootHub(): Promise<boolean> {
       if (done) {
         set({ connected: true, lost: false, message: 'Life Hub에 연결했어요.' });
         controller.notifyConnected();
+        boardUploader().notifyConnected();
       }
+      tryBoard();
       void runInboxSync();
       return done;
     })

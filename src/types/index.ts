@@ -180,6 +180,10 @@ export interface SeriesRecord {
   accent_color: string;
   youtube_bgm_id: string | null;
   created_at: string;
+  /** TMDB 항목(scripts/fill-tmdb.mjs 가 채운다). 보드 타일의 표지 주소를 만드는 데만 쓴다. */
+  tmdb_id?: number | null;
+  tmdb_media_type?: 'tv' | 'movie' | null;
+  tmdb_poster_path?: string | null;
   seasons: SeasonRecord[];
   episodes: EpisodeRecord[];
   volumes: VolumeRecord[];

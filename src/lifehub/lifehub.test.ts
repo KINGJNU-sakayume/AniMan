@@ -91,7 +91,7 @@ describe('connection and sync', () => {
       : json({ ok: true })));
     const url = new URL(await beginConnect(deps));
     expect([url.searchParams.get('client_id'), url.searchParams.get('redirect_uri'), url.searchParams.get('scope'), url.searchParams.get('resource')])
-      .toEqual([CLIENT_ID, CALLBACK_URL, 'animan:inbox animan:sync', RESOURCE]);
+      .toEqual([CLIENT_ID, CALLBACK_URL, 'animan:inbox animan:sync animan:board', RESOURCE]);
     deps.session.setItem(CALLBACK_KEY, `?code=c&state=${url.searchParams.get('state')}&iss=${encodeURIComponent(LIFEHUB_ORIGIN)}`);
     expect(await completeStoredCallback(deps)).toBe(true);
     expect(isConnected(deps)).toBe(true);

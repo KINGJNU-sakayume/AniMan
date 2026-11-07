@@ -23,6 +23,14 @@ describe('seriesBuilder', () => {
     });
   });
 
+  it('keeps the TMDB entry of the series being edited (the form has no such fields)', () => {
+    const original = syntheticSeries({ tmdb_id: 7, tmdb_media_type: 'tv', tmdb_poster_path: '/abc_DEF-1.jpg' });
+    const { form: f, json } = recordToAdminInput(original);
+    const rebuilt = buildSeriesRecord(f, json, { id: original.id, createdAt: original.created_at, tmdb: original });
+    expect(rebuilt).toMatchObject({ tmdb_id: 7, tmdb_media_type: 'tv', tmdb_poster_path: '/abc_DEF-1.jpg' });
+    expect(buildSeriesRecord(f, json, { id: original.id })).not.toHaveProperty('tmdb_id');
+  });
+
   it('round-trips an existing record keeping every id', () => {
     const original = syntheticSeries();
     const { form: f, json } = recordToAdminInput(original);

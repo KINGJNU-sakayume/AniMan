@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "app": "animan",
+  "generated_at": "2026-11-07T03:00:00.000Z",
+  "tiles": [
+    {
+      "id": "now",
+      "name": "AniMan · 정주행 중",
+      "tone": "sleeve",
+      "sizes": [
+        "1x1",
+        "2x1",
+        "2x2",
+        "4x2"
+      ],
+      "size": "2x2",
+      "default": true,
+      "href": "https://kingjnu-sakayume.github.io/animan/",
+      "accent": {
+        "h": 208,
+        "s": 0.79
+      },
+      "detail": {
+        "title": "AniMan · 최근 정주행 4개",
+        "rows": [
+          {
+            "title": "가상 모험담",
+            "value": "8/12화",
+            "sub": "11/6 이어 봄",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-a.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 8,
+              "max": 12,
+              "text": "8 / 12화"
+            },
+            "now": true
+          },
+          {
+            "title": "가상 우주 여행",
+            "value": "4/24화",
+            "sub": "11/5 이어 봄",
+            "progress": {
+              "value": 4,
+              "max": 24,
+              "text": "4 / 24화"
+            }
+          },
+          {
+            "title": "가상 학원 코미디",
+            "value": "12/12화",
+            "sub": "11/4 완주",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-b.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 12,
+              "max": 12,
+              "text": "12 / 12화"
+            },
+            "muted": true
+          },
+          {
+            "title": "가상 요리 일지",
+            "value": "10/10화",
+            "sub": "11/2 완주",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-d.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 10,
+              "max": 10,
+              "text": "10 / 10화"
+            },
+            "muted": true
+          }
+        ]
+      },
+      "data": {
+        "label": "AniMan",
+        "title": "가상 모험담",
+        "cover": {
+          "src": "https://image.tmdb.org/t/p/w780/sample-poster-a.jpg",
+          "alt": ""
+        },
+        "sub": "시즌 2 · 8화 · 가상 에피소드 8",
+        "pill": "11/6 이어 봄",
+        "progress": {
+          "value": 8,
+          "max": 12,
+          "text": "8 / 12화"
+        },
+        "list": [
+          {
+            "title": "가상 모험담",
+            "value": "8/12화",
+            "sub": "11/6 이어 봄",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-a.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 8,
+              "max": 12,
+              "text": "8 / 12화"
+            },
+            "now": true
+          },
+          {
+            "title": "가상 우주 여행",
+            "value": "4/24화",
+            "sub": "11/5 이어 봄",
+            "progress": {
+              "value": 4,
+              "max": 24,
+              "text": "4 / 24화"
+            }
+          },
+          {
+            "title": "가상 학원 코미디",
+            "value": "12/12화",
+            "sub": "11/4 완주",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-b.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 12,
+              "max": 12,
+              "text": "12 / 12화"
+            },
+            "muted": true
+          },
+          {
+            "title": "가상 요리 일지",
+            "value": "10/10화",
+            "sub": "11/2 완주",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-d.jpg",
+              "alt": ""
+            },
+            "progress": {
+              "value": 10,
+              "max": 10,
+              "text": "10 / 10화"
+            },
+            "muted": true
+          }
+        ],
+        "listLabel": "최근 정주행"
+      }
+    },
+    {
+      "id": "done",
+      "name": "AniMan · 최근 완주",
+      "tone": "strip",
+      "sizes": [
+        "2x1",
+        "4x1"
+      ],
+      "size": "4x1",
+      "default": true,
+      "href": "https://kingjnu-sakayume.github.io/animan/",
+      "accent": {
+        "h": 330,
+        "s": 1
+      },
+      "data": {
+        "label": "최근 완주",
+        "items": [
+          {
+            "title": "가상 학원 코미디",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-b.jpg",
+              "alt": ""
+            }
+          },
+          {
+            "title": "가상 요리 일지",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-d.jpg",
+              "alt": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "next",
+      "name": "AniMan · 이어 볼 차례",
+      "tone": "type",
+      "form": "list",
+      "sizes": [
+        "2x1",
+        "2x2"
+      ],
+      "size": "2x2",
+      "default": false,
+      "href": "https://kingjnu-sakayume.github.io/animan/",
+      "accent": {
+        "h": 208,
+        "s": 0.79
+      },
+      "data": {
+        "label": "이어 볼 차례",
+        "rows": [
+          {
+            "title": "가상 모험담",
+            "value": "9화",
+            "sub": "11/6 이어 봄",
+            "cover": {
+              "src": "https://image.tmdb.org/t/p/w342/sample-poster-a.jpg",
+              "alt": ""
+            }
+          },
+          {
+            "title": "가상 우주 여행",
+            "value": "4화",
+            "sub": "11/5 이어 봄"
+          }
+        ],
+        "foot": "마지막 시청 11/6"
+      }
+    }
+  ]
+}

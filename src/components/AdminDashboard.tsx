@@ -70,6 +70,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       const record = buildSeriesRecord(formData, parsed, {
         id: editing?.id,
         createdAt: editing?.createdAt,
+        tmdb: editing ? getSeries(editing.id) : undefined,
       });
       // 같은 작업 중 다시 저장해도 같은 ID가 유지되도록 고정
       setEditing({ id: record.id, createdAt: record.created_at });
